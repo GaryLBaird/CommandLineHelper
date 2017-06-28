@@ -52,8 +52,8 @@ GOTO:eof
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 12,12,"Please pick a directory for your alias file.",""
 CALL:FORMATOUT 12,12,"We recommend something simple with no spaces.","Like: c:\dev\scripts"
-SET /P _AliasFile_=[c:\dev\scripts]
-IF NOT DEFINED _AliasFile_ SET _AliasFile_=C:\dev\scripts\
+SET /P _AliasFile_=[c:\development\scripts]
+IF NOT DEFINED _AliasFile_ SET _AliasFile_=C:\development\scripts
 IF NOT EXIST "!_AliasFile_!" MKDIR !_AliasFile_!
 :: Disabled command for testing. REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
 IF NOT EXIST "!_AliasFile_!\alias.cmd" ECHO.>!_AliasFile_!\alias.cmd
@@ -63,11 +63,18 @@ GOTO:EOF
 
 :--Help
 CALL:FORMATOUT 12,12,"---------------------------","---------------------------"
-CALL:FORMATOUT 12,12,"Options:","Description:"
+CALL:FORMATOUT 12,12,"Options:","Description:%0"
+CALL:FORMATOUT 12,12,"--CreateAliasFile","Creates the alias file."
+CALL:FORMATOUT 12,12," ..","Every time a command windows loads this alias.cmd file"
+CALL:FORMATOUT 12,12," .."," will setup and configure the working environment."
+CALL:FORMATOUT 12,12," .."," This is done through a registry key which will be"
+CALL:FORMATOUT 12,12," .."," created or modified."
+CALL:FORMATOUT 12,12,"--Help","Displays this help menu."
 CALL:FORMATOUT 12,12,"---------------------------","---------------------------"
 GOTO:EOF
 
 :DONE
+::Clear unnecessary vars.
 SET _DEBUG_=
 SET _PASSWORD_=
 SET __CLEAN__=
