@@ -65,14 +65,24 @@ GOTO:EOF
 
 :--Help
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage"
+CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Options:","Description%~0"
+CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
 CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
 CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
 CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
 CALL:FORMATOUT 20,20," .."," created or modified."
 CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+GOTO:EOF
+
+:--About
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
+CALL:FORMATOUT 20,20,"Filename:------------------",%SELF_0%"
+CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command more friendly."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 
