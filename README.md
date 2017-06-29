@@ -12,3 +12,6 @@ DOSKEY dev=CD /D c:\dev
 Now every time you type dev in the command window the cd /d c:\dev will run. having them in the alias.cmd will make sure that all your favorite shortcuts are available every time you open a command window.
   
 The start.bat file will be used to further install any other future utilities, software and features. 
+
+Functions:
+READWRITEINI   Will read and write to ini files within batches for configuration purposes.
