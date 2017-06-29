@@ -92,10 +92,13 @@ GOTO:EOF
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
 CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
-CALL:FORMATOUT 20,20,"Phone:---------------------",""
-CALL:FORMATOUT 20,20,"Email:---------------------",""
+CALL:FORMATOUT 20,20,"Phone:---------------------","TBA"
+CALL:FORMATOUT 20,20,"Email:---------------------","TBA"
 CALL:FORMATOUT 20,20,"Filename:------------------",""%SELF_0%""
-CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command more friendly."
+CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command Line more friendly."
+CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
+CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommaneLineHelper"
+CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 
