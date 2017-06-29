@@ -22,11 +22,17 @@ IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 for /f "delims=- tokens=1,2,3*" %%a in ("%ARG_1%") do SET ARG_1=%%a 
 
+:: This is where the functions are called, but only if an argument has been passed.
 IF DEFINED ARGS CALL:%ARGS%
+::  If no arguments were passed it will automatically show the help screen.
 IF NOT DEFINED ARGS CALL:--Help
+:: All Done time to clean up any variables and finish.
 GOTO :DONE
 
+:: Everything below this line will only be called if a function above has been passed on the command line.
+
 ::Formatout is an internal utility to format text.
+:: Small Text Formatter Code Begin
 :FORMATOUT
 SET __Left__=%~1
 SET __RIGHT__=%~2
@@ -49,7 +55,9 @@ GOTO:eof
 CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
 GOTO:eof
+:: Small Text Formatter Code End
 
+:: Creates the alias file used when ever a command prompt window loads.
 :--CreateAliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 12,12,"Please pick a directory for your alias file.",""
@@ -63,6 +71,7 @@ ENDLOCAL && SET AliasFile=%_AliasFile_%\alias.cmd
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
 GOTO:EOF
 
+:: Help Content Below
 :--Help
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
@@ -78,10 +87,13 @@ CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 
+:: Author Information Below
 :--About
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
 CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
+CALL:FORMATOUT 20,20,"Phone:---------------------",""
+CALL:FORMATOUT 20,20,"Email:---------------------",""
 CALL:FORMATOUT 20,20,"Filename:------------------",""%SELF_0%""
 CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command more friendly."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
