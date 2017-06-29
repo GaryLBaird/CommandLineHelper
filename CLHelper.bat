@@ -54,6 +54,7 @@ GOTO :DONE
 
 ::Formatout is an internal utility to format text.
 :: Small Text Formatter Code Begin
+
 :FORMATOUT
 SET __Left__=%~1
 SET __RIGHT__=%~2
@@ -70,15 +71,16 @@ GOTO:eof
 :padright
 CALL SET padded=%%%1%%%spaces%
 CALL SET %1=%%padded:~0,%2%%
-GOTO:eof
+GOTO:EOF
 
 :padleft
 CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
-GOTO:eof
-:: Small Text Formatter Code End
+GOTO:EOF
 
+:: Small Text Formatter Code End
 :: Creates the alias file used when ever a command prompt window loads.
+
 :--CreateAliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 12,12,"Please pick a directory for your alias file.",""
@@ -186,7 +188,9 @@ IF DEFINED RETURN COLOR %NUMBER%%RETURN%
 GOTO:EOF
 
 :: Help Content Below
+
 :--Help
+
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -206,7 +210,9 @@ CALL:FORMATOUT 20,20,"---------------------------","----------------------------
 GOTO:EOF
 
 :: Author Information Below
+
 :--About
+
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
 CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
@@ -226,5 +232,6 @@ SET _DEBUG_=
 SET _PASSWORD_=
 SET _CLEAN_=
 SET ARGS=
+SET __RUNONCEONLY__=
 goto :Finished
 :Finished
