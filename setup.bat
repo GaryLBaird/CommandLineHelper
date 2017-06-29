@@ -100,10 +100,10 @@ CALL:FORMATOUT 20,20,"---------------------------","----------------------------
 GOTO:EOF
 
 :DONE
-::Clear unnecessary vars.
+::Clears Any Default Variables that might have been set while running this batch file.
 SET _DEBUG_=
 SET _PASSWORD_=
-SET __CLEAN__=
+SET _CLEAN_=
 SET ARGS=
 goto :Finished
 :Finished
