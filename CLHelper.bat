@@ -24,7 +24,7 @@ for /f "delims=- tokens=1,2,3*" %%a in ("%ARG_1%") do SET ARG_1=%%a
 
 :: Command Line Helper needs to know a few things.
 :: The MySettingsINI path is used to hold specific variables you use in your environment.
-IF NOT DEFINED MySettingsINI SET /P MySettingsINI=Please provide the path to your settings ini file.
+IF NOT DEFINED _MySettings_ SET /P _MySettings_=Please provide the path to your settings ini file.
 :: The Command Line Helper needs to know where it's installed and where the VB scripts are.
 IF NOT EXIST "C:\Windows\System32\cscript.exe" (
   IF NOT DEFINED _CSCRIPT_PATH_ SET /P _CSCRIPT_PATH_=Please provide the path to cscript.
