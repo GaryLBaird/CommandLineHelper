@@ -94,6 +94,23 @@ ENDLOCAL && SET AliasFile=%_AliasFile_%\alias.cmd
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
 GOTO:EOF
 
+:: GitForce forces a removes all local changes and then pulls in new clean repo.
+
+:--GitForce
+git reset HEAD --hard
+git clean -f
+git pull origin master
+GOTO:EOF
+
+:: GitCommit pulls down latest and then commits your changes.
+
+:--GitCommit
+git pull
+SET /P __MESSAGE__=Enter a message here.
+git commit -am "%__MESSAGE__%"
+git push
+GOTO:EOF
+
 :--BestColor
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET "BackBroundColor=%~1"
