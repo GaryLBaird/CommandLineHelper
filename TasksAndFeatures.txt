@@ -1,0 +1,9 @@
+To Do List:
+Need to add a way to setup and configure the configration ini file.
+
+Need to add a way to add doskey commands.
+Need to add a way to remove doskey commands.
+Need to add a way to display current commands.
+Need to add a way to configure the command window.
+
+Need to add various typical usage to the bat file, like checkout and commit changes to git, mecurial etc.
