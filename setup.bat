@@ -1,5 +1,7 @@
 @ECHO OFF
 ::Capture Args to be used by functions below.
+SET SELF_0=%0
+SET SELF_1=%~dp0
 SET ARG_1=%1
 SET ARG_2=%2
 SET ARG_3=%3
@@ -63,7 +65,8 @@ GOTO:EOF
 
 :--Help
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-CALL:FORMATOUT 20,20,"Options:","Description:%0"
+CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage"
+CALL:FORMATOUT 20,20,"Options:","Description%~0"
 CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
 CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
