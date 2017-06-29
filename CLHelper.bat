@@ -205,6 +205,21 @@ ENDLOCAL && set RETURN=%return% && SET NUMBER=%NUMBER%
 IF DEFINED RETURN COLOR %NUMBER%%RETURN%
 GOTO:EOF
 
+:: --WindowsExplorer opens an instance of file system explorer.
+::   Supports 1 directory argument. If no arguments passed the directory
+::   where the command was run will be used.
+
+:--WindowsExplorer
+SETLOCAL ENABLEDELAYEDEXPANSION
+IF "%~1"=="" (
+  SET _DIR_=%CD%
+) ELSE (
+  SET _DIR_=%~1
+)
+"C:\Windows\explorer.exe" "!_DIR_!"
+ENDLOCAL
+GOTO:EOF
+
 :: Help Content Below
 
 :--Help
@@ -224,6 +239,9 @@ CALL:FORMATOUT 20,20," .."," created or modified."
 CALL:FORMATOUT 20,20,"--RandomColor","Randomly picks and sets the color of the command window."
 CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RandomColor Background_Color Text_Color"
 CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
+CALL:FORMATOUT 20,20,"--WindowsExplorer","Opens the Windows Explorer."
+CALL:FORMATOUT 20,20," ..  Usage:","It will open to the directory passed on the command line."
+CALL:FORMATOUT 20,20," ..  "," If no command was passed the current working directory is used."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 

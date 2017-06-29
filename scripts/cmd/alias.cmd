@@ -8,8 +8,9 @@
 
 ::::  SETTINGS BEGIN ::::
 :: Set Default Variables Begin ::
-SET _CLHScripts_=c:\Dev\Scripts
+SET _CLHScripts_=c:\CommaneLineHelper\Scripts
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
+SET CLHelper=%_CLHScripts_%\CLHelper.bat
 :: Set Default Variables End ::
 
 :: Create Default Directories Begin ::
@@ -49,12 +50,19 @@ DOSKEY word="c:\Program Files\Microsoft Office\Office15\winword.exe" $*
 DOSKEY mspub="c:\Program Files\Microsoft Office\Office15\mspub.exe" $*
 DOSKEY outlook="c:\Program Files\Microsoft Office\Office15\outlook.exe" $*
 DOSKEY ppt="c:\Program Files\Microsoft Office\Office15\powerpnt.exe" $*
-DOSKEY explorer=%subroutines% --WindowsExplorer "$*"
 DOSKEY excel="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY excell="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY xls="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY xlsx="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 :: Aliases for Microsoft Office Products End ::
+
+:: Custom Alias Keys Begin ::
+DOSKEY np="C:\Program Files (x86)\Notepad++\notepad++.exe" $*
+DOSKEY CLHelper=%CLHelper% $*
+DOSKEY GitForce=%CLHelper% --GitForce $*
+DOSKEY GitCommit=%CLHelper% --GitCommit $*
+DOSKEY explorer=%CLHelper% --WindowsExplorer $*
+:: Custom Alias Keys Begin ::
 
 :: Doskey Commands End ::
 

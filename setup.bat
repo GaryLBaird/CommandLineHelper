@@ -58,17 +58,42 @@ GOTO:eof
 :: Small Text Formatter Code End
 
 :: Creates the alias file used when ever a command prompt window loads.
-:--CreateAliasFile
+
+:--AliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
-CALL:FORMATOUT 12,12,"Please pick a directory for your alias file.",""
-CALL:FORMATOUT 12,12,"We recommend something simple with no spaces.","Like: c:\dev\scripts"
-SET /P _AliasFile_=[c:\development\scripts]
-IF NOT DEFINED _AliasFile_ SET _AliasFile_=C:\development\scripts
+CALL:FORMATOUT 12,12,"","Please pick a directory for your alias file."
+CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommaneLineHelper\Scripts"
+SET /P _AliasFile_=[c:\CommaneLineHelper\Scripts]
+IF NOT DEFINED _AliasFile_ SET _AliasFile_=c:\CommaneLineHelper\Scripts
 IF NOT EXIST "!_AliasFile_!" MKDIR !_AliasFile_!
-:: Disabled command for testing. REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
+:: Disabled command for testing.
+:: REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
 IF NOT EXIST "!_AliasFile_!\alias.cmd" ECHO.>!_AliasFile_!\alias.cmd
-ENDLOCAL && SET AliasFile=%_AliasFile_%\alias.cmd
-CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
+ENDLOCAL && SET AliasFile=%_AliasFile_%
+CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%\alias.cmd"
+GOTO:EOF
+
+:--Install
+IF NOT DEFINED AliasFile CALL:--AliasFile
+SET _CLHScripts_=c:\CommaneLineHelper\Scripts
+IF NOT EXIST "%_CLHScripts_%\vbs\" (
+  MKDIR %_CLHScripts_%\vbs\
+)
+IF NOT EXIST "%_CLHScripts_%\logs\" (
+  MKDIR %_CLHScripts_%\logs\
+)
+IF NOT EXIST "%_CLHScripts_%\cmd\" (
+  MKDIR %_CLHScripts_%\cmd\
+)
+IF EXIST "%_CLHScripts_%\CLHelper.bat" ECHO Overwriting %_CLHScripts_%\CLHelper.bat
+COPY /Y %SELF_1%CLHelper.bat %_CLHScripts_%
+IF EXIST "%AliasFile%" ECHO Overwriting %AliasFile%
+COPY /Y %SELF_1%scripts\cmd\alias.cmd %AliasFile%
+IF EXIST "%_CLHScripts_%scripts\vbs\readwriteini.vbs" ECHO Overwriting %_CLHScripts_%\vbs\readwriteini.vbs
+COPY /Y %SELF_1%scripts\vbs\readwriteini.vbs %_CLHScripts_%\vbs\
+IF EXIST "%_CLHScripts_%\scripts\vbs\txtComp.vbs" ECHO Overwriting %_CLHScripts_%\vbs\txtComp.vbs
+COPY /Y %SELF_1%scripts\vbs\txtComp.vbs %_CLHScripts_%\vbs\
+CALL %AliasFile%\alias.cmd
 GOTO:EOF
 
 :: Help Content Below
@@ -78,12 +103,13 @@ CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Options:","Description%~0"
 CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
-CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
+CALL:FORMATOUT 20,20,"--AliasFile","Adds the alias file to the registry."
 CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
 CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
 CALL:FORMATOUT 20,20," .."," created or modified."
 CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
+CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 
