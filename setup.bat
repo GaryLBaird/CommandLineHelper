@@ -81,7 +81,8 @@ GOTO:EOF
 :--About
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
-CALL:FORMATOUT 20,20,"Filename:------------------",%SELF_0%"
+CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
+CALL:FORMATOUT 20,20,"Filename:------------------",""%SELF_0%""
 CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command more friendly."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
