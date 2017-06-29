@@ -106,6 +106,7 @@ GOTO:EOF
 
 :--GitCommit
 git pull
+git add *
 SET /P __MESSAGE__=Enter a message here.
 git commit -am "%__MESSAGE__%"
 git push
