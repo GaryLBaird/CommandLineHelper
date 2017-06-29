@@ -15,3 +15,11 @@ The start.bat file will be used to further install any other future utilities, s
 
 Functions:
 READWRITEINI   Will read and write to ini files within batches for configuration purposes.
+
+To install:
+1. Download the CommandLineHelper
+2. In a command window go to the CommandLineHelper directory.
+3. Run setup.bat --install
+
+For Setup Help: run setup.bat --help
+
