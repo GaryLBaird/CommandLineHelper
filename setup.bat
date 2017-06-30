@@ -126,8 +126,8 @@ CALL:Copy "%SELF_1%CLHelper.bat","%_CLHScripts_%"
 CALL:Copy "%SELF_1%scripts\cmd\alias.cmd","%AliasFile%"
 CALL:Copy "%SELF_1%scripts\vbs\readwriteini.vbs","%_CLHScripts_%\vbs"
 CALL:Copy "%SELF_1%scripts\vbs\txtComp.vbs","%_CLHScripts_%\vbs"
-CALL:Copy "%SELF_1%scripts\bin\wget.1.txt","%_CLHScripts_%\bin"
-CALL:Copy "%SELF_1%scripts\bin\wget.exe","%_CLHScripts_%\bin"
+CALL:Copy "%SELF_1%bin\wget.1.txt","%_CLHScripts_%\bin"
+CALL:Copy "%SELF_1%bin\wget.exe","%_CLHScripts_%\bin"
 CALL %AliasFile%\alias.cmd
 GOTO:EOF
 
