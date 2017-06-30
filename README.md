@@ -22,8 +22,10 @@ The READWRITEINI function will read and write to ini files within batches for co
 
 *Example:*
 INIFile Structure:
+```
 [section]
 key=value
+```
 
 READWRITEINI "Section" "key" "variable"
 ECHO %variable%
