@@ -16,10 +16,32 @@ The start.bat file will be used to further install any other future utilities, s
 Functions:
 READWRITEINI   Will read and write to ini files within batches for configuration purposes.
 
-To install:
-1. Download the CommandLineHelper
-2. In a command window go to the CommandLineHelper directory.
-3. Run setup.bat --install
+# Installation
 
-For Setup Help: run setup.bat --help
+setup.bat --install
 
+# UnInstall
+
+setup.bat --Alias-Remove
+
+*NOTE*: This essentially only removes the registry key. All files will remain untouched. You can run --install to re-install the registry key. 
+
+# Dependencies
+
+The first thing you need to do is install. 
+
+# Using username and password
+
+Username and password can be stored and retrieved from an ini file and accessed via the command line. 
+
+*NOTE*: This stores a clear text password in a local ini file. 
+
+# Helpful Typical Functions (TBD)
+
+# TodoItems TBD
+
+# Project Parents and Resource Utilities TBD
+
+# Contributors
+
+GaryLBaird
