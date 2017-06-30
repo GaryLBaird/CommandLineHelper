@@ -7,15 +7,29 @@ Start by downloading the repo. Run the Start.bat to begin.
 Start.bat --help will display the command line options. 
   i.e. start.bat --Install
   Result: Will prompt the user for information needed before creating an alias.cmd. If the directories are missing they will be automatically generated. An alias.cmd link location will be associated with the HKCU\Software\Microsoft\Command Processor AutoRun REG_SZ key. This will cause the alias.cmd to be loaded every time a new command window is crated. You can manually edit the alias.cmd file anytime.
-  If you like what you see you can make it perminent by first setting the variable ADD_REG to true from the command line. i.e. "SET ADD_REG=True"
-  The power of having an alias.cmd is that you can specify aliases. Lets say you hate to type cd c:\dev\. Using a doskey command like: 
-DOSKEY dev=CD /D c:\dev
-Now every time you type dev in the command window the cd /d c:\dev will run. having them in the alias.cmd will make sure that all your favorite shortcuts are available every time you open a command window.
-  
-The start.bat file will be used to further install any other future utilities, software and features. 
+  If you like what you see you can make it perminent by first setting the variable ADD_REG to true from the command line. 
+    i.e. *"SET ADD_REG=True"*
 
-Functions:
-READWRITEINI   Will read and write to ini files within batches for configuration purposes.
+The power of having an alias.cmd is that you can specify aliases that apply to future command window sessions rather than having to reset variables all the time. Lets say you hate to type cd c:\dev\. 
+Using a doskey command like the one below will make it so every time you type "dev" the CD /D C:\Dev command will run. 
+  i.e. *DOSKEY dev=CD /D c:\dev*
+It's very powerfull to use aliases in your command window and having them in the alias.cmd will make sure that all your favorite shortcuts are available every time you open a command window.
+
+The start.bat file will be used to install any the clhelper command further enhances your automated command structure without the need to install anything. It's the basis of any good relationship with windows.
+
+# Things You Can Do with CommandLineHelper you can't do without:
+The READWRITEINI function will read and write to ini files within batches for configuration purposes. When reading something from an INI  file specify the key and a temporary environment variable name you would like to set as the output. If you were to type: ECHO %variable% your command window will display the value of the key you specified.
+
+*Example:*
+INIFile Structure:
+[section]
+key=value
+
+READWRITEINI "Section" "key" "variable"
+ECHO %variable%
+
+*results in*
+value
 
 # Installation
 
