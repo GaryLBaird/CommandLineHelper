@@ -67,9 +67,10 @@ SET /P _AliasFile_=[c:\CommaneLineHelper\Scripts]
 IF NOT DEFINED _AliasFile_ SET _AliasFile_=c:\CommaneLineHelper\Scripts
 IF NOT EXIST "!_AliasFile_!" MKDIR !_AliasFile_!
 :: Disabled command for testing.
-:: REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
+IF DEFINED ADD_REG REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
 IF NOT EXIST "!_AliasFile_!\alias.cmd" ECHO.>!_AliasFile_!\alias.cmd
 ENDLOCAL && SET AliasFile=%_AliasFile_%
+IF DEFINED ADD_REG SET ADD_REG=
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%\alias.cmd"
 GOTO:EOF
 
@@ -96,6 +97,15 @@ COPY /Y %SELF_1%scripts\vbs\txtComp.vbs %_CLHScripts_%\vbs\
 CALL %AliasFile%\alias.cmd
 GOTO:EOF
 
+:--Alias-Remove
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+CALL:FORMATOUT 20,20,"File:%SELF_0% %~0","Attempting to remove registry key."
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+REG DELETE "HKCU\Software\Microsoft\Command Processor" /v AutoRun
+CALL:FORMATOUT 20,20,"Results:","%ERRORLEVEL%"
+CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+GOTO:EOF
+
 :: Help Content Below
 :--Help
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -103,6 +113,7 @@ CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Options:","Description%~0"
 CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
+CALL:FORMATOUT 20,20,"--Alias-Remove","Removes the alias key to the registry."
 CALL:FORMATOUT 20,20,"--AliasFile","Adds the alias file to the registry."
 CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
@@ -110,6 +121,9 @@ CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
 CALL:FORMATOUT 20,20," .."," created or modified."
 CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
 CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
+CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"
+CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
+CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 GOTO:EOF
 
