@@ -33,6 +33,7 @@ GOTO :DONE
 
 ::Formatout is an internal utility to format text.
 :: Small Text Formatter Code Begin
+
 :FORMATOUT
 SET __Left__=%~1
 SET __RIGHT__=%~2
@@ -55,6 +56,7 @@ GOTO:eof
 CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
 GOTO:eof
+
 :: Small Text Formatter Code End
 
 :: Creates the alias file used when ever a command prompt window loads.
@@ -74,26 +76,58 @@ IF DEFINED ADD_REG SET ADD_REG=
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%\alias.cmd"
 GOTO:EOF
 
+:: Support for external function.
+
+:--Copy
+CALL:Copy "%~1","%~2"
+GOTO:EOF
+
+:: Non-protected Internal function.
+
+:Copy
+CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET _File_=%~1
+SET _LOCATION_=%~2
+SET _EXISTS_=%~nx1
+IF Exist "!_LOCATION_!\!_EXISTS_!" (
+  SET /P __OVERWRITE__=Y/N
+)
+IF NOT EXIST "!_LOCATION_!" (
+  CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
+  MKDIR !_LOCATION_!
+  CALL:FORMATOUT 30,50,"Make Directory Results:","%ERRORLEVEL%"
+)
+IF EXIST "!_File_!" (
+  IF DEFINED __OVERWRITE__ (
+    CALL:FORMATOUT 30,50,"OVERWRITE:","!__OVERWRITE__!"
+  )
+  IF NOT "!__OVERWRITE__!"=="N" (
+    CALL:FORMATOUT 30,50,"Copying File:","!_EXISTS_!"
+    COPY /Y !_File_! !_LOCATION_!
+    CALL:FORMATOUT 30,50,"File Copy Results:","%ERRORLEVEL%"
+  )
+) ELSE (
+  CALL:FORMATOUT 30,50,"File Not Found:","!_File_!"
+)
+
+IF EXIST "!_LOCATION_!\!_EXISTS_!" (
+  CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was successfully copied."
+) ELSE (
+   CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
+)
+ENDLOCAL
+GOTO:EOF
+
 :--Install
 IF NOT DEFINED AliasFile CALL:--AliasFile
 SET _CLHScripts_=c:\CommaneLineHelper\Scripts
-IF NOT EXIST "%_CLHScripts_%\vbs\" (
-  MKDIR %_CLHScripts_%\vbs\
-)
-IF NOT EXIST "%_CLHScripts_%\logs\" (
-  MKDIR %_CLHScripts_%\logs\
-)
-IF NOT EXIST "%_CLHScripts_%\cmd\" (
-  MKDIR %_CLHScripts_%\cmd\
-)
-IF EXIST "%_CLHScripts_%\CLHelper.bat" ECHO Overwriting %_CLHScripts_%\CLHelper.bat
-COPY /Y %SELF_1%CLHelper.bat %_CLHScripts_%
-IF EXIST "%AliasFile%" ECHO Overwriting %AliasFile%
-COPY /Y %SELF_1%scripts\cmd\alias.cmd %AliasFile%
-IF EXIST "%_CLHScripts_%scripts\vbs\readwriteini.vbs" ECHO Overwriting %_CLHScripts_%\vbs\readwriteini.vbs
-COPY /Y %SELF_1%scripts\vbs\readwriteini.vbs %_CLHScripts_%\vbs\
-IF EXIST "%_CLHScripts_%\scripts\vbs\txtComp.vbs" ECHO Overwriting %_CLHScripts_%\vbs\txtComp.vbs
-COPY /Y %SELF_1%scripts\vbs\txtComp.vbs %_CLHScripts_%\vbs\
+CALL:Copy "%SELF_1%CLHelper.bat","%_CLHScripts_%"
+CALL:Copy "%SELF_1%scripts\cmd\alias.cmd","%AliasFile%"
+CALL:Copy "%SELF_1%scripts\vbs\readwriteini.vbs","%_CLHScripts_%\vbs"
+CALL:Copy "%SELF_1%scripts\vbs\txtComp.vbs","%_CLHScripts_%\vbs"
+CALL:Copy "%SELF_1%scripts\bin\wget.1.txt","%_CLHScripts_%\bin"
+CALL:Copy "%SELF_1%scripts\bin\wget.exe","%_CLHScripts_%\bin"
 CALL %AliasFile%\alias.cmd
 GOTO:EOF
 
@@ -119,6 +153,9 @@ CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd fi
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
 CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
 CALL:FORMATOUT 20,20," .."," created or modified."
+CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
+CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
 CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
 CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
 CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"

@@ -112,6 +112,45 @@ git commit -am "%__MESSAGE__%"
 git push
 GOTO:EOF
 
+:--Copy
+CALL:Copy "%~1","%~2"
+GOTO:EOF
+
+:Copy
+CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET _File_=%~1
+SET _LOCATION_=%~2
+SET _EXISTS_=%~nx1
+IF Exist "!_LOCATION_!\!_EXISTS_!" (
+  SET /P __OVERWRITE__=Y/N
+)
+IF NOT EXIST "!_LOCATION_!" (
+  CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
+  MKDIR !_LOCATION_!
+  CALL:FORMATOUT 30,50,"Make Directory Results:","%ERRORLEVEL%"
+)
+IF EXIST "!_File_!" (
+  IF DEFINED __OVERWRITE__ (
+    CALL:FORMATOUT 30,50,"OVERWRITE:","!__OVERWRITE__!"
+  )
+  IF NOT "!__OVERWRITE__!"=="N" (
+    CALL:FORMATOUT 30,50,"Copying File:","!_EXISTS_!"
+    COPY /Y !_File_! !_LOCATION_!
+    CALL:FORMATOUT 30,50,"File Copy Results:","%ERRORLEVEL%"
+  )
+) ELSE (
+  CALL:FORMATOUT 30,50,"File Not Found:","!_File_!"
+)
+
+IF EXIST "!_LOCATION_!\!_EXISTS_!" (
+  CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was successfully copied."
+) ELSE (
+   CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
+)
+ENDLOCAL
+GOTO:EOF
+
 :--BestColor
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET "BackBroundColor=%~1"
@@ -231,6 +270,9 @@ CALL:FORMATOUT 20,20,"Options:","Description%~0"
 CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
 CALL:FORMATOUT 20,20,"--BestColor","Sets the color of the command window."
 CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --BestColor Background_Color Text_Color"
+CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
+CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
 CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
 CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
 CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
