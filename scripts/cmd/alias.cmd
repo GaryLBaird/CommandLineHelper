@@ -62,6 +62,7 @@ DOSKEY CLHelper=%CLHelper% $*
 DOSKEY GitForce=%CLHelper% --GitForce $*
 DOSKEY GitCommit=%CLHelper% --GitCommit $*
 DOSKEY explorer=%CLHelper% --WindowsExplorer $*
+DOSKEY CLCopy=%CLHelper% --Copy $*
 :: Custom Alias Keys Begin ::
 
 :: Doskey Commands End ::
