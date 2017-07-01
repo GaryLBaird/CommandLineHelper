@@ -57,13 +57,13 @@ Username and password can be stored and retrieved from an ini file and accessed 
 # Helpful Typical Functions (TBD)
 
 # TodoItems (TBD)
-* Installer *: Section for performing installs where files are downloaded from the internet and installed.
-* Customization *: Customizations are not currently stored in the ini file. One should be generated if it is missing and when questions are answered you should put them in the ini so that they are found in the future.
-* Curl Support*:
+* *Installer Section*: for performing installs where files are downloaded from the internet and installed.
+* *Customization*: Customizations are not currently stored in the ini file. One should be generated if it is missing and when questions are answered you should put them in the ini so that they are found in the future.
+* *Curl Support*:
   - Support Curl directly and conversion to ruby
-* Ruby*: Gem Support
-* PowerShell*: Support for standard tasks using PowerShell.
-* PowerShell Launcher*: that enables and disables security automaticall while running script.
+* *Ruby Gem*: Support
+* *PowerShell*: Support for standard tasks using PowerShell.
+* *PowerShell*: Launcher*: that enables and disables security automaticall while running script.
 
 
 # Project Parents and Resource Utilities (TBD)
