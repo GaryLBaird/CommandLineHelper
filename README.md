@@ -37,6 +37,8 @@ value
 
 setup.bat --install
 
+*NOTE*: Use SET ADD_REG=True before running setup.bat --install or the alias registry key will not be set. This is on purpose so that custom keys are not overwritten.
+
 # UnInstall
 
 setup.bat --Alias-Remove
