@@ -64,14 +64,17 @@ GOTO:eof
 :--AliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 12,12,"","Please pick a directory for your alias file."
-CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommaneLineHelper\Scripts"
-SET /P _AliasFile_=[c:\CommaneLineHelper\Scripts]
-IF NOT DEFINED _AliasFile_ SET _AliasFile_=c:\CommaneLineHelper\Scripts
+CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommandLineHelper\Scripts"
+SET /P _AliasFile_=[c:\CommandLineHelper\Scripts]
+IF NOT DEFINED _AliasFile_ SET _AliasFile_=c:\CommandLineHelper\Scripts
 IF NOT EXIST "!_AliasFile_!" MKDIR !_AliasFile_!
-:: Disabled command for testing.
-IF DEFINED ADD_REG REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
-IF NOT EXIST "!_AliasFile_!\alias.cmd" ECHO.>!_AliasFile_!\alias.cmd
 ENDLOCAL && SET AliasFile=%_AliasFile_%
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET _INSTALLDIR_=!AliasFile:\Scripts=!
+:: Disabled command for testing.
+IF DEFINED ADD_REG REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !AliasFile!\alias.cmd /f
+IF NOT EXIST "!AliasFile!\alias.cmd" ECHO.>!AliasFile!\alias.cmd
+ENDLOCAL && SET CLH_INSTALLDIR=%_INSTALLDIR_%
 IF DEFINED ADD_REG SET ADD_REG=
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%\alias.cmd"
 GOTO:EOF
@@ -121,14 +124,54 @@ GOTO:EOF
 
 :--Install
 IF NOT DEFINED AliasFile CALL:--AliasFile
-SET _CLHScripts_=c:\CommaneLineHelper\Scripts
+SET _CLHScripts_=c:\CommandLineHelper\Scripts
 CALL:Copy "%SELF_1%CLHelper.bat","%_CLHScripts_%"
 CALL:Copy "%SELF_1%scripts\cmd\alias.cmd","%AliasFile%"
 CALL:Copy "%SELF_1%scripts\vbs\readwriteini.vbs","%_CLHScripts_%\vbs"
 CALL:Copy "%SELF_1%scripts\vbs\txtComp.vbs","%_CLHScripts_%\vbs"
-CALL:Copy "%SELF_1%bin\wget.1.txt","%_CLHScripts_%\bin"
-CALL:Copy "%SELF_1%bin\wget.exe","%_CLHScripts_%\bin"
+REM FOR /F %%A IN ('dir /b %SELF_1%scripts\powershell\*.ps1') DO (
+  REM CALL:Copy ""%SELF_1%scripts\powershell\%%A","%_CLHScripts_%\powershell\"
+REM )
+CALL:Copy "%SELF_1%scripts\powershell\downloadfile.ps1",,"%_CLHScripts_%\PowerShell"
+ECHO. Setting Install directory to: %CLH_INSTALLDIR%
+REG ADD "HKCU\Software\Microsoft\Command Processor" /v CommandLineHelper /t REG_SZ /d %CLH_INSTALLDIR% /f
 CALL %AliasFile%\alias.cmd
+GOTO:EOF
+
+:--IsInstalled
+CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper",%~1
+SET IsInstalled=%RegKey%
+GOTO:EOF
+
+:--ReadReg
+SETLOCAL ENABLEEXTENSIONS
+set KEY_NAME=%~1
+set VALUE_NAME=%~2
+SET NOSHOW=%~3
+FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
+  IF /I "%%B" GEQ "REG" (
+    SET Type=%%B
+  )
+  SET ValueValue=%%C
+)
+IF NOT DEFINED NOSHOW (
+  IF DEFINED ValueValue (
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50,"Key:","Value:"
+    CALL:FORMATOUT 50,50,"----","------"
+    CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
+    CALL:FORMATOUT 50,50,"REG_Type","%Type%"
+    CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
+    CALL:FORMATOUT 50,50,"ENV:RegKey","%ValueValue%"
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+  ) ELSE (
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50,"Result:","Key and Name:"
+    CALL:FORMATOUT 50,50,"-------","-------------"
+    CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
+  )
+)
+ENDLOCAL && SET RegKey=%ValueValue%
 GOTO:EOF
 
 :--Alias-Remove
@@ -141,7 +184,9 @@ CALL:FORMATOUT 20,20,"---------------------------","----------------------------
 GOTO:EOF
 
 :: Help Content Below
+
 :--Help
+IF /I "%ARGS%" GEQ "--Help" (
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -162,10 +207,13 @@ CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the com
 CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
 CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+)
 GOTO:EOF
 
 :: Author Information Below
+
 :--About
+IF /I "%ARGS%" GEQ "--About" (
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
 CALL:FORMATOUT 20,20,"Author:","Gary L Baird"
 CALL:FORMATOUT 20,20,"Written by:","Gary L Baird"
@@ -174,16 +222,20 @@ CALL:FORMATOUT 20,20,"Email:","TBA"
 CALL:FORMATOUT 20,20,"Filename:","%SELF_0%"
 CALL:FORMATOUT 20,20,"Purpose:","Make the Windows Command Line more friendly."
 CALL:FORMATOUT 20,20,"Project:","Part of the Command Line Helper project."
-CALL:FORMATOUT 20,20,"Location:","github.com/GaryLBaird/CommaneLineHelper"
+CALL:FORMATOUT 20,20,"Location:","github.com/GaryLBaird/CommandLineHelper"
 CALL:FORMATOUT 20,20,"License:","GNU GENERAL PUBLIC LICENSE"
 CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+)
 GOTO:EOF
 
 :DONE
+
 ::Clears Any Default Variables that might have been set while running this batch file.
+
 SET _DEBUG_=
 SET _PASSWORD_=
 SET _CLEAN_=
 SET ARGS=
 goto :Finished
+
 :Finished
