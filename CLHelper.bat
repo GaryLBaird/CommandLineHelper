@@ -25,7 +25,7 @@ for /f "delims=- tokens=1,2,3*" %%a in ("%ARG_1%") do SET ARG_1=%%a
 :: Command Line Helper needs to know a few things.
 :: The MySettingsINI path is used to hold specific variables you use in your environment.
 IF NOT DEFINED IsInstalled (
-  CALL:--IsInstalled NOSHOW
+  CALL:IsInstalled NOSHOW
 )
 IF DEFINED IsInstalled (
   ECHO %IsInstalled%
@@ -45,9 +45,54 @@ GOTO :DONE
 ::Formatout is an internal utility to format text.
 :: Small Text Formatter Code Begin
 
-:--IsInstalled
-CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper",%~1
-SET IsInstalled=%RegKey%
+:IsInstalled
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
+ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%"
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
+ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
+ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
+GOTO:EOF
+
+:--RegAdd
+SETLOCAL ENABLEDELAYEDEXPANSION
+REG ADD "%~1" /v "%~2" /t %~3 /d "%~4" %~5
+ENDLOCAL
+GOTO:EOF
+
+:--ReadReg
+SETLOCAL ENABLEDELAYEDEXPANSION
+set KEY_NAME=%~1
+set VALUE_NAME=%~2
+set VAR_NAME=%~3
+SET NOSHOW=%~4
+FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
+  IF /I "%%B" GEQ "REG" (
+    SET Type=%%B
+  )
+  SET ValueValue=%%C
+)
+IF NOT DEFINED NOSHOW (
+  IF DEFINED ValueValue (
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50,"Key:","Value:"
+    CALL:FORMATOUT 50,50,"----","------"
+    CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
+    CALL:FORMATOUT 50,50,"REG_Type","%Type%"
+    CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
+    CALL:FORMATOUT 50,50,"ENV:%~3","%ValueValue%"
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+  ) ELSE (
+    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50,"Result:","Key and Name:"
+    CALL:FORMATOUT 50,50,"-------","-------------"
+    CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
+  )
+)
+ENDLOCAL && SET "%~3=%ValueValue%"
 GOTO:EOF
 
 :-FindKey
@@ -68,37 +113,6 @@ ECHO FOUND_KEYS:"!FOUND_KEY!"
 ENDLOCAL && SET FOUND_KEYS=%FOUND_KEY%
 GOTO:EOF
 
-:--ReadReg
-SETLOCAL ENABLEDELAYEDEXPANSION
-set KEY_NAME=%~1
-set VALUE_NAME=%~2
-SET NOSHOW=%~3
-FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
-  IF /I "%%B" GEQ "REG" (
-    SET Type=%%B
-  )
-  SET ValueValue=%%C
-)
-IF NOT DEFINED NOSHOW (
-  IF DEFINED ValueValue (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Key:","Value:"
-    CALL:FORMATOUT 50,50,"----","------"
-    CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
-    CALL:FORMATOUT 50,50,"REG_Type","%Type%"
-    CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
-    CALL:FORMATOUT 50,50,"ENV:RegKey","%ValueValue%"
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
-  ) ELSE (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Result:","Key and Name:"
-    CALL:FORMATOUT 50,50,"-------","-------------"
-    CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
-  )
-)
-ENDLOCAL && SET RegKey=%ValueValue%
-GOTO:EOF
-
 :Settings
 :: The Command Line Helper needs to know where it's installed and where the VB scripts are.
 IF NOT EXIST "C:\Windows\System32\cscript.exe" (
@@ -116,7 +130,7 @@ IF NOT DEFINED _READWRITEINI_ (
 )
 :: READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
 CALL:INI_Config
-SET _MySettings_=%IsInstalled%\clhelper.ini
+SET _MySettings_=%IsInstalled%\scripts\clhelper.ini
 CALL:--READINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
 IF NOT DEFINED FOUND (
   CALL:--WriteINI "%_MySettings_%" "Local" "CLHelper_Dir" "%IsInstalled%"
@@ -132,24 +146,26 @@ ping -n %1 127.0.0.1 > NUL 2>&1
 GOTO:EOF
 
 :FORMATOUT
+SETLOCAL ENABLEDELAYEDEXPANSION
+  SET __Left__=%~1
+  SET __RIGHT__=%~2
+  SET "__TEXT__=%~3"
+  SET "__OTHER__=%~4 %~5 %~6"
+  SET "spaces=                                                                                                                    "
+  SET /A __SIZE__=10
+  CALL:padright __TEXT__ %__Left__%
+  CALL:padleft __SIZE__ %__RIGHT__%
+  REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
+  ECHO. %__TEXT__% %__OTHER__%
+ENDLOCAL
+GOTO:eof
 
-SET __Left__=%~1
-SET __RIGHT__=%~2
-SET "__TEXT__=%~3"
-SET "__OTHER__=%~4 %~5 %~6"
-SET "spaces=                                                                                                                    "
-SET /A __SIZE__=10
-CALL:PADRIGHT __TEXT__ %__Left__%
-CALL:PADLEFT __SIZE__ %__RIGHT__%
-ECHO. %__TEXT__% %__OTHER__%
-GOTO:EOF
-
-:PADRIGHT
+:padright
 CALL SET padded=%%%1%%%spaces%
 CALL SET %1=%%padded:~0,%2%%
-GOTO:EOF
+GOTO:eof
 
-:PADLEFT
+:padleft
 CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
 GOTO:EOF
@@ -217,148 +233,153 @@ GOTO:EOF
 :: GitForce forces a removes all local changes and then pulls in new clean repo.
 
 :--GitForce
-git reset HEAD --hard
-git clean -f
-git pull origin master
+SETLOCAL ENABLEDELAYEDEXPANSION
+  git reset HEAD --hard
+  git clean -f
+  git pull origin master
+ENDLOCAL
 GOTO:EOF
 
 :: GitCommit pulls down latest and then commits your changes.
 
 :--GitCommit
-git pull
-git add *
-SET /P __MESSAGE__=Enter a message here.
-git commit -am "%__MESSAGE__%"
-git push
+SETLOCAL ENABLEDELAYEDEXPANSION
+  git pull
+  git add *
+  SET /P __MESSAGE__=Enter a message here.
+  git commit -am "%__MESSAGE__%"
+  git push
 GOTO:EOF
 
 :--Copy
-CALL:Copy "%~1","%~2"
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:-Copy "%~1","%~2"
+ENDLOCAL
 GOTO:EOF
 
-:Copy
-CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
+:-Copy
 SETLOCAL ENABLEDELAYEDEXPANSION
-SET _File_=%~1
-SET _LOCATION_=%~2
-SET _EXISTS_=%~nx1
-IF Exist "!_LOCATION_!\!_EXISTS_!" (
-  SET /P __OVERWRITE__=Y/N
-)
-IF NOT EXIST "!_LOCATION_!" (
-  CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
-  MKDIR !_LOCATION_!
-  CALL:FORMATOUT 30,50,"Make Directory Results:","%ERRORLEVEL%"
-)
-IF EXIST "!_File_!" (
-  IF DEFINED __OVERWRITE__ (
-    CALL:FORMATOUT 30,50,"OVERWRITE:","!__OVERWRITE__!"
+  CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
+  SET _File_=%~1
+  SET _LOCATION_=%~2
+  SET _EXISTS_=%~nx1
+  IF Exist "!_LOCATION_!\!_EXISTS_!" (
+    SET /P __OVERWRITE__=     Y/N
   )
-  IF NOT "!__OVERWRITE__!"=="N" (
-    CALL:FORMATOUT 30,50,"Copying File:","!_EXISTS_!"
-    COPY /Y !_File_! !_LOCATION_!
-    CALL:FORMATOUT 30,50,"File Copy Results:","%ERRORLEVEL%"
+  IF NOT EXIST "!_LOCATION_!" (
+    CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
+    MKDIR !_LOCATION_!
+    CALL:FORMATOUT 30,50,"Make Directory Results:","%ERRORLEVEL%"
   )
-) ELSE (
-  CALL:FORMATOUT 30,50,"File Not Found:","!_File_!"
-)
+  IF EXIST "!_File_!" (
+    IF DEFINED __OVERWRITE__ (
+      CALL:FORMATOUT 30,50,"OVERWRITE:","!__OVERWRITE__!"
+    )
+    IF NOT "!__OVERWRITE__!"=="N" (
+      CALL:FORMATOUT 30,50,"Copying File:","!_EXISTS_!"
+      COPY /Y !_File_! !_LOCATION_!
+      CALL:FORMATOUT 30,50,"File Copy Results:","%ERRORLEVEL%"
+    )
+  ) ELSE (
+    CALL:FORMATOUT 30,50,"File Not Found:","!_File_!"
+  )
 
-IF EXIST "!_LOCATION_!\!_EXISTS_!" (
-  CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was successfully copied."
-) ELSE (
-   CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
-)
+  IF EXIST "!_LOCATION_!\!_EXISTS_!" (
+    CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was successfully copied."
+  ) ELSE (
+    CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
+  )
 ENDLOCAL
 GOTO:EOF
 
 :--BestColor
 SETLOCAL ENABLEDELAYEDEXPANSION
-SET "BackBroundColor=%~1"
-SET "TextColor=%~2"
-REM SET DEFAULTS:
-IF NOT DEFINED BackBroundColor SET BackBroundColor=5
-IF NOT DEFINED TextColor SET TextColor=E
+  SET "BackBroundColor=%~1"
+  SET "TextColor=%~2"
+  REM SET DEFAULTS:
+  IF NOT DEFINED BackBroundColor SET BackBroundColor=5
+  IF NOT DEFINED TextColor SET TextColor=E
 
-IF "%~1"=="" GOTO :BestColorDone
-IF /I "Black"=="%~1" SET BackBroundColor=0
-IF /I "Black"=="%~2" SET TextColor=0
-IF /I "Gray"=="%~1" SET BackBroundColor=8
-IF /I "Gray"=="%~2" SET TextColor=8
-IF /I "Grey"=="%~1" SET BackBroundColor=8
-IF /I "Grey"=="%~2" SET TextColor=8
-IF /I "Blue"=="%~1" SET BackBroundColor=1
-IF /I "Blue"=="%~2" SET TextColor=1
-IF /I "Light Blue"=="%~1" SET BackBroundColor=9
-IF /I "Light Blue"=="%~2" SET TextColor=9
-IF /I "lBlue"=="%~1" SET BackBroundColor=9
-IF /I "LBlue"=="%~2" SET TextColor=9
-IF /I "Green"=="%~1" SET BackBroundColor=2
-IF /I "Green"=="%~2" SET TextColor=2
-IF /I "Light Green"=="%~1" SET BackBroundColor=A
-IF /I "Light Green"=="%~2" SET TextColor=A
-IF /I "LGreen"=="%~1" SET BackBroundColor=A
-IF /I "LGreen"=="%~2" SET TextColor=A
-IF /I "Aqua"=="%~1" SET BackBroundColor=3
-IF /I "Aqua"=="%~2" SET TextColor=3
-IF /I "Light Aqua"=="%~1" SET BackBroundColor=B
-IF /I "Light Aqua"=="%~2" SET TextColor=B
-IF /I "LAqua"=="%~1" SET BackBroundColor=B
-IF /I "LAqua"=="%~2" SET TextColor=B
-IF /I "Red"=="%~1" SET BackBroundColor=4
-IF /I "Red"=="%~2" SET TextColor=4
-IF /I "Light Red"=="%~1" SET BackBroundColor=C
-IF /I "Light Red"=="%~2" SET TextColor=C
-IF /I "LRed"=="%~1" SET BackBroundColor=C
-IF /I "LRed"=="%~2" SET TextColor=C
-IF /I "Purple"=="%~1" SET BackBroundColor=5
-IF /I "Purple"=="%~2" SET TextColor=5
-IF /I "Light Purple"=="%~1" SET BackBroundColor=D
-IF /I "Light Purple"=="%~2" SET TextColor=D
-IF /I "LPurple"=="%~1" SET BackBroundColor=D
-IF /I "LPurple"=="%~2" SET TextColor=D
-IF /I "Yellow"=="%~1" SET BackBroundColor=6
-IF /I "Yellow"=="%~2" SET TextColor=6
-IF /I "Light Yellow"=="%~1" SET BackBroundColor=E
-IF /I "Light Yellow"=="%~2" SET TextColor=E
-IF /I "LYellow"=="%~1" SET BackBroundColor=E
-IF /I "LYellow"=="%~2" SET TextColor=E
-IF /I "White"=="%~1" SET BackBroundColor=7
-IF /I "White"=="%~2" SET TextColor=7
-IF /I "Bright White"=="%~1" SET BackBroundColor=F
-IF /I "Bright White"=="%~2" SET TextColor=F
-IF /I "LWhite"=="%~1" SET BackBroundColor=F
-IF /I "LWhite"=="%~2" SET TextColor=F
-:: Yellow Text Purple Background 
-:BestColorDone
-Color !BackBroundColor!!TextColor!
+  IF "%~1"=="" GOTO :BestColorDone
+  IF /I "Black"=="%~1" SET BackBroundColor=0
+  IF /I "Black"=="%~2" SET TextColor=0
+  IF /I "Gray"=="%~1" SET BackBroundColor=8
+  IF /I "Gray"=="%~2" SET TextColor=8
+  IF /I "Grey"=="%~1" SET BackBroundColor=8
+  IF /I "Grey"=="%~2" SET TextColor=8
+  IF /I "Blue"=="%~1" SET BackBroundColor=1
+  IF /I "Blue"=="%~2" SET TextColor=1
+  IF /I "Light Blue"=="%~1" SET BackBroundColor=9
+  IF /I "Light Blue"=="%~2" SET TextColor=9
+  IF /I "lBlue"=="%~1" SET BackBroundColor=9
+  IF /I "LBlue"=="%~2" SET TextColor=9
+  IF /I "Green"=="%~1" SET BackBroundColor=2
+  IF /I "Green"=="%~2" SET TextColor=2
+  IF /I "Light Green"=="%~1" SET BackBroundColor=A
+  IF /I "Light Green"=="%~2" SET TextColor=A
+  IF /I "LGreen"=="%~1" SET BackBroundColor=A
+  IF /I "LGreen"=="%~2" SET TextColor=A
+  IF /I "Aqua"=="%~1" SET BackBroundColor=3
+  IF /I "Aqua"=="%~2" SET TextColor=3
+  IF /I "Light Aqua"=="%~1" SET BackBroundColor=B
+  IF /I "Light Aqua"=="%~2" SET TextColor=B
+  IF /I "LAqua"=="%~1" SET BackBroundColor=B
+  IF /I "LAqua"=="%~2" SET TextColor=B
+  IF /I "Red"=="%~1" SET BackBroundColor=4
+  IF /I "Red"=="%~2" SET TextColor=4
+  IF /I "Light Red"=="%~1" SET BackBroundColor=C
+  IF /I "Light Red"=="%~2" SET TextColor=C
+  IF /I "LRed"=="%~1" SET BackBroundColor=C
+  IF /I "LRed"=="%~2" SET TextColor=C
+  IF /I "Purple"=="%~1" SET BackBroundColor=5
+  IF /I "Purple"=="%~2" SET TextColor=5
+  IF /I "Light Purple"=="%~1" SET BackBroundColor=D
+  IF /I "Light Purple"=="%~2" SET TextColor=D
+  IF /I "LPurple"=="%~1" SET BackBroundColor=D
+  IF /I "LPurple"=="%~2" SET TextColor=D
+  IF /I "Yellow"=="%~1" SET BackBroundColor=6
+  IF /I "Yellow"=="%~2" SET TextColor=6
+  IF /I "Light Yellow"=="%~1" SET BackBroundColor=E
+  IF /I "Light Yellow"=="%~2" SET TextColor=E
+  IF /I "LYellow"=="%~1" SET BackBroundColor=E
+  IF /I "LYellow"=="%~2" SET TextColor=E
+  IF /I "White"=="%~1" SET BackBroundColor=7
+  IF /I "White"=="%~2" SET TextColor=7
+  IF /I "Bright White"=="%~1" SET BackBroundColor=F
+  IF /I "Bright White"=="%~2" SET TextColor=F
+  IF /I "LWhite"=="%~1" SET BackBroundColor=F
+  IF /I "LWhite"=="%~2" SET TextColor=F
+  :: Yellow Text Purple Background 
+  :BestColorDone
+  Color !BackBroundColor!!TextColor!
 ENDLOCAL
 CLS
 GOTO:EOF
 
 :--RandomColor
 SETLOCAL ENABLEDELAYEDEXPANSION
-SET /a LETTER=(%Random% %%6)+1
-SET /a NUMBER=(%Random% %%9)+1
-GOTO :CASE_!LETTER!
-:CASE_1
-  SET RETURN=A
-  GOTO :END_CASE
-:CASE_2
-  SET RETURN=B
-  GOTO :END_CASE
-:CASE_3
-  SET RETURN=C
-  GOTO :END_CASE
-:CASE_4
-  SET RETURN=D
-  GOTO :END_CASE
-:CASE_5
-  SET RETURN=E
-  GOTO :END_CASE
-:CASE_6
-  SET RETURN=F
-  GOTO :END_CASE
-:END_CASE
+  SET /a LETTER=(%Random% %%6)+1
+  SET /a NUMBER=(%Random% %%9)+1
+  GOTO :CASE_!LETTER!
+  :CASE_1
+    SET RETURN=A
+    GOTO :END_CASE
+  :CASE_2
+    SET RETURN=B
+    GOTO :END_CASE
+  :CASE_3
+    SET RETURN=C
+    GOTO :END_CASE
+  :CASE_4
+    SET RETURN=D
+    GOTO :END_CASE
+  :CASE_5
+    SET RETURN=E
+    GOTO :END_CASE
+  :CASE_6
+    SET RETURN=F
+    GOTO :END_CASE
+  :END_CASE
 
 ENDLOCAL && set RETURN=%return% && SET NUMBER=%NUMBER%
 IF DEFINED RETURN COLOR %NUMBER%%RETURN%
@@ -370,12 +391,12 @@ GOTO:EOF
 
 :--WindowsExplorer
 SETLOCAL ENABLEDELAYEDEXPANSION
-IF "%~1"=="" (
-  SET _DIR_=%CD%
-) ELSE (
-  SET _DIR_=%~1
-)
-"C:\Windows\explorer.exe" "!_DIR_!"
+  IF "%~1"=="" (
+    SET _DIR_=%CD%
+  ) ELSE (
+    SET _DIR_=%~1
+  )
+  "C:\Windows\explorer.exe" "!_DIR_!"
 ENDLOCAL
 GOTO:EOF
 
@@ -523,65 +544,65 @@ GOTO:EOF
 :: Help Content Below
 
 :--Help
-SETLOCAL ENABLEDELAYEDEXPANSION
 IF /I "%ARGS%" GEQ "--Help" (
-CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
-CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-CALL:FORMATOUT 20,20,"Options:","Description%~0"
-CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
-CALL:FORMATOUT 20,20,"--BestColor","Sets the color of the command window."
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --BestColor Background_Color Text_Color"
-CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
-CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
-CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
-CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
-CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
-CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
-CALL:FORMATOUT 20,20," .."," created or modified."
-CALL:FORMATOUT 20,20,"-FindKey","Recursively search a registry hive for keys."
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% -FindKey 'HKLM\Software\Hive' 'key' "
-CALL:FORMATOUT 20,20," ..  Returns:","Env:Variable 'FOUND_KEYS'"
-CALL:FORMATOUT 20,20,"--Install","Download and install a utility."
-CALL:FORMATOUT 20,20," ..  Parameters:","[Git/Python2.7/Python3.1]"
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --Install Git"
-CALL:FORMATOUT 20,20," ..  ListOptions:","%SELF_0% --Install Options"
-CALL:FORMATOUT 20,20,"--GitCommit","Commits changes using git.exe"
-CALL:FORMATOUT 20,20,"--GitForce","Cleans Source Repository for Git.exe"
-CALL:FORMATOUT 20,20,"--Sleep","Sleep for x number of seconds."
-CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --Sleep 10'","Will sleep for 10 seconds."
-CALL:FORMATOUT 20,20,"--ReadINI","Reads a value from an '.ini' file."
-CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] [Environment_Variable_Name]"
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
-CALL:FORMATOUT 20,20," ..  Results:","If the key was found, the value of the Key will be"
-CALL:FORMATOUT 20,20," ..  "," the value of EnvVar."
-CALL:FORMATOUT 20,20," ..  Section:"," [section]"
-CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
-CALL:FORMATOUT 20,20,"--RegRead","Reads a registry key and then sets an environment variable to"
-CALL:FORMATOUT 20,20," ..  "," 'RegKey'."
-CALL:FORMATOUT 20,20," ..Example:","%SELF_0% --ReadReg 'HKCU\Name\Name' 'KeyName' 'NOSHOW'"
-CALL:FORMATOUT 20,20," ..Parameters:","Registry_Key Registry_Key_Name Optional:['NOSHOW']"
-CALL:FORMATOUT 20,20,"--RandomColor","Randomly picks and sets the color of the command window."
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RandomColor Background_Color Text_Color"
-CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
-CALL:FORMATOUT 20,20,"--WindowsExplorer","Opens the Windows Explorer."
-CALL:FORMATOUT 20,20," ..  Usage:","It will open to the directory passed on the command line."
-CALL:FORMATOUT 20,20," ..  "," If no command was passed the current working directory is used."
-CALL:FORMATOUT 20,20,"--WRITEINI","Writes a value to an '.ini' file."
-CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] ['Your Data Here']"
-CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --WriteINI 'FileName.ini' 'Section' 'Key' 'Data'"
-CALL:FORMATOUT 20,20," ..  Results:","If the file does not exist the file will be created."
-CALL:FORMATOUT 20,20," ..  ","If the [Section] you provided was not found it will be created."
-CALL:FORMATOUT 20,20," ..  ","If the [Key] you provided was not found it will be created."
-CALL:FORMATOUT 20,20," ..  ","The string of data will be set to the value of the key you provided."
-CALL:FORMATOUT 20,20," ..  Note:","Please do not use brackets when specifying a section."
-CALL:FORMATOUT 20,20," ..  "," Malformed INI files are not supported. "
-CALL:FORMATOUT 20,20," ..  Section:"," [section]"
-CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
-CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  SETLOCAL ENABLEDELAYEDEXPANSION
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20,"Options:","Description%~0"
+    CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
+    CALL:FORMATOUT 20,20,"--BestColor","Sets the color of the command window."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --BestColor Background_Color Text_Color"
+    CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+    CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
+    CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
+    CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
+    CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
+    CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
+    CALL:FORMATOUT 20,20," .."," created or modified."
+    CALL:FORMATOUT 20,20,"-FindKey","Recursively search a registry hive for keys."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% -FindKey 'HKLM\Software\Hive' 'key' "
+    CALL:FORMATOUT 20,20," ..  Returns:","Env:Variable 'FOUND_KEYS'"
+    CALL:FORMATOUT 20,20,"--Install","Download and install a utility."
+    CALL:FORMATOUT 20,20," ..  Parameters:","[Git/Python2.7/Python3.1]"
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --Install Git"
+    CALL:FORMATOUT 20,20," ..  ListOptions:","%SELF_0% --Install Options"
+    CALL:FORMATOUT 20,20,"--GitCommit","Commits changes using git.exe"
+    CALL:FORMATOUT 20,20,"--GitForce","Cleans Source Repository for Git.exe"
+    CALL:FORMATOUT 20,20,"--Sleep","Sleep for x number of seconds."
+    CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --Sleep 10'","Will sleep for 10 seconds."
+    CALL:FORMATOUT 20,20,"--ReadINI","Reads a value from an '.ini' file."
+    CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] [Environment_Variable_Name]"
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
+    CALL:FORMATOUT 20,20," ..  Results:","If the key was found, the value of the Key will be"
+    CALL:FORMATOUT 20,20," ..  "," the value of EnvVar."
+    CALL:FORMATOUT 20,20," ..  Section:"," [section]"
+    CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
+    CALL:FORMATOUT 20,20,"--RegRead","Reads a registry key and then sets an environment variable to"
+    CALL:FORMATOUT 20,20," ..  "," 'RegKey'."
+    CALL:FORMATOUT 20,20," ..Example:","%SELF_0% --ReadReg 'HKCU\Name\Name' 'KeyName' 'NOSHOW'"
+    CALL:FORMATOUT 20,20," ..Parameters:","Registry_Key Registry_Key_Name Optional:['NOSHOW']"
+    CALL:FORMATOUT 20,20,"--RandomColor","Randomly picks and sets the color of the command window."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RandomColor Background_Color Text_Color"
+    CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
+    CALL:FORMATOUT 20,20,"--WindowsExplorer","Opens the Windows Explorer."
+    CALL:FORMATOUT 20,20," ..  Usage:","It will open to the directory passed on the command line."
+    CALL:FORMATOUT 20,20," ..  "," If no command was passed the current working directory is used."
+    CALL:FORMATOUT 20,20,"--WRITEINI","Writes a value to an '.ini' file."
+    CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] ['Your Data Here']"
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --WriteINI 'FileName.ini' 'Section' 'Key' 'Data'"
+    CALL:FORMATOUT 20,20," ..  Results:","If the file does not exist the file will be created."
+    CALL:FORMATOUT 20,20," ..  ","If the [Section] you provided was not found it will be created."
+    CALL:FORMATOUT 20,20," ..  ","If the [Key] you provided was not found it will be created."
+    CALL:FORMATOUT 20,20," ..  ","The string of data will be set to the value of the key you provided."
+    CALL:FORMATOUT 20,20," ..  Note:","Please do not use brackets when specifying a section."
+    CALL:FORMATOUT 20,20," ..  "," Malformed INI files are not supported. "
+    CALL:FORMATOUT 20,20," ..  Section:"," [section]"
+    CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  ENDLOCAL
 )
-ENDLOCAL
 GOTO Done
 GOTO:EOF
 
@@ -589,19 +610,19 @@ GOTO:EOF
 
 :--About
 SETLOCAL ENABLEDELAYEDEXPANSION
-IF /I "%ARGS%" GEQ "--About" (
-CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
-CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
-CALL:FORMATOUT 20,20,"Phone:---------------------","TBA"
-CALL:FORMATOUT 20,20,"Email:---------------------","TBA"
-CALL:FORMATOUT 20,20,"Filename:------------------","%SELF_0%"
-CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command Line more friendly."
-CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
-CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommaneLineHelper"
-CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
-CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-)
+  IF /I "%ARGS%" GEQ "--About" (
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
+    CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
+    CALL:FORMATOUT 20,20,"Phone:---------------------","TBA"
+    CALL:FORMATOUT 20,20,"Email:---------------------","TBA"
+    CALL:FORMATOUT 20,20,"Filename:------------------","%SELF_0%"
+    CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command Line more friendly."
+    CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
+    CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommaneLineHelper"
+    CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  )
 ENDLOCAL
 GOTO Done
 GOTO:EOF

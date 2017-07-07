@@ -31,6 +31,9 @@ DOSKEY add_python33=set PATH=%PATH%;"C:\Python33\"
 
 :: Regular Expression Pattern Search Begin ::
 DOSKEY FindString=cscript.exe //Nologo //T:15 %_CLHScripts_%\vbs\vbs\txtComp.vbs --PatternMatch $1 $2
+DOSKEY desktop=CD /D "%userprofile%\Desktop"
+DOSKEY dev=CD /D "c:\Dev"
+DOSKEY clh=c:\CommandLineHelper\Scripts\CLHelper.bat $*
 :: Regular Expression Pattern Search End ::
 
 :: Aliases for Shutdown Commands Begin ::
