@@ -1,5 +1,5 @@
 @ECHO OFF
-::Capture Args to be used by functions below.
+REM Capture Args to be used by functions below.
 SET SELF_0=%0
 SET SELF_1=%~dp0
 SET ARG_1=%1
@@ -22,8 +22,8 @@ IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 for /f "delims=- tokens=1,2,3*" %%a in ("%ARG_1%") do SET ARG_1=%%a 
 
-:: Command Line Helper needs to know a few things.
-:: The MySettingsINI path is used to hold specific variables you use in your environment.
+REM Command Line Helper needs to know a few things.
+REM The MySettingsINI path is used to hold specific variables you use in your environment.
 IF NOT DEFINED IsInstalled (
   CALL:IsInstalled NOSHOW
 )
@@ -33,22 +33,33 @@ IF DEFINED IsInstalled (
   ECHO You should run "setup.bat --Install"
 )
 IF NOT DEFINED Settings CALL:Settings
-:: This is where the functions are called, but only if an argument has been passed.
-IF DEFINED ARGS CALL:%ARGS%
-::  If no arguments were passed it will automatically show the help screen.
-IF NOT DEFINED ARGS CALL:--Help
-:: All Done time to clean up any variables and finish.
+
+REM This is where the functions are called, but only if an argument has been passed.
+
+IF NOT DEFINED ARGS (
+  SET ARGS=--Help
+)
+ECHO CALL:%ARGS%
+CALL:%ARGS%
+REM If no arguments were passed it will automatically show the help screen.
+
+REM IF NOT DEFINED ARGS (
+REM ECHO CALL:--Help 
+REM CALL:--Help
+REM )
+
+REM All Done time to clean up any variables and finish.
 GOTO :DONE
 
-:: Everything below this line will only be called if a function above has been passed on the command line.
+REM Everything below this line will only be called if a function above has been passed on the command line.
 
-::Formatout is an internal utility to format text.
-:: Small Text Formatter Code Begin
+REM Formatout is an internal utility to format text.
+REM Small Text Formatter Code Begin
 
 :IsInstalled
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
-ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%"
+ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%" && SET "_CLHelperDir_=%CommandLineHelper%\Scripts"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
 ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
@@ -114,13 +125,13 @@ ENDLOCAL && SET FOUND_KEYS=%FOUND_KEY%
 GOTO:EOF
 
 :Settings
-:: The Command Line Helper needs to know where it's installed and where the VB scripts are.
+REM The Command Line Helper needs to know where it's installed and where the VB scripts are.
 IF NOT EXIST "C:\Windows\System32\cscript.exe" (
   IF NOT DEFINED _CSCRIPT_PATH_ SET /P _CSCRIPT_PATH_=Please provide the path to cscript.
 ) ELSE (
   SET _CSCRIPT_PATH_=C:\Windows\System32\cscript.exe
 )
-:: READWRITEINI PATH
+REM READWRITEINI PATH
 IF NOT DEFINED _READWRITEINI_ (
   IF NOT EXIST "%SELF_1%\scripts\vbs\readwriteini.vbs" (
     SET /P _READWRITEINI_=Please provide the path to the readwriteini.vbs.
@@ -128,7 +139,7 @@ IF NOT DEFINED _READWRITEINI_ (
     SET _READWRITEINI_=%SELF_1%\scripts\vbs\readwriteini.vbs
   )
 )
-:: READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
+REM READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
 CALL:INI_Config
 SET _MySettings_=%IsInstalled%\scripts\clhelper.ini
 CALL:--READINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
@@ -139,7 +150,7 @@ SET FOUND=
 SET Settings=Set
 GOTO:EOF
 
-:: sleep for x number of seconds
+REM sleep for x number of seconds
 
 :--Sleep
 ping -n %1 127.0.0.1 > NUL 2>&1
@@ -170,8 +181,8 @@ CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
 GOTO:EOF
 
-:: Small Text Formatter Code End
-:: Creates the alias file used when ever a command prompt window loads.
+REM Small Text Formatter Code End
+REM Creates the alias file used when ever a command prompt window loads.
 
 :--CreateAliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -180,21 +191,40 @@ CALL:FORMATOUT 12,12,"We recommend something simple with no spaces.","Like: c:\d
 SET /P _AliasFile_=[c:\development\scripts]
 IF NOT DEFINED _AliasFile_ SET _AliasFile_=C:\development\scripts
 IF NOT EXIST "!_AliasFile_!" MKDIR !_AliasFile_!
-:: Disabled command for testing. REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
+REM Disabled command for testing. REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !_AliasFile_!\alias.cmd /f
 IF NOT EXIST "!_AliasFile_!\alias.cmd" ECHO.>!_AliasFile_!\alias.cmd
 ENDLOCAL && SET AliasFile=%_AliasFile_%\alias.cmd
 CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
 GOTO:EOF
 
 :--Install
-If /I NOT "%~1"=="Options" CALL:%~1
-If /I "%~1"=="Options" CALL:FORMATOUT 20,20,"Optional Paramters:","_"
-If /I "%~1"=="Options" CALL:FORMATOUT 20,20,"Optional Paramters:","Git"
-If /I "%~1"=="Options" CALL:FORMATOUT 20,20,"Optional Paramters:","Options"
-If /I "%~1"=="Options" GOTO:Done
+CALL:Install_%~1
 GOTO:EOF
 
-:--Git
+:Install_OpenSSH
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET _OpenSSH32bit_=http://downloads.sourceforge.net/gnuwin32/openssl-0.9.8h-1-setup.exe
+CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET _AMD64_=True
+IF DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 64-bit version","Y/N"
+IF NOT DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 32-bit version:","Y/N"
+SET /P _DOINSTALLGIT_=Do you wish to install OpenSSH?
+CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+IF DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_OpenSSH32bit_%",""
+IF NOT DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_OpenSSH32bit_%",""
+IF DEFINED _AMD64_ (
+  SET _DOWNLOAD_=%_OpenSSH32bit_%
+) ELSE (
+  SET _DOWNLOAD_=%_OpenSSH32bit_%
+)
+IF /I "%_DOINSTALLGIT_%"=="Y" CALL:Download "%_DOWNLOAD_%","%_CLHelperDir_%\Downloads\Installs"
+%_CLHelperDir_%\Downloads\Installs\openssl-0.9.8h-1-setup.exe /NORESTART /VERYSILENT
+CALL:FORMATOUT 20,20,"ReturnCode:","%ERRORLEVEL%"
+ENDLOCAL
+GOTO:EOF
+
+:Install_Git
+SETLOCAL ENABLEDELAYEDEXPANSION
 REM Eventually we need to look up the versions but for now this is not supported.
 SET _GIT32bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-32-bit.exe
 SET _GIT64bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-64-bit.exe
@@ -211,8 +241,8 @@ IF DEFINED _AMD64_ (
 ) ELSE (
   SET _DOWNLOAD_=%_GIT32bit_%
 )
-IF /I "%_DOINSTALLGIT_%"=="Y" CALL:Download "%_DOWNLOAD_%","C:\CommandLineHelper\Downloads\Installs"
-
+IF /I "%_DOINSTALLGIT_%"=="Y" CALL:Download "%_DOWNLOAD_%","%_CLHelperDir_%\Downloads\Installs"
+ENDLOCAL
 GOTO:EOF
 
 :GetConfig
@@ -220,17 +250,27 @@ echo %~0
 GOTO:EOF
 
 :Download
+SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 40,30,"%~0",""
-CALL:FORMATOUT 40,30,"%~1,%~2",""
-REM IF NOT EXIST "%~2" (
-  REM MKDIR %~2
-REM )
+CALL:FORMATOUT 40,30,"%~1 '%~2'",""
+IF NOT EXIST "%~2" (
+  MKDIR %~2
+)
 SET _STRINGREPLACE_=%~2\%~nx1
 SET _STRINGREPLACE_=%_STRINGREPLACE_:\=/%
-powershell -executionPolicy bypass -noexit -file c:\CommaneLineHelper\scripts\powershell\downloadfile.ps1 "%~1" "%~nx1"
+ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
+IF NOT EXIST "%~2\%~nx1" (
+  CALL:FORMATOUT 40,30,"Download Failure:","%~0"
+) ELSE (
+  CALL:FORMATOUT 40,30,"Successfully Downloaded:%~1","%~2\%~nx1"
+)
+GOTO :DoneDownload
+ENDLOCAL
+:DoneDownload
 GOTO:EOF
 
-:: GitForce forces a removes all local changes and then pulls in new clean repo.
+REM GitForce forces a removes all local changes and then pulls in new clean repo.
 
 :--GitForce
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -240,7 +280,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 ENDLOCAL
 GOTO:EOF
 
-:: GitCommit pulls down latest and then commits your changes.
+REM GitCommit pulls down latest and then commits your changes.
 
 :--GitCommit
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -349,7 +389,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "Bright White"=="%~2" SET TextColor=F
   IF /I "LWhite"=="%~1" SET BackBroundColor=F
   IF /I "LWhite"=="%~2" SET TextColor=F
-  :: Yellow Text Purple Background 
+  REM Yellow Text Purple Background 
   :BestColorDone
   Color !BackBroundColor!!TextColor!
 ENDLOCAL
@@ -385,9 +425,9 @@ ENDLOCAL && set RETURN=%return% && SET NUMBER=%NUMBER%
 IF DEFINED RETURN COLOR %NUMBER%%RETURN%
 GOTO:EOF
 
-:: --WindowsExplorer opens an instance of file system explorer.
-::   Supports 1 directory argument. If no arguments passed the directory
-::   where the command was run will be used.
+REM --WindowsExplorer opens an instance of file system explorer.
+REM   Supports 1 directory argument. If no arguments passed the directory
+REM   where the command was run will be used.
 
 :--WindowsExplorer
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -440,7 +480,7 @@ IF EXIST "%__INI_FILE__%" (
 ) ELSE (
     IF DEFINED _DEBUG_ CALL:DateTime "%~0 Could Not Find File:%__INI_FILE__%"
  )
-::Cleanup
+REM Cleanup
 SET __INI_FILE__=
 SET __SEARCH_KEY__=
 SET __FIND_KEY__=
@@ -541,11 +581,11 @@ IF DEFINED _INI_RETURN_ (
 )
 GOTO:EOF
 
-:: Help Content Below
+REM Help Content Below
 
 :--Help
-IF /I "%ARGS%" GEQ "--Help" (
-  SETLOCAL ENABLEDELAYEDEXPANSION
+REM SETLOCAL ENABLEDELAYEDEXPANSION
+  IF /I "%ARGS%" GEQ "--Help" (
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -601,15 +641,18 @@ IF /I "%ARGS%" GEQ "--Help" (
     CALL:FORMATOUT 20,20," ..  Section:"," [section]"
     CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  ENDLOCAL
-)
-GOTO Done
+  ) ELSE (
+  
+  goto :EndHelp
+  )
+REM ENDLOCAL
+:EndHelp
 GOTO:EOF
 
-:: Author Information Below
+REM Author Information Below
 
 :--About
-SETLOCAL ENABLEDELAYEDEXPANSION
+REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--About" (
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
@@ -619,20 +662,26 @@ SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20,"Filename:------------------","%SELF_0%"
     CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command Line more friendly."
     CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
-    CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommaneLineHelper"
+    CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommandLineHelper"
     CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  ) ELSE (
+  
+  goto :EndAbout
   )
-ENDLOCAL
-GOTO Done
+REM ENDLOCAL
+:EndAbout
 GOTO:EOF
 
 :DONE
-::Clears Any Default Variables that might have been set while running this batch file.
+
+REM Clears Any Default Variables that might have been set while running this batch file.
+
 SET _DEBUG_=
 SET _PASSWORD_=
 SET _CLEAN_=
 SET ARGS=
 SET __RUNONCEONLY__=
-goto :Finished
+GOTO :Finished
+
 :Finished

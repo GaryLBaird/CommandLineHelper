@@ -67,13 +67,13 @@ REM :: Creates the alias file used when ever a command prompt window loads.
 :--AliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:FORMATOUT 12,12,"","Please pick a directory for your alias file."
-  CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommandLineHelper\Scripts"
+  CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommandLineHelper"
   IF NOT DEFINED IsInstalled (
-    SET /P CommandLineHelper= [c:\CommandLineHelper\Scripts]
+    SET /P CommandLineHelper= [c:\CommandLineHelper]
   ) ELSE (
     SET CommandLineHelper=%IsInstalled%
   )
-  IF NOT DEFINED CommandLineHelper SET CommandLineHelper=c:\CommandLineHelper\Scripts
+  IF NOT DEFINED CommandLineHelper SET CommandLineHelper=c:\CommandLineHelper
   IF NOT EXIST "!CommandLineHelper!" MKDIR !CommandLineHelper!
 ENDLOCAL && SET "CommandLineHelper=%CommandLineHelper%"
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -149,7 +149,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\%AliasFile%"
   CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
   CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
-  CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1",,"!_CLHScripts_!\PowerShell"
+  CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
@@ -159,7 +159,7 @@ GOTO:EOF
 :IsInstalled
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
-ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%"
+ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%" && SET "_CLHScripts_=%CommandLineHelper%\Scripts"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
 ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"

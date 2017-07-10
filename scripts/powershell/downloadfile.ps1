@@ -1,11 +1,14 @@
 param (
   [string]$server = "http://defaultserver",
-  [string]$filename = ""
+  [string]$filename = "",
+  [string]$outputdir = ""
  )
 
 # global variables
 $global:lastpercentage = -1
 $global:are = New-Object System.Threading.AutoResetEvent $false
+file = [System.IO.Path]::GetFileName($server)
+# [System.IO.Path]::GetFileNameWithoutExtension("c:\foo.txt") returns foo
 
 
 # web client
@@ -28,7 +31,7 @@ Register-ObjectEvent -InputObject $wc -EventName DownloadFileCompleted -Action {
     Write-Host
 } > $null
 
-$wc.DownloadFileAsync($server, $filename);
+$wc.DownloadFileAsync($server, "$outputdir\$filename");
 # ps script runs probably in one thread only (event is reised in same thread - blocking problems)
 # $global:are.WaitOne() not work
 while(!$global:are.WaitOne(500)) {}
