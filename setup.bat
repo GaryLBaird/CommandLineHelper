@@ -22,7 +22,7 @@ IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 FOR /f "delims=- tokens=1,2,3*" %%A IN ("%ARG_1%") DO SET ARG_1=%%A 
 
-CALL:IsInstalled NOSHOW
+CALL:IsInstalled 
 REM :: This is where the functions are called, but only if an argument has been passed.
 IF DEFINED ARGS CALL:%ARGS%
 REM ::  If no arguments were passed it will automatically show the help screen.
@@ -207,51 +207,52 @@ ENDLOCAL && SET "%~3=%ValueValue%"
 GOTO:EOF
 
 :--Alias-Remove
-IF /I "%ARGS%" GEQ "--Alias-Remove" (
-  SETLOCAL ENABLEDELAYEDEXPANSION
+SETLOCAL ENABLEDELAYEDEXPANSION
+  IF /I "%ARGS%" GEQ "--Alias-Remove" (
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"File:%SELF_0% %~0","Attempting to remove registry key."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     REG DELETE "HKCU\Software\Microsoft\Command Processor" /v AutoRun
     CALL:FORMATOUT 20,20,"Results:","%ERRORLEVEL%"
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  ENDLOCAL
-)
+  )
+ENDLOCAL
 GOTO:EOF
 
 REM :: Help Content Below
 
 :--Help
-IF /I "%ARGS%" GEQ "--Help" (
-  SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  CALL:FORMATOUT 20,20,"File: %SELF_0%"," Options and Usage Help."
-  CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  CALL:FORMATOUT 20,20,"Options:","Description%~0"
-  CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
-  CALL:FORMATOUT 20,20,"--Alias-Remove","Removes the alias key to the registry."
-  CALL:FORMATOUT 20,20,"--AliasFile","Adds the alias file to the registry."
-  CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
-  CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
-  CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
-  CALL:FORMATOUT 20,20," .."," created or modified."
-  CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
-  CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
-  CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
-  CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
-  CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
-  CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"
-  CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
-  CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
-  CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  ENDLOCAL
+SETLOCAL ENABLEDELAYEDEXPANSION
+  IF /I "%ARGS%" GEQ "--Help" (
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20,"File: %SELF_0%"," Options and Usage Help."
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20,"Options:","Description%~0"
+    CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
+    CALL:FORMATOUT 20,20,"--Alias-Remove","Removes the alias key to the registry."
+    CALL:FORMATOUT 20,20,"--AliasFile","Adds the alias file to the registry."
+    CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
+    CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
+    CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
+    CALL:FORMATOUT 20,20," .."," created or modified."
+    CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+    CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
+    CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
+    CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
+    CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"
+    CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
+    CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
+    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  )
+ENDLOCAL
 GOTO:EOF
 
 REM :: Author Information Below
 
 :--About
-IF /I "%ARGS%" GEQ "--About" (
-  SETLOCAL ENABLEDELAYEDEXPANSION
+SETLOCAL ENABLEDELAYEDEXPANSION
+  IF /I "%ARGS%" GEQ "--About" (
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"Author:","Gary L Baird"
     CALL:FORMATOUT 20,20,"Written by:","Gary L Baird"
@@ -263,8 +264,8 @@ IF /I "%ARGS%" GEQ "--About" (
     CALL:FORMATOUT 20,20,"Location:","github.com/GaryLBaird/CommandLineHelper"
     CALL:FORMATOUT 20,20,"License:","GNU GENERAL PUBLIC LICENSE"
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  ENDLOCAL
-)
+  )
+ENDLOCAL
 GOTO:EOF
 
 :DONE
