@@ -107,7 +107,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   SET _LOCATION_=%~2
   SET _EXISTS_=%~nx1
   IF EXIST "!_LOCATION_!\!_EXISTS_!" (
-    ECHO Y/N
+    ECHO Would you like to overwrite !_File_! Y/N?
     SET /P __OVERWRITE__=
   )
   IF NOT EXIST "!_LOCATION_!" (
@@ -136,6 +136,29 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 ENDLOCAL
 GOTO:EOF
 
+:XCopy
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:FORMATOUT 50,50,"Running:%~0","%~1"
+  SET _SOURCE_=%~1
+  SET _DESTINATION_=%~2
+  IF EXIST "%~1" (
+    ECHO Would you like to overwrite !_File_! Y/N?
+    SET /P __OVERWRITE__=
+  )
+  IF /I NOT "!__OVERWRITE__!"=="N" ( 
+    C:\Windows\System32\xcopy.exe /E /V /I /Y "!_SOURCE_!" "!_DESTINATION_!"
+    IF EXIST "%~1" (
+      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was successfully copied."
+    ) ELSE (
+      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied. %ERRORLEVEL%"
+    )
+  ) ELSE (
+    CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied."
+  )
+ENDLOCAL
+GOTO:EOF
+
+
 :--Install
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
@@ -146,6 +169,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=Where to install? Default is [c:\CommandLineHelper].
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
+  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
   CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!"
   CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\%AliasFile%"
   CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"

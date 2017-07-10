@@ -1,0 +1,31 @@
+Using WinSCP with OpenSSH for Windows
+=====================================
+Mike Dixson (http://sshwindows.webheat.co.uk)
+
+WinSCP is a useful graphical user interface for transferring files over an encrypter connection
+using SCP or SFTP. It can be found at: http://winscp.net
+SFTP and SCP are natively more secure than standard FTP.
+
+
+To set up a saved session in WinSCP to connect to OpenSSH for Windows:
+1/. Open WinSCP
+	a/. Click on NEW on the right hand side
+	b/. In the Host name box enter the IP address (change the port number if you've set up OpenSSH to run on a different port number).
+	c/. Enter a username (it's up to you whether you wish to save a password with the saved session but it is inadvisable).
+	d/. Click the SCP radio button below
+
+2/. Check the Advances Options box
+	a/. Expand the Environment setting
+	b/. Click on SCP
+	c/. Under Shell click the Enter radio button and from the drop down to the right of it choose /bin/sh
+	d/. Under Other options uncheck the following(this will speed up connection times):
+		*Lookup user groups
+		*Clear aliases
+		*Clear national variables
+
+3/. Click Save and either accept the default name for the saved session or rename as appropriate.
+
+
+When you connect the first time you will receive a notification about the server's SSH key, accept this to connect.
+You will also see a 'banner' message, you can choose to not see this again or to just ok it for this time.
+The text in this banner is the standard one that comes with opensshd, it can be changed if required, it just gives a fairly standard warning about breaking security being liable to prosecution etc.
