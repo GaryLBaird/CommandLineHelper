@@ -43,19 +43,19 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   SET "__OTHER__=%~4 %~5 %~6"
   SET "spaces=                                                                                                                    "
   SET /A __SIZE__=10
-  CALL:padright __TEXT__ %__Left__%
-  CALL:padleft __SIZE__ %__RIGHT__%
+  CALL:PADRIGHT __TEXT__ %__Left__%
+  CALL:PADLEFT __SIZE__ %__RIGHT__%
   REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
   ECHO. %__TEXT__% %__OTHER__%
 ENDLOCAL
 GOTO:eof
 
-:padright
+:PADRIGHT
 CALL SET padded=%%%1%%%spaces%
 CALL SET %1=%%padded:~0,%2%%
 GOTO:eof
 
-:padleft
+:PADLEFT
 CALL SET padded=%spaces%%%%1%%
 CALL SET %1=%%padded:~-%2%%
 GOTO:EOF
@@ -106,8 +106,9 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   SET _File_=%~1
   SET _LOCATION_=%~2
   SET _EXISTS_=%~nx1
-  IF Exist "!_LOCATION_!\!_EXISTS_!" (
-    SET /P __OVERWRITE__=     Y/N
+  IF EXIST "!_LOCATION_!\!_EXISTS_!" (
+    ECHO Y/N
+    SET /P __OVERWRITE__=
   )
   IF NOT EXIST "!_LOCATION_!" (
     CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
@@ -153,7 +154,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
-CALL %CommandLineHelper%\Scripts\alias.cmd
+CALL %CommandLineHelper%\alias.cmd
 GOTO:EOF
 
 :IsInstalled
@@ -222,7 +223,7 @@ GOTO:EOF
 REM :: Help Content Below
 
 :--Help
-SETLOCAL ENABLEDELAYEDEXPANSION
+REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Help" (
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"File: %SELF_0%"," Options and Usage Help."
@@ -245,7 +246,9 @@ SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
   )
-ENDLOCAL
+REM ENDLOCAL
+GOTO :HelpDone
+:HelpDone
 GOTO:EOF
 
 REM :: Author Information Below
@@ -266,6 +269,8 @@ SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
   )
 ENDLOCAL
+GOTO :AboutDone
+:AboutDone
 GOTO:EOF
 
 :DONE
