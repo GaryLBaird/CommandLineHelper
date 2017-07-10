@@ -1,4 +1,4 @@
-# CommaneLineHelper
+# CommandLineHelper
 *Basic command line helper utilities for software developers.*
 
 The intended usage for *CommandLineHelper* is to provide a user a more linux like command line experience. We will eventually provide most of the linux utilitie.
