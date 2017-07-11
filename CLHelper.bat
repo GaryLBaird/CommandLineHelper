@@ -58,6 +58,54 @@ REM Everything below this line will only be called if a function above has been 
 REM Formatout is an internal utility to format text.
 REM Small Text Formatter Code Begin
 
+:ReadINI
+SET __INI_FILE__=%~1
+SET __SEARCH_KEY__=%~2
+SET __FIND_KEY__=%~3
+SET _INI_RETURN_FILE_=%TEMP%\_INI_RETURN_FILE_.return
+SET __INI_VAR_TO_SET__=%~4
+SET __ECHO__=%~5
+IF DEFINED __ECHO__ ECHO File:%~1 Section:%~2 Key:%~3 ReturnVar:"%~4"
+IF EXIST "%_INI_RETURN_FILE_%" DEL /Q "%_INI_RETURN_FILE_%"
+IF EXIST "%__INI_FILE__%" (
+    FOR /F "delims=* usebackq" %%I in (%__INI_FILE__%) do (
+        IF DEFINED _DEBUG_ CALL:DateTime "%~0 I1=%%I"
+         FOR /F "tokens=1,2,3 delims==" %%A in ("%%I") do (
+            IF DEFINED _DEBUG_ CALL:DateTime "%~0 A1=%%A"
+             IF DEFINED _DEBUG_ CALL:DateTime "%~0 B1=%%B"
+             IF /I ""=="%%B" (
+                IF /I NOT "%%A"=="[%__SEARCH_KEY__%]" (
+                    SET __SEARCH_KEY_FOUND__=
+                    IF DEFINED _DEBUG_ CALL:DateTime "%~0 SET __SEARCH_KEY_FOUND__^="
+                 )
+                IF /I "%%A"=="[%__SEARCH_KEY__%]" (
+                    SET __SEARCH_KEY_FOUND__=%__SEARCH_KEY__%
+                    ECHO.%__SEARCH_KEY__%>"%_INI_RETURN_FILE_%"
+                    IF DEFINED _DEBUG_ CALL:DateTime "%~0 SET __SEARCH_KEY_FOUND__^=%__SEARCH_KEY__%"
+                 )
+            )
+        )
+        IF EXIST "%_INI_RETURN_FILE_%" (
+            IF DEFINED _DEBUG_ CALL:DateTime "%~0 I2=%%I"
+             FOR /F "tokens=1,2,3 delims==" %%A in ("%%I") do (
+                IF DEFINED _DEBUG_ CALL:DateTime "%~0 A2=%%A"
+                 IF DEFINED _DEBUG_ CALL:DateTime "%~0 B2=%%B"
+                 IF "%__FIND_KEY__%"=="%%A" SET %__INI_VAR_TO_SET__%=%%B
+            )
+        )
+    )
+) ELSE (
+    IF DEFINED _DEBUG_ CALL:DateTime "%~0 Could Not Find File:%__INI_FILE__%"
+ )
+REM Cleanup
+SET __INI_FILE__=
+SET __SEARCH_KEY__=
+SET __FIND_KEY__=
+SET __SEARCH_KEY_FOUND__=
+SET __INI_VAR_TO_SET__=
+IF EXIST "%_INI_RETURN_FILE_%" DEL /Q "%_INI_RETURN_FILE_%"
+GOTO:EOF
+
 :--Sleep
 CALL:Sleep %~1
 GOTO:EOF
@@ -92,7 +140,7 @@ IF NOT DEFINED _READWRITEINI_ (
 REM READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
 CALL:INI_Config
 SET _MySettings_=%IsInstalled%\scripts\clhelper.ini
-CALL:--READINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
+CALL:ReadINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
 IF NOT DEFINED FOUND (
   CALL:--WriteINI "%_MySettings_%" "Local" "CLHelper_Dir" "%IsInstalled%"
 )
@@ -101,34 +149,33 @@ SET Settings=Set
 GOTO:EOF
 
 :LookupRubyScripts
-CALL:--ReadINI "%_MySettings_%" "Ruby" "ScriptsDirectory" "__RubyScripts__"
-CALL:--ReadINI "%_MySettings_%" "Ruby" "LinuxTools" "__Linux_Tools__"
+CALL:ReadINI "%_MySettings_%" "Ruby" "ScriptsDirectory" "__RubyScripts__"
+CALL:ReadINI "%_MySettings_%" "Ruby" "LinuxTools" "__Linux_Tools__"
 CALL:CheckRuby
 GOTO:EOF
 
 :LookupUserSettings
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "FirstName" "_FirstName_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "LastName" "_LastName_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Password_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
-CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
-CALL:--ReadINI "%_MySettings_%","%UserName%","MyDomainOrWorkgroup","_MyDomainOrWorkgroup_"
-
+CALL:ReadINI "%_MySettings_%" "%UserName%" "FirstName" "_FirstName_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "LastName" "_LastName_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Password_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
+CALL:ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
+CALL:ReadINI "%_MySettings_%","%UserName%","MyDomainOrWorkgroup","_MyDomainOrWorkgroup_"
 GOTO:EOF
 
 :LookupRemoteConnections
-CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "LinuxServers" "__LINUX_SERVERS__"
-CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "WindowsServers" "__WINDOWS_SERVERS__"
-CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "TargetServers" "__TARGET__"
-CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "GoServer" "__GOSERVER__"
-CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "RemoteScriptsSharedFolder" "__GOSERVER__"
+CALL:ReadINI "%_MySettings_%" "RemoteConnections" "LinuxServers" "__LINUX_SERVERS__"
+CALL:ReadINI "%_MySettings_%" "RemoteConnections" "WindowsServers" "__WINDOWS_SERVERS__"
+CALL:ReadINI "%_MySettings_%" "RemoteConnections" "TargetServers" "__TARGET__"
+CALL:ReadINI "%_MySettings_%" "RemoteConnections" "GoServer" "__GOSERVER__"
+CALL:ReadINI "%_MySettings_%" "RemoteConnections" "RemoteScriptsSharedFolder" "__GOSERVER__"
 GOTO:EOF
 
 :DebugGet
-CALL:--ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
+CALL:ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
 GOTO:EOF
 
 :MakeTaskSub
@@ -146,19 +193,19 @@ FOR /D %%A IN (LinuxServers,WindowsServers,TargetServers) DO (
   CALL:FORMATOUT 30,50,"%%A:","servername,servername2"
   CALL:WriteSetting "RemoteConnections","%%A"
 )
-
+GOTO :Done
 GOTO:EOF
 
 :WriteSetting
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET WriteSection=%~1
 SET WriteKey=%~2
-CALL:--ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
+CALL:ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
 IF /I NOT "!_TEMPNAME_!"=="" (
   CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
   SET /P _KeepCurrent_=
 )
-IF /I "!_KeepCurrent_!" GEQ "N" GOTO:EndWriteSettings
+IF /I "!_KeepCurrent_!" GEQ "N" GOTO :EndWriteSettings
 :StartWriteSettings
 CALL:FORMATOUT 50,30,"Please Enter your !WriteKey!:",""
 SET /P _WriteKey_=
@@ -174,7 +221,11 @@ REG ADD "%~1" /v "%~2" /t %~3 /d "%~4" %~5
 ENDLOCAL
 GOTO:EOF
 
-:--ReadReg
+:--ReadINI
+CALL:ReadINI "%~1","%~2","%~3","%~4","%~5","%~6"
+GOTO:EOF
+
+:ReadReg
 SETLOCAL ENABLEDELAYEDEXPANSION
 set KEY_NAME=%~1
 set VALUE_NAME=%~2
@@ -644,31 +695,34 @@ GOTO:EOF
 
 :--RandomColor
 SETLOCAL ENABLEDELAYEDEXPANSION
-  SET /a LETTER=(%Random% %%6)+1
-  SET /a NUMBER=(%Random% %%9)+1
-  GOTO :CASE_!LETTER!
-  :CASE_1
-    SET RETURN=A
-    GOTO :END_CASE
-  :CASE_2
-    SET RETURN=B
-    GOTO :END_CASE
-  :CASE_3
-    SET RETURN=C
-    GOTO :END_CASE
-  :CASE_4
-    SET RETURN=D
-    GOTO :END_CASE
-  :CASE_5
-    SET RETURN=E
-    GOTO :END_CASE
-  :CASE_6
-    SET RETURN=F
-    GOTO :END_CASE
-  :END_CASE
+SET /a LETTER=(%Random% %%6)+1
+SET /a NUMBER=(%Random% %%9)+1
+GOTO :CASE_!LETTER!
+:CASE_1
+  SET RETURN=A
+  GOTO :END_CASE
+:CASE_2
+  SET RETURN=B
+  GOTO :END_CASE
+:CASE_3
+  SET RETURN=C
+  GOTO :END_CASE
+:CASE_4
+  SET RETURN=D
+  GOTO :END_CASE
+:CASE_5
+  SET RETURN=E
+  GOTO :END_CASE
+:CASE_6
+  SET RETURN=F
+  GOTO :END_CASE
+:END_CASE
 
-ENDLOCAL && set RETURN=%return% && SET NUMBER=%NUMBER%
-IF DEFINED RETURN COLOR %NUMBER%%RETURN%
+ENDLOCAL && set "RETURN_COLOR=%return%" && SET "NUMBER=%NUMBER%"
+IF DEFINED RETURN_COLOR (
+  COLOR %NUMBER%%RETURN_COLOR%
+  ECHO COLOR %NUMBER%%RETURN_COLOR%
+)
 GOTO:EOF
 
 REM --WindowsExplorer opens an instance of file system explorer.
@@ -684,55 +738,6 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   )
   "C:\Windows\explorer.exe" "!_DIR_!"
 ENDLOCAL
-GOTO:EOF
-
-
-:--ReadINI
-SET __INI_FILE__=%~1
-SET __SEARCH_KEY__=%~2
-SET __FIND_KEY__=%~3
-SET _INI_RETURN_FILE_=%TEMP%\_INI_RETURN_FILE_.return
-SET __INI_VAR_TO_SET__=%~4
-SET __ECHO__=%~5
-IF DEFINED __ECHO__ ECHO File:%~1 Section:%~2 Key:%~3 ReturnVar:"%~4"
-IF EXIST "%_INI_RETURN_FILE_%" DEL /Q "%_INI_RETURN_FILE_%"
-IF EXIST "%__INI_FILE__%" (
-    FOR /F "delims=* usebackq" %%I in (%__INI_FILE__%) do (
-        IF DEFINED _DEBUG_ CALL:DateTime "%~0 I1=%%I"
-         FOR /F "tokens=1,2,3 delims==" %%A in ("%%I") do (
-            IF DEFINED _DEBUG_ CALL:DateTime "%~0 A1=%%A"
-             IF DEFINED _DEBUG_ CALL:DateTime "%~0 B1=%%B"
-             IF /I ""=="%%B" (
-                IF /I NOT "%%A"=="[%__SEARCH_KEY__%]" (
-                    SET __SEARCH_KEY_FOUND__=
-                    IF DEFINED _DEBUG_ CALL:DateTime "%~0 SET __SEARCH_KEY_FOUND__^="
-                 )
-                IF /I "%%A"=="[%__SEARCH_KEY__%]" (
-                    SET __SEARCH_KEY_FOUND__=%__SEARCH_KEY__%
-                    ECHO.%__SEARCH_KEY__%>"%_INI_RETURN_FILE_%"
-                    IF DEFINED _DEBUG_ CALL:DateTime "%~0 SET __SEARCH_KEY_FOUND__^=%__SEARCH_KEY__%"
-                 )
-            )
-        )
-        IF EXIST "%_INI_RETURN_FILE_%" (
-            IF DEFINED _DEBUG_ CALL:DateTime "%~0 I2=%%I"
-             FOR /F "tokens=1,2,3 delims==" %%A in ("%%I") do (
-                IF DEFINED _DEBUG_ CALL:DateTime "%~0 A2=%%A"
-                 IF DEFINED _DEBUG_ CALL:DateTime "%~0 B2=%%B"
-                 IF "%__FIND_KEY__%"=="%%A" SET %__INI_VAR_TO_SET__%=%%B
-            )
-        )
-    )
-) ELSE (
-    IF DEFINED _DEBUG_ CALL:DateTime "%~0 Could Not Find File:%__INI_FILE__%"
- )
-REM Cleanup
-SET __INI_FILE__=
-SET __SEARCH_KEY__=
-SET __FIND_KEY__=
-SET __SEARCH_KEY_FOUND__=
-SET __INI_VAR_TO_SET__=
-IF EXIST "%_INI_RETURN_FILE_%" DEL /Q "%_INI_RETURN_FILE_%"
 GOTO:EOF
 
 :INI_Config
