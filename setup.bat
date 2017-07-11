@@ -179,6 +179,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
 CALL %CommandLineHelper%\alias.cmd
+CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings
 GOTO:EOF
 
 :IsInstalled

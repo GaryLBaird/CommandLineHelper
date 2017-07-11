@@ -56,6 +56,10 @@ REM Everything below this line will only be called if a function above has been 
 REM Formatout is an internal utility to format text.
 REM Small Text Formatter Code Begin
 
+:--Sleep
+CALL:Sleep %~1
+GOTO:EOF
+
 :IsInstalled
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
@@ -66,6 +70,95 @@ ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
+GOTO:EOF
+
+:Settings
+REM The Command Line Helper needs to know where it's installed and where the VB scripts are.
+IF NOT EXIST "C:\Windows\System32\cscript.exe" (
+  IF NOT DEFINED _CSCRIPT_PATH_ SET /P _CSCRIPT_PATH_=Please provide the path to cscript.
+) ELSE (
+  SET _CSCRIPT_PATH_=C:\Windows\System32\cscript.exe
+)
+REM READWRITEINI PATH
+IF NOT DEFINED _READWRITEINI_ (
+  IF NOT EXIST "%SELF_1%\scripts\vbs\readwriteini.vbs" (
+    SET /P _READWRITEINI_=Please provide the path to the readwriteini.vbs.
+  ) ELSE (
+    SET _READWRITEINI_=%SELF_1%\scripts\vbs\readwriteini.vbs
+  )
+)
+REM READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
+CALL:INI_Config
+SET _MySettings_=%IsInstalled%\scripts\clhelper.ini
+CALL:--READINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
+IF NOT DEFINED FOUND (
+  CALL:--WriteINI "%_MySettings_%" "Local" "CLHelper_Dir" "%IsInstalled%"
+)
+SET FOUND=
+SET Settings=Set
+GOTO:EOF
+
+:LookupRubyScripts
+CALL:--ReadINI "%_MySettings_%" "Ruby" "ScriptsDirectory" "__RubyScripts__"
+CALL:--ReadINI "%_MySettings_%" "Ruby" "LinuxTools" "__Linux_Tools__"
+CALL:CheckRuby
+GOTO:EOF
+
+:LookupUserSettings
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "FirstName" "_FirstName_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "LastName" "_LastName_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Password_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
+CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
+GOTO:EOF
+
+:SetUserSettings
+
+GOTO:EOF
+
+:LookupRemoteConnections
+CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "LinuxServers" "__LINUX_SERVERS__"
+CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "WindowsServers" "__WINDOWS_SERVERS__"
+CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "TargetServers" "__TARGET__"
+CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "GoServer" "__GOSERVER__"
+CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "RemoteScriptsSharedFolder" "__GOSERVER__"
+GOTO:EOF
+
+:DebugGet
+CALL:--ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
+GOTO:EOF
+
+:MakeTaskSub
+CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
+GOTO:EOF
+
+:--SetupUserIniSettings
+SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY_Scripts_Dir,MyUserName,MyPassword
+FOR /D %%A IN (%UserSettingsVARLIST%) DO (
+  CALL:WriteSetting "%USERNAME%","%%A"
+)
+GOTO:EOF
+
+:WriteSetting
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET WriteSection=%~1
+SET WriteKey=%~2
+CALL:--ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
+IF /I NOT "!_TEMPNAME_!"=="" (
+  CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
+  SET /P _KeepCurrent_=
+)
+IF /I "!_KeepCurrent_!" GEQ "N" GOTO:EndWriteSettings
+:StartWriteSettings
+CALL:FORMATOUT 50,30,"Please Enter your !WriteKey!:",""
+SET /P _WriteKey_=
+IF "!_WriteKey_!"=="" CALL:StartWriteSettings
+CALL:--WriteINI "!_MySettings_!","!WriteSection!","!WriteKey!","!_WriteKey_!"
+:EndWriteSettings
+ENDLOCAL && SET "_%~2_=%_WriteKey_%"
 GOTO:EOF
 
 :--RegAdd
@@ -124,35 +217,9 @@ ECHO FOUND_KEYS:"!FOUND_KEY!"
 ENDLOCAL && SET FOUND_KEYS=%FOUND_KEY%
 GOTO:EOF
 
-:Settings
-REM The Command Line Helper needs to know where it's installed and where the VB scripts are.
-IF NOT EXIST "C:\Windows\System32\cscript.exe" (
-  IF NOT DEFINED _CSCRIPT_PATH_ SET /P _CSCRIPT_PATH_=Please provide the path to cscript.
-) ELSE (
-  SET _CSCRIPT_PATH_=C:\Windows\System32\cscript.exe
-)
-REM READWRITEINI PATH
-IF NOT DEFINED _READWRITEINI_ (
-  IF NOT EXIST "%SELF_1%\scripts\vbs\readwriteini.vbs" (
-    SET /P _READWRITEINI_=Please provide the path to the readwriteini.vbs.
-  ) ELSE (
-    SET _READWRITEINI_=%SELF_1%\scripts\vbs\readwriteini.vbs
-  )
-)
-REM READWRITEINI can only handle up to 7000 lines of text. After that it will truncate everything.
-CALL:INI_Config
-SET _MySettings_=%IsInstalled%\scripts\clhelper.ini
-CALL:--READINI "%_MySettings_%" "Local" "CLHelper_Dir" "FOUND"
-IF NOT DEFINED FOUND (
-  CALL:--WriteINI "%_MySettings_%" "Local" "CLHelper_Dir" "%IsInstalled%"
-)
-SET FOUND=
-SET Settings=Set
-GOTO:EOF
-
 REM sleep for x number of seconds
 
-:--Sleep
+:Sleep
 ping -n %1 127.0.0.1 > NUL 2>&1
 GOTO:EOF
 
@@ -329,6 +396,178 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   ) ELSE (
     CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
   )
+ENDLOCAL
+GOTO:EOF
+
+:XCopy
+:xcopystart
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET _SOURCE_=%~1
+  SET _DESTINATION_=%~2
+  IF "%_SOURCE_%"=="" (
+    CALL:FORMATOUT 50,50,"Please provide a source folder."
+    SET /P _SOURCE_=%~1
+    IF NOT DEFINED _SOURCE_ GOTO :xcopyfinished
+    CALL:FORMATOUT 50,50,"Please provide a Destination folder."
+    SET /P _DESTINATION_=%~2
+    IF NOT DEFINED _SOURCE_ GOTO :xcopyfinished
+  )
+  CALL:FORMATOUT 50,50,"Running:%~0","%~1"
+  IF EXIST "%~1" (
+    ECHO Would you like to overwrite !_File_! Y/N?
+    SET /P __OVERWRITE__=
+  )
+  IF /I NOT "!__OVERWRITE__!"=="N" ( 
+    C:\Windows\System32\xcopy.exe /E /V /I /Y "!_SOURCE_!" "!_DESTINATION_!"
+    IF EXIST "%~1" (
+      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was successfully copied."
+    ) ELSE (
+      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied. %ERRORLEVEL%"
+    )
+  ) ELSE (
+    CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied."
+  )
+ENDLOCAL
+:xcopyfinished
+GOTO:EOF
+
+:--KILLCOMMAND
+SET __SPEC__=%~1
+IF DEFINED __SPEC__ SET __SPEC__=%~1.%_MyDomainOrWorkgroup_% - Remote Desktop Connection
+IF NOT DEFINED __SPEC__ SET __SPEC__=*.%_MyDomainOrWorkgroup_% - Remote Desktop Connection
+TASKKILL /FI "WINDOWTITLE eq %__SPEC__%"
+GOTO:EOF
+
+:--KILL
+SET __SPEC__=%~1
+IF DEFINED __SPEC__ TASKKILL /FI "WINDOWTITLE eq %__SPEC__%"
+GOTO:EOF
+
+:--KILLPROCESS
+SET __SPEC__=%~1
+IF DEFINED __SPEC__ TASKKILL /FI "WINDOWTITLE eq %__SPEC__%"
+GOTO:EOF
+
+:--RDP
+SET __RDP__=%~1
+IF DEFINED __RDP__ (
+  SET _WINDOWS_SERVERS_=%__RDP__%
+) ELSE (
+  SET _WINDOWS_SERVERS_=%__WINDOWS_SERVERS__%
+)  
+cmdkey /list >%TEMP%\lst.txt
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%_WINDOWS_SERVERS_%) DO (
+  CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+  CALL:FORMATOUT 20,30,"Connecting to:","%%A.%_MyDomainOrWorkgroup_%"
+  SET _FOUND_=
+  FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%%A.%_MyDomainOrWorkgroup_%.*"') DO (
+    ECHO Checking key for:"%%G"
+    FOR /F "delims== tokens=1,*" %%H IN ("%%G") DO (
+      ECHO Found entry for %%I
+      SET _FOUND_=%%A.%_MyDomainOrWorkgroup_%
+    )
+  )
+  IF /I NOT "!_FOUND_!"=="%%A.%_MyDomainOrWorkgroup_%" (
+    CALL:FORMATOUT 20,30,"Creating cmdkey record:","%%A.%_MyDomainOrWorkgroup_%"
+    IF NOT DEFINED _DEBUG_ cmdkey /generic:%%A.%_MyDomainOrWorkgroup_% /user:%_MyUserName_% /pass:%_MyPassword_%
+    IF NOT DEFINED _DEBUG_ cmdkey /add:%%A.%_MyDomainOrWorkgroup_% /user:%_MyUserName_% /pass:%_MyPassword_%
+  )
+  IF NOT DEFINED _DEBUG_ START %windir%\system32\mstsc.exe /v:%%A.%_MyDomainOrWorkgroup_% /W:1024 /H:768 /admin
+  CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+)
+ENDLOCAL
+del /Q "%TEMP%\lst.txt"
+GOTO:EOF
+
+:--SSH_GO
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%__GOSERVER__%) DO (
+  ECHO._________________________________________________________________________________
+  ECHO Connecting to Linux Server: %%A.%_MyDomainOrWorkgroup_%
+  IF NOT DEFINED _DEBUG_ START ssh gary@%%A.%_MyDomainOrWorkgroup_% -i %userprofile%\.ssh\id_rsa
+  ECHO._________________________________________________________________________________
+)
+ENDLOCAL
+GOTO:EOF
+
+:Linux
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%__LINUX_SERVERS__%) DO (
+  ECHO._________________________________________________________________________________
+  ECHO Connecting to Linux Server: %%A.%_MyDomainOrWorkgroup_%
+  IF NOT DEFINED _DEBUG_ START ssh %_MyUserName_%@%%A.%_MyDomainOrWorkgroup_% -i %userprofile%\.ssh\id_rsa
+  ECHO._________________________________________________________________________________
+)
+ENDLOCAL
+GOTO:EOF
+
+:--rcmdkey
+cmdkey /list >%TEMP%\lst.txt
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%__WINDOWS_SERVERS__%) DO (
+  ECHO._________________________________________________________________________________
+  ECHO Checking for entry: %%A.%_MyDomainOrWorkgroup_%
+  SET _FOUND_=
+  FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%%A.%_MyDomainOrWorkgroup_%.*"') DO (
+    ECHO Checking key for:"%%G"
+    FOR /F "delims== tokens=1,*" %%H IN ("%%G") DO (
+      ECHO Found entry for %%I
+      IF NOT DEFINED _DEBUG_ call cmdkey /delete:%%I
+    )
+  )
+  IF /I NOT "!_FOUND_!"=="" (
+    ECHO Removed:%%A.%_MyDomainOrWorkgroup_%
+  ) ELSE (
+    ECHO Nothing to do for:%%A.%_MyDomainOrWorkgroup_%
+  )
+  ECHO._________________________________________________________________________________
+)
+del /Q "%TEMP%\lst.txt"
+ENDLOCAL
+cmdkey /list >%TEMP%\lst.txt
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%__WINDOWS_SERVERS__%) DO (
+  ECHO._________________________________________________________________________________
+  ECHO Checking for entry: %%A.%_MyDomainOrWorkgroup_%
+  SET _FOUND_=
+  FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%%A@%_MyDomainOrWorkgroup_%.*"') DO (
+    ECHO Checking key for:"%%G"
+    FOR /F "delims== tokens=1,*" %%H IN ("%%G") DO (
+      ECHO Found entry for %%I
+      IF NOT DEFINED _DEBUG_ call cmdkey /delete:%%I
+    )
+  )
+  IF /I NOT "!_FOUND_!"=="" (
+    ECHO Removed:%%A.%_MyDomainOrWorkgroup_%
+  ) ELSE (
+    ECHO Nothing to do for:%%A.%_MyDomainOrWorkgroup_%
+  )
+  ECHO._________________________________________________________________________________
+)
+del /Q "%TEMP%\lst.txt"
+ENDLOCAL
+cmdkey /list >%TEMP%\lst.txt
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /D %%A IN (%__WINDOWS_SERVERS__%) DO (
+  ECHO._________________________________________________________________________________
+  ECHO Checking for entry: %%A.%_MyDomainOrWorkgroup_%
+  SET _FOUND_=
+  FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%_MyDomainOrWorkgroup_%.*"') DO (
+    ECHO Checking key for:"%%G"
+    FOR /F "delims== tokens=1,*" %%H IN ("%%G") DO (
+      ECHO Found entry for %%I
+      IF NOT DEFINED _DEBUG_ call cmdkey /delete:%%I
+    )
+  )
+  IF /I NOT "!_FOUND_!"=="" (
+    ECHO Removed:%%A.%_MyDomainOrWorkgroup_%
+  ) ELSE (
+    ECHO Nothing to do for:%%A.%_MyDomainOrWorkgroup_%
+  )
+  ECHO._________________________________________________________________________________
+)
+del /Q "%TEMP%\lst.txt"
 ENDLOCAL
 GOTO:EOF
 
@@ -678,7 +917,7 @@ GOTO:EOF
 REM Clears Any Default Variables that might have been set while running this batch file.
 
 SET _DEBUG_=
-SET _PASSWORD_=
+SET _MyPassword_=
 SET _CLEAN_=
 SET ARGS=
 SET __RUNONCEONLY__=
