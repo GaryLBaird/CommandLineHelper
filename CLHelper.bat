@@ -115,6 +115,8 @@ CALL:--ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
 CALL:--ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
 CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
 CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
+CALL:--ReadINI "%_MySettings_%","%UserName%","MyDomainOrWorkgroup","_MyDomainOrWorkgroup_"
+
 GOTO:EOF
 
 :LookupRemoteConnections
@@ -186,18 +188,18 @@ FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
 )
 IF NOT DEFINED NOSHOW (
   IF DEFINED ValueValue (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
     CALL:FORMATOUT 50,50,"Key:","Value:"
-    CALL:FORMATOUT 50,50,"----","------"
+    CALL:FORMATOUT 50,50," ----"," ------"
     CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
     CALL:FORMATOUT 50,50,"REG_Type","%Type%"
     CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
     CALL:FORMATOUT 50,50,"ENV:%~3","%ValueValue%"
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
   ) ELSE (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
     CALL:FORMATOUT 50,50,"Result:","Key and Name:"
-    CALL:FORMATOUT 50,50,"-------","-------------"
+    CALL:FORMATOUT 50,50," -------"," -------------"
     CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
   )
 )
@@ -276,12 +278,12 @@ GOTO:EOF
 :Install_OpenSSH
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET _OpenSSH32bit_=http://downloads.sourceforge.net/gnuwin32/openssl-0.9.8h-1-setup.exe
-CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET _AMD64_=True
 IF DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 64-bit version","Y/N"
 IF NOT DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 32-bit version:","Y/N"
 SET /P _DOINSTALLGIT_=Do you wish to install OpenSSH?
-CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 IF DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_OpenSSH32bit_%",""
 IF NOT DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_OpenSSH32bit_%",""
 IF DEFINED _AMD64_ (
@@ -300,12 +302,12 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 REM Eventually we need to look up the versions but for now this is not supported.
 SET _GIT32bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-32-bit.exe
 SET _GIT64bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-64-bit.exe
-CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET _AMD64_=True
 IF DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 64-bit version","Y/N"
 IF NOT DEFINED _AMD64_ CALL:FORMATOUT 40,30,"Install 32-bit version:","Y/N"
 SET /P _DOINSTALLGIT_=Do you wish to install Git?
-CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 IF DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_GIT64bit_%",""
 IF NOT DEFINED _AMD64_ CALL:FORMATOUT 100,50,"%_GIT32bit_%",""
 IF DEFINED _AMD64_ (
@@ -463,7 +465,7 @@ IF DEFINED __RDP__ (
 cmdkey /list >%TEMP%\lst.txt
 SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /D %%A IN (%_WINDOWS_SERVERS_%) DO (
-  CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+  CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
   CALL:FORMATOUT 20,30,"Connecting to:","%%A.%_MyDomainOrWorkgroup_%"
   SET _FOUND_=
   FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%%A.%_MyDomainOrWorkgroup_%.*"') DO (
@@ -479,7 +481,7 @@ FOR /D %%A IN (%_WINDOWS_SERVERS_%) DO (
     IF NOT DEFINED _DEBUG_ cmdkey /add:%%A.%_MyDomainOrWorkgroup_% /user:%_MyUserName_% /pass:%_MyPassword_%
   )
   IF NOT DEFINED _DEBUG_ START %windir%\system32\mstsc.exe /v:%%A.%_MyDomainOrWorkgroup_% /W:1024 /H:768 /admin
-  CALL:FORMATOUT 100,50,"--------------------------------------------------------------------------------------------------------",""
+  CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 )
 ENDLOCAL
 del /Q "%TEMP%\lst.txt"
@@ -834,13 +836,13 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"Options:","Description%~0"
-    CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
-    CALL:FORMATOUT 20,20,"--BestColor","Sets the color of the command window."
+    CALL:FORMATOUT 20,20," --About","Describes the author and purpose."
+    CALL:FORMATOUT 20,20," --BestColor","Sets the color of the command window."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --BestColor Background_Color Text_Color"
-    CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+    CALL:FORMATOUT 20,20," --Copy","Copies a file and creates destination directory if missing."
     CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
-    CALL:FORMATOUT 20,20,"--CreateAliasFile","Creates the alias file."
+    CALL:FORMATOUT 20,20," --CreateAliasFile","Creates the alias file."
     CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
     CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
     CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
@@ -848,37 +850,37 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20,"-FindKey","Recursively search a registry hive for keys."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% -FindKey 'HKLM\Software\Hive' 'key' "
     CALL:FORMATOUT 20,20," ..  Returns:","Env:Variable 'FOUND_KEYS'"
-    CALL:FORMATOUT 20,20,"--Install","Download and install a utility."
+    CALL:FORMATOUT 20,20," --Install","Download and install a utility."
     CALL:FORMATOUT 20,20," ..  Parameters:","[Git/Python2.7/Python3.1]"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --Install Git"
     CALL:FORMATOUT 20,20," ..  ListOptions:","%SELF_0% --Install Options"
-    CALL:FORMATOUT 20,20,"--GitCommit","Commits changes using git.exe"
-    CALL:FORMATOUT 20,20,"--GitForce","Cleans Source Repository for Git.exe"
-    CALL:FORMATOUT 20,20,"--Sleep","Sleep for x number of seconds."
+    CALL:FORMATOUT 20,20," --GitCommit","Commits changes using git.exe"
+    CALL:FORMATOUT 20,20," --GitForce","Cleans Source Repository for Git.exe"
+    CALL:FORMATOUT 20,20," --Sleep","Sleep for x number of seconds."
     CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --Sleep 10'","Will sleep for 10 seconds."
-    CALL:FORMATOUT 20,20,"--ReadINI","Reads a value from an '.ini' file."
+    CALL:FORMATOUT 20,20," --ReadINI","Reads a value from an '.ini' file."
     CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] [Environment_Variable_Name]"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
     CALL:FORMATOUT 20,20," ..  Results:","If the key was found, the value of the Key will be"
     CALL:FORMATOUT 20,20," ..  "," the value of EnvVar."
     CALL:FORMATOUT 20,20," ..  Section:"," [section]"
     CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
-    CALL:FORMATOUT 20,20,"--RegRead","Reads a registry key and then sets an environment variable to"
+    CALL:FORMATOUT 20,20," --RegRead","Reads a registry key and then sets an environment variable to"
     CALL:FORMATOUT 20,20," ..  "," 'RegKey'."
     CALL:FORMATOUT 20,20," ..Example:","%SELF_0% --ReadReg 'HKCU\Name\Name' 'KeyName' 'NOSHOW'"
     CALL:FORMATOUT 20,20," ..Parameters:","Registry_Key Registry_Key_Name Optional:['NOSHOW']"
-    CALL:FORMATOUT 20,20,"--RandomColor","Randomly picks and sets the color of the command window."
+    CALL:FORMATOUT 20,20," --RandomColor","Randomly picks and sets the color of the command window."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RandomColor Background_Color Text_Color"
-    CALL:FORMATOUT 20,20,"--RDP","Opens remote desktop session for computername specified."
+    CALL:FORMATOUT 20,20," --RDP","Opens remote desktop session for computername specified."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RDP Servername"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RDP "
     CALL:FORMATOUT 20,20," ..  Default:","If no server is specified it will attempt to connect to "
     CALL:FORMATOUT 20,20," ..  Default:"," all the servers in the __WINDOWS_SERVERS__ variable."
-    CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
-    CALL:FORMATOUT 20,20,"--WindowsExplorer","Opens the Windows Explorer."
+    CALL:FORMATOUT 20,20," --Help","Displays this help menu."
+    CALL:FORMATOUT 20,20," --WindowsExplorer","Opens the Windows Explorer."
     CALL:FORMATOUT 20,20," ..  Usage:","It will open to the directory passed on the command line."
     CALL:FORMATOUT 20,20," ..  "," If no command was passed the current working directory is used."
-    CALL:FORMATOUT 20,20,"--WRITEINI","Writes a value to an '.ini' file."
+    CALL:FORMATOUT 20,20," --WRITEINI","Writes a value to an '.ini' file."
     CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] ['Your Data Here']"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --WriteINI 'FileName.ini' 'Section' 'Key' 'Data'"
     CALL:FORMATOUT 20,20," ..  Results:","If the file does not exist the file will be created."
@@ -889,7 +891,7 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20," ..  "," Malformed INI files are not supported. "
     CALL:FORMATOUT 20,20," ..  Section:"," [section]"
     CALL:FORMATOUT 20,20," ..  Key:Value:"," key=value"
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," ---------------------------"," ------------------------------------------------------"
   ) ELSE (
   
   goto :EndHelp
@@ -903,7 +905,7 @@ REM Author Information Below
 :--About
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--About" (
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," ---------------------------"," ------------------------------------------------------"
     CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
     CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
     CALL:FORMATOUT 20,20,"Phone:---------------------","TBA"
@@ -913,7 +915,7 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
     CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommandLineHelper"
     CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," ---------------------------"," ------------------------------------------------------"
   ) ELSE (
   
   goto :EndAbout
