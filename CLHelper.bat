@@ -206,7 +206,7 @@ IF NOT DEFINED NOSHOW (
 ENDLOCAL && SET "%~3=%ValueValue%"
 GOTO:EOF
 
-:-FindKey
+:--FindKey
 ECHO %~0
 SETLOCAL ENABLEDELAYEDEXPANSION
 set KEY_NAME=%~1
@@ -832,6 +832,7 @@ REM Help Content Below
 :--Help
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Help" (
+    CLS
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -847,8 +848,8 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
     CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
     CALL:FORMATOUT 20,20," .."," created or modified."
-    CALL:FORMATOUT 20,20,"-FindKey","Recursively search a registry hive for keys."
-    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% -FindKey 'HKLM\Software\Hive' 'key' "
+    CALL:FORMATOUT 20,20," --FindKey","Recursively search a registry hive for keys."
+    CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --FindKey 'HKLM\Software\Hive' 'key' "
     CALL:FORMATOUT 20,20," ..  Returns:","Env:Variable 'FOUND_KEYS'"
     CALL:FORMATOUT 20,20," --Install","Download and install a utility."
     CALL:FORMATOUT 20,20," ..  Parameters:","[Git/Python2.7/Python3.1]"
@@ -905,16 +906,17 @@ REM Author Information Below
 :--About
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--About" (
+    CLS
     CALL:FORMATOUT 20,20," ---------------------------"," ------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"Author:--------------------","Gary L Baird"
-    CALL:FORMATOUT 20,20,"Written by:----------------","Gary L Baird"
-    CALL:FORMATOUT 20,20,"Phone:---------------------","TBA"
-    CALL:FORMATOUT 20,20,"Email:---------------------","TBA"
-    CALL:FORMATOUT 20,20,"Filename:------------------","%SELF_0%"
-    CALL:FORMATOUT 20,20,"Purpose:-------------------","Make the Windows Command Line more friendly."
-    CALL:FORMATOUT 20,20,"Project:-------------------","Part of the Command Line Helper project."
-    CALL:FORMATOUT 20,20,"Location:-------------------","github.com/GaryLBaird/CommandLineHelper"
-    CALL:FORMATOUT 20,20,"License:-------------------","GNU GENERAL PUBLIC LICENSE"
+    CALL:FORMATOUT 20,20," Author:--------------------"," Gary L Baird"
+    CALL:FORMATOUT 20,20," Written by:----------------"," Gary L Baird"
+    CALL:FORMATOUT 20,20," Phone:---------------------"," TBA"
+    CALL:FORMATOUT 20,20," Email:---------------------"," TBA"
+    CALL:FORMATOUT 20,20," Filename:------------------"," %SELF_0%"
+    CALL:FORMATOUT 20,20," Purpose:-------------------"," Make the Windows Command Line more friendly."
+    CALL:FORMATOUT 20,20," Project:-------------------"," Part of the Command Line Helper project."
+    CALL:FORMATOUT 20,20," Location:-------------------"," github.com/GaryLBaird/CommandLineHelper"
+    CALL:FORMATOUT 20,20," License:-------------------"," GNU GENERAL PUBLIC LICENSE"
     CALL:FORMATOUT 20,20," ---------------------------"," ------------------------------------------------------"
   ) ELSE (
   

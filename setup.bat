@@ -22,7 +22,7 @@ IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 FOR /f "delims=- tokens=1,2,3*" %%A IN ("%ARG_1%") DO SET ARG_1=%%A 
 
-CALL:IsInstalled 
+CALL:IsInstalled %NOSHOW%
 REM :: This is where the functions are called, but only if an argument has been passed.
 IF DEFINED ARGS CALL:%ARGS%
 REM ::  If no arguments were passed it will automatically show the help screen.
@@ -250,6 +250,7 @@ REM :: Help Content Below
 :--Help
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Help" (
+    CLS
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"File: %SELF_0%"," Options and Usage Help."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
@@ -281,6 +282,7 @@ REM :: Author Information Below
 :--About
 SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--About" (
+    CLS
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
     CALL:FORMATOUT 20,20,"Author:","Gary L Baird"
     CALL:FORMATOUT 20,20,"Written by:","Gary L Baird"
@@ -306,6 +308,7 @@ SET _DEBUG_=
 SET _PASSWORD_=
 SET _CLEAN_=
 SET ARGS=
+SET NOSHOW=NOSHOW
 goto :Finished
 
 :Finished
