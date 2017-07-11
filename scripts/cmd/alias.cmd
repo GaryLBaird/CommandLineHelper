@@ -9,6 +9,7 @@
 ::::  SETTINGS BEGIN ::::
 :: Set Default Variables Begin ::
 SET _CLHScripts_=c:\CommandLineHelper\Scripts
+SET _CustomAlias_=C:\dev\scripts\alias.cmd
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
 :: Set Default Variables End ::
@@ -68,6 +69,7 @@ DOSKEY explorer=%CLHelper% --WindowsExplorer $*
 DOSKEY CLCopy=%CLHelper% --Copy $*
 DOSKEY rc=%CLHelper% --RandomColor $*
 DOSKEY commit=%CLHelper% --GitCommit $*
+DOSKEY custom=%_CustomAlias_%
 :: Custom Alias Keys Begin ::
 
 :: Doskey Commands End ::
