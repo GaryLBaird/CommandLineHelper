@@ -33,6 +33,8 @@ IF DEFINED IsInstalled (
   ECHO You should run "setup.bat --Install"
 )
 IF NOT DEFINED Settings CALL:Settings
+CALL:LookupUserSettings
+CALL:LookupRemoteConnections
 
 REM This is where the functions are called, but only if an argument has been passed.
 
@@ -115,10 +117,6 @@ CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
 CALL:--ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
 GOTO:EOF
 
-:SetUserSettings
-
-GOTO:EOF
-
 :LookupRemoteConnections
 CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "LinuxServers" "__LINUX_SERVERS__"
 CALL:--ReadINI "%_MySettings_%" "RemoteConnections" "WindowsServers" "__WINDOWS_SERVERS__"
@@ -140,6 +138,13 @@ SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY
 FOR /D %%A IN (%UserSettingsVARLIST%) DO (
   CALL:WriteSetting "%USERNAME%","%%A"
 )
+SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY_Scripts_Dir,MyUserName,MyPassword
+FOR /D %%A IN (LinuxServers,WindowsServers,TargetServers) DO (
+  CALL:FORMATOUT 30,50,"File:","%_MySettings_%"
+  CALL:FORMATOUT 30,50,"%%A:","servername,servername2"
+  CALL:WriteSetting "RemoteConnections","%%A"
+)
+
 GOTO:EOF
 
 :WriteSetting
