@@ -70,6 +70,8 @@ DOSKEY CLCopy=%CLHelper% --Copy $*
 DOSKEY rc=%CLHelper% --RandomColor $*
 DOSKEY commit=%CLHelper% --GitCommit $*
 DOSKEY custom=%_CustomAlias_%
+DOSKEY ls=%CLHelper% --ls $*
+DOSKEY vjson=%CLHelper% --JsonCheck $*
 :: Custom Alias Keys Begin ::
 
 :: Doskey Commands End ::

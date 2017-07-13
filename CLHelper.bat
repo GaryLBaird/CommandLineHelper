@@ -20,13 +20,16 @@ IF DEFINED ARG_6 SET ARGS=%ARGS%,%ARG_6%
 IF DEFINED ARG_7 SET ARGS=%ARGS%,%ARG_7%
 IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
-for /f "delims=- tokens=1,2,3*" %%a in ("%ARG_1%") do SET ARG_1=%%a 
+FOR /F "delims=- tokens=1,2,3*" %%A in ("%ARG_1%") do (
+  SET ARG_1=%%A
+)
 
 REM Command Line Helper needs to know a few things.
 REM The MySettingsINI path is used to hold specific variables you use in your environment.
 IF NOT DEFINED IsInstalled (
   CALL:IsInstalled NOSHOW
 )
+CALL:Settings
 IF DEFINED IsInstalled (
   ECHO %IsInstalled%
 ) ELSE (
@@ -197,10 +200,12 @@ GOTO :Done
 GOTO:EOF
 
 :WriteSetting
-SETLOCAL ENABLEDELAYEDEXPANSION
 SET WriteSection=%~1
 SET WriteKey=%~2
+SET _KeepCurrent_=Y
+SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
+echo.template=!_TEMPNAME_!
 IF /I NOT "!_TEMPNAME_!"=="" (
   CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
   SET /P _KeepCurrent_=
@@ -225,6 +230,10 @@ GOTO:EOF
 CALL:ReadINI "%~1","%~2","%~3","%~4","%~5","%~6"
 GOTO:EOF
 
+:--ReadReg
+CALL:ReadReg "%~1","%~2","%~3",%~4 
+GOTO:EOF
+
 :ReadReg
 SETLOCAL ENABLEDELAYEDEXPANSION
 set KEY_NAME=%~1
@@ -240,18 +249,18 @@ FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
 IF NOT DEFINED NOSHOW (
   IF DEFINED ValueValue (
     CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Key:","Value:"
+    CALL:FORMATOUT 50,50," Key:","Value:"
     CALL:FORMATOUT 50,50," ----"," ------"
-    CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
-    CALL:FORMATOUT 50,50,"REG_Type","%Type%"
-    CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
-    CALL:FORMATOUT 50,50,"ENV:%~3","%ValueValue%"
+    CALL:FORMATOUT 50,50," Name","%KEY_NAME%"
+    CALL:FORMATOUT 50,50," REG_Type","%Type%"
+    CALL:FORMATOUT 50,50," %VALUE_NAME%","%ValueValue%"
+    CALL:FORMATOUT 50,50," ENV:%~3","%ValueValue%"
     CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
   ) ELSE (
     CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Result:","Key and Name:"
+    CALL:FORMATOUT 50,50," Result:","Key and Name:"
     CALL:FORMATOUT 50,50," -------"," -------------"
-    CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
+    CALL:FORMATOUT 50,50," Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
   )
 )
 ENDLOCAL && SET "%~3=%ValueValue%"
@@ -326,6 +335,29 @@ GOTO:EOF
 CALL:Install_%~1
 GOTO:EOF
 
+:--JsonCheck
+SETLOCAL ENABLEDELAYEDEXPANSION
+:StartJsonCheck
+FOR /F "delims== tokens=*" %%A IN ('gem list jsonlint ^| findstr "jsonlint"') DO (
+  IF NOT "%%A"=="" (
+    SET JsonCheck=%%A
+  )
+)
+ENDLOCAL && SET "JsonCheck=%JsonCheck%"
+IF NOT DEFINED JsonCheck gem install jsonlint && goto :StartJsonCheck
+IF DEFINED JsonCheck (
+  CALL:FORMATOUT 20,20,"Checking File:","%~n1%~x1"
+  CALL:FORMATOUT 20,20,"Size:","%~z1"
+  CALL:FORMATOUT 20,20,"Date:","%~t1"
+  FOR /F "delims== tokens=*" %%A IN ('Ruby.exe "%CommandLineHelper%\scripts\ruby\JsonSyntaxCheck.rb" "%~1"') DO (
+    IF NOT "%%A"=="" (
+      CALL:FORMATOUT 20,20,"Results:","%%A"
+    )
+  )
+)
+SET JsonCheck=
+GOTO:EOF
+
 :Install_OpenSSH
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET _OpenSSH32bit_=http://downloads.sourceforge.net/gnuwin32/openssl-0.9.8h-1-setup.exe
@@ -344,7 +376,7 @@ IF DEFINED _AMD64_ (
 )
 IF /I "%_DOINSTALLGIT_%"=="Y" CALL:Download "%_DOWNLOAD_%","%_CLHelperDir_%\Downloads\Installs"
 %_CLHelperDir_%\Downloads\Installs\openssl-0.9.8h-1-setup.exe /NORESTART /VERYSILENT
-CALL:FORMATOUT 20,20,"ReturnCode:","%ERRORLEVEL%"
+CALL:FORMATOUT 20,20," ReturnCode:","%ERRORLEVEL%"
 ENDLOCAL
 GOTO:EOF
 
@@ -376,8 +408,8 @@ GOTO:EOF
 
 :Download
 SETLOCAL ENABLEDELAYEDEXPANSION
-CALL:FORMATOUT 40,30,"%~0",""
-CALL:FORMATOUT 40,30,"%~1 '%~2'",""
+CALL:FORMATOUT 40,30," %~0",""
+CALL:FORMATOUT 40,30," %~1 '%~2'",""
 IF NOT EXIST "%~2" (
   MKDIR %~2
 )
@@ -386,9 +418,9 @@ SET _STRINGREPLACE_=%_STRINGREPLACE_:\=/%
 ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
 powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
 IF NOT EXIST "%~2\%~nx1" (
-  CALL:FORMATOUT 40,30,"Download Failure:","%~0"
+  CALL:FORMATOUT 40,30," Download Failure:","%~0"
 ) ELSE (
-  CALL:FORMATOUT 40,30,"Successfully Downloaded:%~1","%~2\%~nx1"
+  CALL:FORMATOUT 40,30," Successfully Downloaded:%~1","%~2\%~nx1"
 )
 GOTO :DoneDownload
 ENDLOCAL
@@ -424,7 +456,7 @@ GOTO:EOF
 
 :-Copy
 SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
+  CALL:FORMATOUT 30,50," Running:%~0","%~nx1"
   SET _File_=%~1
   SET _LOCATION_=%~2
   SET _EXISTS_=%~nx1
@@ -432,27 +464,27 @@ SETLOCAL ENABLEDELAYEDEXPANSION
     SET /P __OVERWRITE__=     Y/N
   )
   IF NOT EXIST "!_LOCATION_!" (
-    CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
+    CALL:FORMATOUT 30,50," Make Directory:","!_LOCATION_!"
     MKDIR !_LOCATION_!
-    CALL:FORMATOUT 30,50,"Make Directory Results:","%ERRORLEVEL%"
+    CALL:FORMATOUT 30,50," Make Directory Results:","%ERRORLEVEL%"
   )
   IF EXIST "!_File_!" (
     IF DEFINED __OVERWRITE__ (
-      CALL:FORMATOUT 30,50,"OVERWRITE:","!__OVERWRITE__!"
+      CALL:FORMATOUT 30,50," OVERWRITE:","!__OVERWRITE__!"
     )
     IF NOT "!__OVERWRITE__!"=="N" (
-      CALL:FORMATOUT 30,50,"Copying File:","!_EXISTS_!"
+      CALL:FORMATOUT 30,50," Copying File:","!_EXISTS_!"
       COPY /Y !_File_! !_LOCATION_!
-      CALL:FORMATOUT 30,50,"File Copy Results:","%ERRORLEVEL%"
+      CALL:FORMATOUT 30,50," File Copy Results:","%ERRORLEVEL%"
     )
   ) ELSE (
-    CALL:FORMATOUT 30,50,"File Not Found:","!_File_!"
+    CALL:FORMATOUT 30,50," File Not Found:","!_File_!"
   )
 
   IF EXIST "!_LOCATION_!\!_EXISTS_!" (
-    CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was successfully copied."
+    CALL:FORMATOUT 30,50," Results:!_EXISTS_!","Was successfully copied."
   ) ELSE (
-    CALL:FORMATOUT 30,50,"Results:!_EXISTS_!","Was not successfully copied."
+    CALL:FORMATOUT 30,50," Results:!_EXISTS_!","Was not successfully copied."
   )
 ENDLOCAL
 GOTO:EOF
@@ -463,14 +495,14 @@ GOTO:EOF
   SET _SOURCE_=%~1
   SET _DESTINATION_=%~2
   IF "%_SOURCE_%"=="" (
-    CALL:FORMATOUT 50,50,"Please provide a source folder."
+    CALL:FORMATOUT 50,50," Please provide a source folder."
     SET /P _SOURCE_=%~1
     IF NOT DEFINED _SOURCE_ GOTO :xcopyfinished
-    CALL:FORMATOUT 50,50,"Please provide a Destination folder."
+    CALL:FORMATOUT 50,50," Please provide a Destination folder."
     SET /P _DESTINATION_=%~2
     IF NOT DEFINED _SOURCE_ GOTO :xcopyfinished
   )
-  CALL:FORMATOUT 50,50,"Running:%~0","%~1"
+  CALL:FORMATOUT 50,50," Running:%~0","%~1"
   IF EXIST "%~1" (
     ECHO Would you like to overwrite !_File_! Y/N?
     SET /P __OVERWRITE__=
@@ -478,12 +510,12 @@ GOTO:EOF
   IF /I NOT "!__OVERWRITE__!"=="N" ( 
     C:\Windows\System32\xcopy.exe /E /V /I /Y "!_SOURCE_!" "!_DESTINATION_!"
     IF EXIST "%~1" (
-      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was successfully copied."
+      CALL:FORMATOUT 50,50," Results:!_DESTINATION_!","Was successfully copied."
     ) ELSE (
-      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied. %ERRORLEVEL%"
+      CALL:FORMATOUT 50,50," Results:!_DESTINATION_!","Was not copied. %ERRORLEVEL%"
     )
   ) ELSE (
-    CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied."
+    CALL:FORMATOUT 50,50," Results:!_DESTINATION_!","Was not copied."
   )
 ENDLOCAL
 :xcopyfinished
@@ -517,7 +549,7 @@ cmdkey /list >%TEMP%\lst.txt
 SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /D %%A IN (%_WINDOWS_SERVERS_%) DO (
   CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
-  CALL:FORMATOUT 20,30,"Connecting to:","%%A.%_MyDomainOrWorkgroup_%"
+  CALL:FORMATOUT 20,30," Connecting to:","%%A.%_MyDomainOrWorkgroup_%"
   SET _FOUND_=
   FOR /F "tokens=*" %%G IN ('type %TEMP%\lst.txt ^| findstr ".*%%A.%_MyDomainOrWorkgroup_%.*"') DO (
     ECHO Checking key for:"%%G"
@@ -527,7 +559,7 @@ FOR /D %%A IN (%_WINDOWS_SERVERS_%) DO (
     )
   )
   IF /I NOT "!_FOUND_!"=="%%A.%_MyDomainOrWorkgroup_%" (
-    CALL:FORMATOUT 20,30,"Creating cmdkey record:","%%A.%_MyDomainOrWorkgroup_%"
+    CALL:FORMATOUT 20,30," Creating cmdkey record:","%%A.%_MyDomainOrWorkgroup_%"
     IF NOT DEFINED _DEBUG_ cmdkey /generic:%%A.%_MyDomainOrWorkgroup_% /user:%_MyUserName_% /pass:%_MyPassword_%
     IF NOT DEFINED _DEBUG_ cmdkey /add:%%A.%_MyDomainOrWorkgroup_% /user:%_MyUserName_% /pass:%_MyPassword_%
   )
@@ -832,16 +864,35 @@ IF DEFINED _INI_RETURN_ (
 )
 GOTO:EOF
 
+:--ls
+IF NOT DEFINED CommandLineHelper CALL:IsInstalled
+IF NOT DEFINED CommandLineHelper (
+  IF EXIST "c:\CommandLineHelper\bin\OpenSSH\bin\ls.exe" SET CommandLineHelper=C:\CommandLineHelper
+)
+IF DEFINED CommandLineHelper (
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET _PARAMS_=%~1
+  IF /I "!_PARAMS_!" GEQ "Help" (
+    "%CommandLineHelper%\bin\OpenSSH\bin\ls.exe" --help
+  ) ELSE (
+    "%CommandLineHelper%\bin\OpenSSH\bin\ls.exe" --color=auto !_PARAMS_!
+  )
+  ENDLOCAL
+) ELSE (
+  dir /b
+)
+GOTO:EOF
+
 REM Help Content Below
 
 :--Help
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Help" (
     CLS
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"File:%SELF_0%","Options and Usage Help."
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"Options:","Description%~0"
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," File:%SELF_0%","Options and Usage Help."
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," Options:","Description%~0"
     CALL:FORMATOUT 20,20," --About","Describes the author and purpose."
     CALL:FORMATOUT 20,20," --BestColor","Sets the color of the command window."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --BestColor Background_Color Text_Color"
@@ -856,14 +907,15 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20," --FindKey","Recursively search a registry hive for keys."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --FindKey 'HKLM\Software\Hive' 'key' "
     CALL:FORMATOUT 20,20," ..  Returns:","Env:Variable 'FOUND_KEYS'"
+    CALL:FORMATOUT 20,20," --GitCommit","Commits changes using git.exe"
+    CALL:FORMATOUT 20,20," --GitForce","Cleans Source Repository for Git.exe"
+    CALL:FORMATOUT 20,20," --Help","Displays this help menu."
     CALL:FORMATOUT 20,20," --Install","Download and install a utility."
     CALL:FORMATOUT 20,20," ..  Parameters:","[Git/Python2.7/Python3.1]"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --Install Git"
     CALL:FORMATOUT 20,20," ..  ListOptions:","%SELF_0% --Install Options"
-    CALL:FORMATOUT 20,20," --GitCommit","Commits changes using git.exe"
-    CALL:FORMATOUT 20,20," --GitForce","Cleans Source Repository for Git.exe"
-    CALL:FORMATOUT 20,20," --Sleep","Sleep for x number of seconds."
-    CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --Sleep 10'","Will sleep for 10 seconds."
+    CALL:FORMATOUT 20,20," --JsonCheck","Checks file for valid json."
+    CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --JsonCheck file.json'","Will sleep for 10 seconds."
     CALL:FORMATOUT 20,20," --ReadINI","Reads a value from an '.ini' file."
     CALL:FORMATOUT 20,20," ..  Parameters:","[file.ini] [section] [key] [Environment_Variable_Name]"
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
@@ -882,7 +934,9 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% --RDP "
     CALL:FORMATOUT 20,20," ..  Default:","If no server is specified it will attempt to connect to "
     CALL:FORMATOUT 20,20," ..  Default:"," all the servers in the __WINDOWS_SERVERS__ variable."
-    CALL:FORMATOUT 20,20," --Help","Displays this help menu."
+    CALL:FORMATOUT 20,20," --Sleep","Sleep for x number of seconds."
+    CALL:FORMATOUT 20,20," ..  Usage:","'%SELF_0% --Sleep 10'"
+    CALL:FORMATOUT 20,20," ..  Results:","Will sleep for 10 seconds."
     CALL:FORMATOUT 20,20," --WindowsExplorer","Opens the Windows Explorer."
     CALL:FORMATOUT 20,20," ..  Usage:","It will open to the directory passed on the command line."
     CALL:FORMATOUT 20,20," ..  "," If no command was passed the current working directory is used."

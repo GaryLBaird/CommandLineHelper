@@ -48,7 +48,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
   ECHO. %__TEXT__% %__OTHER__%
 ENDLOCAL
-GOTO:eof
+GOTO:EOF
 
 :PADRIGHT
 CALL SET padded=%%%1%%%spaces%
@@ -169,14 +169,15 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=Where to install? Default is [c:\CommandLineHelper].
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
-  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
   CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!"
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\%AliasFile%"
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
   CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
   CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
   CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
+  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
+  CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby"
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
 CALL %CommandLineHelper%\alias.cmd
 CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings
@@ -214,19 +215,19 @@ FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
 )
 IF NOT DEFINED NOSHOW (
   IF DEFINED ValueValue (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Key:","Value:"
-    CALL:FORMATOUT 50,50,"----","------"
-    CALL:FORMATOUT 50,50,"Name","%KEY_NAME%"
-    CALL:FORMATOUT 50,50,"REG_Type","%Type%"
-    CALL:FORMATOUT 50,50,"%VALUE_NAME%","%ValueValue%"
-    CALL:FORMATOUT 50,50,"ENV:%~3","%ValueValue%"
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," Key:","Value:"
+    CALL:FORMATOUT 50,50," ----","------"
+    CALL:FORMATOUT 50,50," Name","%KEY_NAME%"
+    CALL:FORMATOUT 50,50," REG_Type","%Type%"
+    CALL:FORMATOUT 50,50," %VALUE_NAME%","%ValueValue%"
+    CALL:FORMATOUT 50,50," ENV:%~3","%ValueValue%"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------","---------------------------------------------------"
   ) ELSE (
-    CALL:FORMATOUT 50,50,"---------------------------------------------------","---------------------------------------------------"
-    CALL:FORMATOUT 50,50,"Result:","Key and Name:"
-    CALL:FORMATOUT 50,50,"-------","-------------"
-    CALL:FORMATOUT 50,50,"Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
+    CALL:FORMATOUT 50,50," ---------------------------------------------------","---------------------------------------------------"
+    CALL:FORMATOUT 50,50," Result:","Key and Name:"
+    CALL:FORMATOUT 50,50," -------","-------------"
+    CALL:FORMATOUT 50,50," Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
   )
 )
 ENDLOCAL && SET "%~3=%ValueValue%"
@@ -235,12 +236,12 @@ GOTO:EOF
 :--Alias-Remove
 SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Alias-Remove" (
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"File:%SELF_0% %~0","Attempting to remove registry key."
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," File:%SELF_0% %~0","Attempting to remove registry key."
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
     REG DELETE "HKCU\Software\Microsoft\Command Processor" /v AutoRun
-    CALL:FORMATOUT 20,20,"Results:","%ERRORLEVEL%"
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," Results:","%ERRORLEVEL%"
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
   )
 ENDLOCAL
 GOTO:EOF
@@ -251,22 +252,22 @@ REM :: Help Content Below
 REM SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--Help" (
     CLS
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," File: %SELF_0%"," Options and Usage Help."
     CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"File: %SELF_0%"," Options and Usage Help."
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"Options:","Description%~0"
-    CALL:FORMATOUT 20,20,"--About","Describes the author and purpose."
-    CALL:FORMATOUT 20,20,"--Alias-Remove","Removes the alias key to the registry."
-    CALL:FORMATOUT 20,20,"--AliasFile","Adds the alias file to the registry."
+    CALL:FORMATOUT 20,20," Options:","Description '%~0'"
+    CALL:FORMATOUT 20,20," --About","Describes the author and purpose."
+    CALL:FORMATOUT 20,20," --Alias-Remove","Removes the alias key to the registry."
+    CALL:FORMATOUT 20,20," --AliasFile","Adds the alias file to the registry."
     CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
     CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
     CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
     CALL:FORMATOUT 20,20," .."," created or modified."
-    CALL:FORMATOUT 20,20,"--Copy","Copies a file and creates destination directory if missing."
+    CALL:FORMATOUT 20,20," --Copy","Copies a file and creates destination directory if missing."
     CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
     CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
-    CALL:FORMATOUT 20,20,"--Help","Displays this help menu."
-    CALL:FORMATOUT 20,20,"--Install","Installs CommandLineHelper."
+    CALL:FORMATOUT 20,20," --Help","Displays this help menu."
+    CALL:FORMATOUT 20,20," --Install","Installs CommandLineHelper."
     CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"
     CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
     CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
@@ -283,17 +284,17 @@ REM :: Author Information Below
 SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I "%ARGS%" GEQ "--About" (
     CLS
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-    CALL:FORMATOUT 20,20,"Author:","Gary L Baird"
-    CALL:FORMATOUT 20,20,"Written by:","Gary L Baird"
-    CALL:FORMATOUT 20,20,"Phone:","TBA"
-    CALL:FORMATOUT 20,20,"Email:","TBA"
-    CALL:FORMATOUT 20,20,"Filename:","%SELF_0%"
-    CALL:FORMATOUT 20,20,"Purpose:","Make the Windows Command Line more friendly."
-    CALL:FORMATOUT 20,20,"Project:","Part of the Command Line Helper project."
-    CALL:FORMATOUT 20,20,"Location:","github.com/GaryLBaird/CommandLineHelper"
-    CALL:FORMATOUT 20,20,"License:","GNU GENERAL PUBLIC LICENSE"
-    CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+    CALL:FORMATOUT 20,20," Author:","Gary L Baird"
+    CALL:FORMATOUT 20,20," Written by:","Gary L Baird"
+    CALL:FORMATOUT 20,20," Phone:","TBA"
+    CALL:FORMATOUT 20,20," Email:","TBA"
+    CALL:FORMATOUT 20,20," Filename:","%SELF_0%"
+    CALL:FORMATOUT 20,20," Purpose:","Make the Windows Command Line more friendly."
+    CALL:FORMATOUT 20,20," Project:","Part of the Command Line Helper project."
+    CALL:FORMATOUT 20,20," Location:","github.com/GaryLBaird/CommandLineHelper"
+    CALL:FORMATOUT 20,20," License:","GNU GENERAL PUBLIC LICENSE"
+    CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
   )
 ENDLOCAL
 GOTO :AboutDone
