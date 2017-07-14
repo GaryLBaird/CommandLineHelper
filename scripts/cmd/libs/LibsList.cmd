@@ -1,4 +1,6 @@
 @ECHO OFF
+CALL:FORMATOUT 20,50,"Work From:","http://www.dostips.com/DtCodeCmdLib.php"
+CALL:FORMATOUT 20,50,"Command:"," Description:"
 CALL:FORMATOUT 20,50,":append"," appends a string to a specific line in a text file"
 CALL:FORMATOUT 20,50,":bannerPingPong"," moves text in varref one step left or right and updates title"
 CALL:FORMATOUT 20,50,":bannerRotate"," rotates text in varref one step and updates title"
