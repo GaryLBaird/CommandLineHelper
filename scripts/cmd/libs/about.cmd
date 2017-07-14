@@ -1,3 +1,4 @@
+@ECHO OFF
   CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
   CALL:FORMATOUT 20,20," Author:","Gary L Baird"
   CALL:FORMATOUT 20,20," Written by:","Gary L Baird"
