@@ -22,6 +22,7 @@ IF DEFINED ARG_8 SET ARGS=%ARGS%,%ARG_8%
 IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 FOR /f "delims=- tokens=1,2,3*" %%A IN ("%ARG_1%") DO SET ARG_1=%%A 
 
+IF NOT DEFINED IsAdmin CALL:check_Permissions
 CALL:IsInstalled %NOSHOW%
 REM :: This is where the functions are called, but only if an argument has been passed.
 IF DEFINED ARGS CALL:%ARGS%
@@ -35,6 +36,23 @@ REM :: Everything below this line will only be called if a function above has be
 REM :: Formatout is an internal utility to format text.
 REM :: Small Text Formatter Code Begin
 
+:check_Permissions
+    CALL:FORMATOUT 50,50,"Administrative permissions required.","Detecting permissions..."
+    net session >nul 2>&1
+    if %errorLevel% == 0 (
+        CALL:FORMATOUT 50,50,"Success:","Administrative permissions confirmed."
+        SET IsAdmin=True
+    ) else (
+        CALL:FORMATOUT 50,50,"Failed:","Please start a new command window with administrative permissions."
+        SET /P _USER_=Press Enter Continue:
+        SET ARGS=GoToDone
+    )
+GOTO:EOF
+
+:GoToDone
+SET ARGS=Done
+GOTO:EOF
+
 :PADRIGHT
   CALL SET padded=%%%1%%%spaces%
   CALL SET %1=%%padded:~0,%2%%
@@ -45,27 +63,35 @@ GOTO:EOF
   CALL SET %1=%%padded:~-%2%%
 GOTO:EOF
 
-:FORMATOUT
-SET __Left__=%~1
-SET __RIGHT__=%~2
-SET "__TEXT__=%~3"
-SET "__OTHER__=%~4 %~5 %~6"
-SET "spaces=                                                                                                                    "
-SET /A __SIZE__=10
+:SETUP_FORMATOUT
 CALL:PADRIGHT __TEXT__ %__Left__%
 CALL:PADLEFT __SIZE__ %__RIGHT__%
-REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
+::ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
 ECHO. %__TEXT__% %__OTHER__%
 GOTO:EOF
 
-REM :: Small Text Formatter Code End
-
-REM :: Creates the alias file used when ever a command prompt window loads.
+:FORMATOUT
+SETLOCAL ENABLEDELAYEDEXPANSION
+  SET __Left__=%~1
+  SET __RIGHT__=%~2
+  SET "__TEXT__=%~3"
+  SET "__OTHER__=%~4 %~5 %~6"
+  SET "spaces=                                                                                                                    "
+  SET /A __SIZE__=10
+  IF EXIST " %CLHLibs%\FORMATOUT.cmd" (
+    %CLHLibs%\FORMATOUT.cmd "!__Left__!" "!__RIGHT__!" "!__TEXT__!" "!__OTHER__!"
+  )
+  IF NOT EXIST " %CLHLibs%\FORMATOUT.cmd" (
+    CALL:SETUP_FORMATOUT "!__Left__!" "!__RIGHT__!" "!__TEXT__!" "!__OTHER__!"
+  )
+  
+ENDLOCAL
+GOTO:EOF
 
 :--AliasFile
 SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:FORMATOUT 12,12,"","Please pick a directory for your alias file."
-  CALL:FORMATOUT 12,12,"Recommended:","Like: c:\CommandLineHelper"
+  REM CALL:FORMATOUT 12,12,""," Please pick a directory for your alias file."
+  REM CALL:FORMATOUT 12,12," Recommended:"," Like: c:\CommandLineHelper"
   IF NOT DEFINED IsInstalled (
     SET /P CommandLineHelper= [c:\CommandLineHelper]
   ) ELSE (
@@ -76,16 +102,16 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 ENDLOCAL && SET "CommandLineHelper=%CommandLineHelper%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   SET _INSTALLDIR_=!CommandLineHelper:\Scripts=!
-  REM :: Disabled command for testing.
-  IF DEFINED ADD_REG REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d !CommandLineHelper!\alias.cmd /f
-  IF NOT EXIST "!CommandLineHelper!\alias.cmd" ECHO.>!CommandLineHelper!\alias.cmd
+  CALL %CLHLibs%\addRegKey.cmd "HKCU\Software\Microsoft\Command Processor" "AutoRun" "REG_SZ" "!CommandLineHelper!\scripts\cmd\alias.cmd"
   ECHO. Setting Install directory to: %CommandLineHelper%
-  REG ADD "HKCU\Software\Microsoft\Command Processor" /v CommandLineHelper /t REG_SZ /d %_INSTALLDIR_% /f
-ENDLOCAL && SET "_INSTALLDIR_=%_INSTALLDIR_%" && SET "AliasFile=%CommandLineHelper%\alias.cmd"
+  CALL %CLHLibs%\addRegKey.cmd "HKCU\Software\Microsoft\Command Processor" "CommandLineHelper" "REG_SZ" "!_INSTALLDIR_!"
+ENDLOCAL && SET "_INSTALLDIR_=%_INSTALLDIR_%" && SET "AliasFile=%_INSTALLDIR_%\scripts\cmd\alias.cmd"
 IF DEFINED ADD_REG (
   SET ADD_REG=
 )
-CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%"
+echo done
+
+
 GOTO:EOF
 
 REM :: Support for external function.
@@ -146,12 +172,12 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF /I NOT "!__OVERWRITE__!"=="N" ( 
     C:\Windows\System32\xcopy.exe /E /V /I /Y "!_SOURCE_!" "!_DESTINATION_!"
     IF EXIST "%~1" (
-      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was successfully copied."
+      CALL:FORMATOUT 50,50," Results:!_DESTINATION_!"," Was successfully copied."
     ) ELSE (
-      CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied. %ERRORLEVEL%"
+      CALL:FORMATOUT 50,50," Results:!_DESTINATION_!"," Was not copied. %ERRORLEVEL%"
     )
   ) ELSE (
-    CALL:FORMATOUT 50,50,"Results:!_DESTINATION_!","Was not copied."
+    CALL:FORMATOUT 50,50," Results:!_DESTINATION_!"," Was not copied."
   )
 ENDLOCAL
 :: DONE!
@@ -169,16 +195,24 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
   CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!"
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
-  CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
-  CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
-  CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
+  REM CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
+  REM CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
+  REM CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
+  REM CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
+  CALL:XCopy "%SELF_1%scripts\PowerShell","!CommandLineHelper!\scripts\PowerShell"
+  CALL:XCopy "%SELF_1%scripts\vbs","!CommandLineHelper!\scripts\vbs"
+  CALL:XCopy "%SELF_1%bin\curl","!CommandLineHelper!\bin\curl"
+  CALL:XCopy "%SELF_1%scripts\cmd","!CommandLineHelper!\scripts\cmd"
   CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
   CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby"
+  WHERE Curl.exe >nul
+  IF "%ERRORLEVEL%"=="1" (
+    SETX PATH "%PATH%;!CommandLineHelper!\bin\curl" /M
+  )
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
-CALL %CommandLineHelper%\alias.cmd
+CALL %CommandLineHelper%\scripts\cmd\alias.cmd
 CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings
 GOTO:EOF
 
@@ -192,6 +226,9 @@ ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
+IF EXIST "%CD%\scripts\cmd\libs" (
+  SET CLHLibs=%CD%\scripts\cmd\libs
+)
 GOTO:EOF
 
 :--RegAdd
@@ -250,26 +287,7 @@ REM :: Help Content Below
 :--Help
 IF /I "%ARGS%" GEQ "--Help" (
   CLS
-  CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
-  CALL:FORMATOUT 20,20," File: %SELF_0%"," Options and Usage Help."
-  CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
-  CALL:FORMATOUT 20,20," Options:","Description '%~0'"
-  CALL:FORMATOUT 20,20," --About","Describes the author and purpose."
-  CALL:FORMATOUT 20,20," --Alias-Remove","Removes the alias key to the registry."
-  CALL:FORMATOUT 20,20," --AliasFile","Adds the alias file to the registry."
-  CALL:FORMATOUT 20,20," ..","Every time a command windows loads this alias.cmd file"
-  CALL:FORMATOUT 20,20," .."," will setup and configure the working environment."
-  CALL:FORMATOUT 20,20," .."," This is done through a registry key which will be"
-  CALL:FORMATOUT 20,20," .."," created or modified."
-  CALL:FORMATOUT 20,20," --Copy","Copies a file and creates destination directory if missing."
-  CALL:FORMATOUT 20,20," ..","Users will be prompted if the file needs to be overwritten."
-  CALL:FORMATOUT 20,20," ..  Usage:","%SELF_0% c:\directory\filename.name c:\destination"
-  CALL:FORMATOUT 20,20," --Help","Displays this help menu."
-  CALL:FORMATOUT 20,20," --Install","Installs CommandLineHelper."
-  CALL:FORMATOUT 20,20," ..  NOTE:"," You must run "SET ADD_REG=True" from the comandline to install the"
-  CALL:FORMATOUT 20,20," ..       "," registry key. The registry key must be set in order to have the"
-  CALL:FORMATOUT 20,20," ..       "," alias.cmd load everytime a command window has been launched ."
-  CALL:FORMATOUT 20,20,"---------------------------","------------------------------------------------------"
+  %CLHLibs%\setup_help.cmd
 )
 GOTO:EOF
 
@@ -278,17 +296,7 @@ REM :: Author Information Below
 :--About
 IF /I "%ARGS%" GEQ "--About" (
   CLS
-  CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
-  CALL:FORMATOUT 20,20," Author:","Gary L Baird"
-  CALL:FORMATOUT 20,20," Written by:","Gary L Baird"
-  CALL:FORMATOUT 20,20," Phone:","TBA"
-  CALL:FORMATOUT 20,20," Email:","TBA"
-  CALL:FORMATOUT 20,20," Filename:","%SELF_0%"
-  CALL:FORMATOUT 20,20," Purpose:","Make the Windows Command Line more friendly."
-  CALL:FORMATOUT 20,20," Project:","Part of the Command Line Helper project."
-  CALL:FORMATOUT 20,20," Location:","github.com/GaryLBaird/CommandLineHelper"
-  CALL:FORMATOUT 20,20," License:","GNU GENERAL PUBLIC LICENSE"
-  CALL:FORMATOUT 20,20," ---------------------------","------------------------------------------------------"
+  %CLHLibs%\about.cmd
 )
 GOTO:EOF
 

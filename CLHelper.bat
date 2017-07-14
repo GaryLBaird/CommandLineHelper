@@ -26,6 +26,7 @@ FOR /F "delims=- tokens=1,2,3*" %%A in ("%ARG_1%") do (
 
 REM Command Line Helper needs to know a few things.
 REM The MySettingsINI path is used to hold specific variables you use in your environment.
+IF NOT DEFINED IsAdmin CALL:check_Permissions
 IF NOT DEFINED IsInstalled (
   CALL:IsInstalled NOSHOW
 )
@@ -60,6 +61,23 @@ REM Everything below this line will only be called if a function above has been 
 
 REM Formatout is an internal utility to format text.
 REM Small Text Formatter Code Begin
+
+:check_Permissions
+    CALL:FORMATOUT 50,50,"Administrative permissions required.","Detecting permissions..."
+    net session >nul 2>&1
+    if %errorLevel% == 0 (
+        CALL:FORMATOUT 50,50,"Success:","Administrative permissions confirmed."
+        SET IsAdmin=True
+    ) else (
+        CALL:FORMATOUT 50,50,"Failed:","Please start a new command window with administrative permissions."
+        SET /P _USER_=Press Enter Continue:
+        SET ARGS=GoToDone
+    )
+GOTO:EOF
+
+:GoToDone
+SET ARGS=Done
+GOTO:EOF
 
 :ReadINI
 SET __INI_FILE__=%~1
@@ -123,6 +141,16 @@ ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
+
+IF EXIST "%CommandLineHelper%\scripts\cmd\libs" (
+    SET CLHLibs=%CommandLineHelper%\scripts\cmd\libs
+)
+IF EXIST "C:\dev\sandbox\CommandLineHelper\scripts\cmd\libs" (
+  SET CLHLibs=C:\dev\sandbox\CommandLineHelper\scripts\cmd\libs
+)
+IF EXIST "%CD%\scripts\cmd\libs" (
+  SET CLHLibs=%CD%\scripts\cmd\libs
+)
 GOTO:EOF
 
 :Settings
@@ -188,7 +216,14 @@ GOTO:EOF
 :--SetupUserIniSettings
 SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY_Scripts_Dir,MyUserName,MyPassword
 FOR /D %%A IN (%UserSettingsVARLIST%) DO (
-  CALL:WriteSetting "%USERNAME%","%%A"
+  SET DEFAULT=
+  IF "%%A"=="My_Dev_Env_Dir" (
+    SET DEFAULT=c:\dev
+  )
+  IF "%%A"=="MY_Scripts_Dir" (
+    SET DEFAULT=c:\dev\scripts
+  )
+  CALL:WriteSetting "%USERNAME%","%%A","!DEFAULT!"
 )
 SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY_Scripts_Dir,MyUserName,MyPassword
 FOR /D %%A IN (LinuxServers,WindowsServers,TargetServers) DO (
@@ -200,12 +235,13 @@ GOTO :Done
 GOTO:EOF
 
 :WriteSetting
-SET WriteSection=%~1
-SET WriteKey=%~2
-SET _KeepCurrent_=Y
 SETLOCAL ENABLEDELAYEDEXPANSION
+SET "WriteSection=%~1"
+SET "WriteKey=%~2"
+SET "DefaultValue=%~3"
+SET "_KeepCurrent_="
+SET "_TEMPNAME_="
 CALL:ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
-echo.template=!_TEMPNAME_!
 IF /I NOT "!_TEMPNAME_!"=="" (
   CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
   SET /P _KeepCurrent_=
@@ -213,6 +249,7 @@ IF /I NOT "!_TEMPNAME_!"=="" (
 IF /I "!_KeepCurrent_!" GEQ "N" GOTO :EndWriteSettings
 :StartWriteSettings
 CALL:FORMATOUT 50,30,"Please Enter your !WriteKey!:",""
+IF DEFINED DefaultValue CALL:FORMATOUT 50,30,"Recommended:","!DefaultValue!"
 SET /P _WriteKey_=
 IF "!_WriteKey_!"=="" CALL:StartWriteSettings
 CALL:--WriteINI "!_MySettings_!","!WriteSection!","!WriteKey!","!_WriteKey_!"
@@ -296,23 +333,13 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   SET __RIGHT__=%~2
   SET "__TEXT__=%~3"
   SET "__OTHER__=%~4 %~5 %~6"
-  SET "spaces=                                                                                                                    "
-  SET /A __SIZE__=10
-  CALL:padright __TEXT__ %__Left__%
-  CALL:padleft __SIZE__ %__RIGHT__%
-  REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
-  ECHO. %__TEXT__% %__OTHER__%
+  %CLHLibs%\FORMATOUT.cmd "!__Left__!" "!__RIGHT__!" "!__TEXT__!" "!__OTHER__!"
 ENDLOCAL
-GOTO:eof
+GOTO:EOF
 
-:padright
-CALL SET padded=%%%1%%%spaces%
-CALL SET %1=%%padded:~0,%2%%
-GOTO:eof
-
-:padleft
-CALL SET padded=%spaces%%%%1%%
-CALL SET %1=%%padded:~-%2%%
+:--LibsList
+cls
+CALL %CLHLibs%\LibsList.cmd
 GOTO:EOF
 
 REM Small Text Formatter Code End
@@ -884,6 +911,13 @@ IF DEFINED CommandLineHelper (
 GOTO:EOF
 
 REM Help Content Below
+:--TestHelp
+::
+  CLS
+CALL .\scripts\cmd\testhelp.cmd
+::
+:EndHelp
+GOTO:EOF
 
 :--Help
 REM SETLOCAL ENABLEDELAYEDEXPANSION

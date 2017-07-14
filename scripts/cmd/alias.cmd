@@ -10,6 +10,9 @@
 :: Set Default Variables Begin ::
 SET _CLHScripts_=c:\CommandLineHelper\Scripts
 SET _CustomAlias_=C:\dev\scripts\alias.cmd
+IF EXIST "%_CustomAlias_%" (
+  CALL %_CustomAlias_%
+)
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
 :: Set Default Variables End ::
@@ -22,6 +25,11 @@ IF NOT EXIST "%_CLHScripts_%\logs\" (
   MKDIR %_CLHScripts_%\logs\
 )
 :: Create Default Directories End ::
+:: Functions
+:-BestColor
+:: Yellow Text Purple Background 
+Color 5E
+GOTO:EOF
 
 :: Doskey Commands Begin ::
 
@@ -72,10 +80,11 @@ DOSKEY commit=%CLHelper% --GitCommit $*
 DOSKEY custom=%_CustomAlias_%
 DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
-:: Custom Alias Keys Begin ::
+
+:: Custom Alias Keys END ::
 
 :: Doskey Commands End ::
-
+CALL:-BestColor
 GOTO :DONE
 
 :: Logic Functions Begin ::
