@@ -65,7 +65,8 @@ TargetServers=
 WindowsServers=winserver1,winserver2
 LinuxServers=linserver1,linserver2
 ```
-# Dependencies (TBD)
+# Options:
+<href>https://github.com/GaryLBaird/CommandLineHelper/blob/master/scripts/cmd/libs/clhHelp.cmd</href>
 
 
 # Using username and password (TBD)
