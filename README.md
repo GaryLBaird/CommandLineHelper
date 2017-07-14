@@ -1,7 +1,7 @@
 # CommandLineHelper
 *Basic command line helper utilities for software developers.*
 
-The intended usage for *CommandLineHelper* is to provide a user a more linux like command line experience. We will eventually provide most of the linux utilitie.
+The intended usage for *CommandLineHelper* is to provide a user a more linux like command line experience. We will eventually provide most of the linux utilitie. It's useful, but can also be a great way to learn batch scripting.
 
 Start by downloading the repo. Run the Start.bat to begin.
 Start.bat --help will display the command line options. 
@@ -44,6 +44,26 @@ setup.bat --install
 setup.bat --Alias-Remove
 
 *NOTE*: This essentially only removes the registry key. All files will remain untouched. You can run --install to re-install the registry key. 
+
+# clhelper.ini
+After the setup is complete you can edit the \CommandLineHelper\scripts\clhelper.ini to customize and automate features.
+
+[Local]
+CLHelper_Dir=c:\CommandLineHelper
+
+[Mike]
+MyPassword=MyUniquePassword
+MyUserName=Mike
+MY_Scripts_Dir=c:\dev\scripts
+My_Dev_Env_Dir=c:\dev
+MyDomainOrWorkgroup=BobsDomain.dom
+LastName=Mike
+FirstName=Boxer
+
+[RemoteConnections]
+TargetServers=
+WindowsServers=winserver1,winserver2
+LinuxServers=linserver1,linserver2
 
 # Dependencies (TBD)
 
