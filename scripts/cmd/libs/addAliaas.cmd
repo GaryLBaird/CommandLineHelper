@@ -1,4 +1,4 @@
-@echo off
+@echo OFF
 %1 %2
 GOTO :Done
 :choiceListInput ret list title max -- lets the user choose from list of last entered values
