@@ -47,7 +47,7 @@ setup.bat --Alias-Remove
 
 # clhelper.ini
 After the setup is complete you can edit the \CommandLineHelper\scripts\clhelper.ini to customize and automate features.
-
+```
 [Local]
 CLHelper_Dir=c:\CommandLineHelper
 
@@ -64,7 +64,7 @@ FirstName=Boxer
 TargetServers=
 WindowsServers=winserver1,winserver2
 LinuxServers=linserver1,linserver2
-
+```
 # Dependencies (TBD)
 
 
