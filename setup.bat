@@ -211,6 +211,10 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF "%ERRORLEVEL%"=="1" (
     SETX PATH "%PATH%;!CommandLineHelper!\bin\curl" /M
   )
+  WHERE scp.exe >nul
+  IF "%ERRORLEVEL%"=="1" (
+    SETX PATH "%PATH%;!CommandLineHelper!\bin\OpenSSH\bin" /M
+  )
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
 CALL %CommandLineHelper%\scripts\cmd\alias.cmd
 CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings
