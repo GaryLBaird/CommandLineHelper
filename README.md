@@ -39,6 +39,15 @@ setup.bat --install
 
 *NOTE*: Use SET ADD_REG=True before running setup.bat --install or the alias registry key will not be set. This is on purpose so that custom keys are not overwritten.
 
+# Manual Installation
+
+Unpack the source folder to *c:\CommandLineHelper*
+Open the command prompt and run the following commands:
+```
+REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d C:\CommandLineHelper\Scripts\alias.cmd /f
+REG ADD "HKCU\Software\Microsoft\Command Processor" /v CommandLineHelper /t REG_SZ /d C:\CommandLineHelper /f
+```
+
 # UnInstall
 
 setup.bat --Alias-Remove
