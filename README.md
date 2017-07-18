@@ -47,6 +47,7 @@ Open the command prompt and run the following commands:
 REG ADD "HKCU\Software\Microsoft\Command Processor" /v AutoRun /t REG_SZ /d C:\CommandLineHelper\Scripts\cmd\alias.cmd /f
 REG ADD "HKCU\Software\Microsoft\Command Processor" /v CommandLineHelper /t REG_SZ /d C:\CommandLineHelper /f
 c:\CommandLineHelper\Scripts\alias.cmd
+clhelper.bat --SetupUserIniSettings
 ```
 
 # UnInstall
