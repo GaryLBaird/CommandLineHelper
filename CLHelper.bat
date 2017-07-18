@@ -75,6 +75,33 @@ REM Small Text Formatter Code Begin
     )
 GOTO:EOF
 
+:--ReadRegValue
+SET _FILE_=
+IF NOT "%~4"=="" SET _FILE_="%~4"
+IF DEFINED _FILE_ SET _HIDE_=//B
+SET READREGISTRYVALUE="%_CSCRIPT_PATH_%" //Nologo %_HIDE_% "%CLHVBS%\ReadRegValue.vbs"
+IF /I "%~1"=="--Help" (
+  %READREGISTRYVALUE%
+) ELSE (
+  IF EXIST "%CLHVBS%\ReadRegValue.vbs" (
+    IF "%~1"=="" (
+      %READREGISTRYVALUE%
+    ) ELSE (
+      %READREGISTRYVALUE% "%~1" "%~2" "%~3" %_FILE_% > "%temp%\ReadRegValue.txt"
+    )
+  ) ELSE (
+    ECHO Can't find "%CLHVBS%\ReadRegValue.vbs".
+  )
+  IF DEFINED _FILE_ (
+    TYPE %_FILE_%
+  ) ELSE (
+    TYPE "%temp%\ReadRegValue.txt"
+  )
+)
+SET _HIDE_=
+SET _FILE_=
+GOTO:EOF
+
 :GoToDone
 SET ARGS=Done
 GOTO:EOF
@@ -141,7 +168,12 @@ ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
-
+IF EXIST "%CD%\scripts\vbs" (
+  SET CLHVBS=%CD%\scripts\vbs
+)
+IF EXIST "%CommandLineHelper%\scripts\vbs" (
+  SET CLHVBS=%CommandLineHelper%\scripts\vbs
+)
 IF EXIST "%CommandLineHelper%\scripts\cmd\libs" (
     SET CLHLibs=%CommandLineHelper%\scripts\cmd\libs
 )
@@ -151,6 +183,7 @@ IF EXIST "C:\dev\sandbox\CommandLineHelper\scripts\cmd\libs" (
 IF EXIST "%CD%\scripts\cmd\libs" (
   SET CLHLibs=%CD%\scripts\cmd\libs
 )
+
 GOTO:EOF
 
 :Settings
@@ -271,7 +304,7 @@ GOTO:EOF
 CALL:ReadReg "%~1","%~2","%~3",%~4 
 GOTO:EOF
 
-:ReadReg
+:--ReadReg
 SETLOCAL ENABLEDELAYEDEXPANSION
 set KEY_NAME=%~1
 set VALUE_NAME=%~2
