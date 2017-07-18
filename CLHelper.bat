@@ -304,7 +304,7 @@ GOTO:EOF
 CALL:ReadReg "%~1","%~2","%~3",%~4 
 GOTO:EOF
 
-:--ReadReg
+:ReadReg
 SETLOCAL ENABLEDELAYEDEXPANSION
 set KEY_NAME=%~1
 set VALUE_NAME=%~2
@@ -392,6 +392,7 @@ CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
 GOTO:EOF
 
 :--Install
+SET IDR=C:\Downloads\Installs
 CALL:Install_%~1
 GOTO:EOF
 
@@ -416,6 +417,22 @@ IF DEFINED JsonCheck (
   )
 )
 SET JsonCheck=
+GOTO:EOF
+
+:Install_Ruby
+@ECHO OFF
+IF NOT EXIST "C:\Ruby" (
+  SET INS=rubyinstaller-2.4.1-2-x64.exe
+  CALL:FORMATOUT 20,20," %~0","%INS%"
+  SET URL=https://github.com/oneclick/rubyinstaller2/releases/download/2.4.1-2/rubyinstaller-2.4.1-2-x64.exe
+  IF NOT EXIST "%IDR%" MKDIR "%IDR%"
+  IF NOT EXIST "%IDR%\%INS%" (
+    CALL:Download "%URL%" "%IDR%"
+  )
+    %IDR%\%INS% /SILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
+) ELSE (
+  ruby.exe -v
+)
 GOTO:EOF
 
 :Install_OpenSSH
@@ -475,8 +492,8 @@ IF NOT EXIST "%~2" (
 )
 SET _STRINGREPLACE_=%~2\%~nx1
 SET _STRINGREPLACE_=%_STRINGREPLACE_:\=/%
-ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
-powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" "%~1" "%~nx1" "%~2"
+ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -server "%~1" -filename "%~nx1" -outputdir "%~2"
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -server "%~1" -filename "%~nx1" -outputdir "%~2"
 IF NOT EXIST "%~2\%~nx1" (
   CALL:FORMATOUT 40,30," Download Failure:","%~0"
 ) ELSE (
