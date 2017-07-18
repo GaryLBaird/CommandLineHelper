@@ -420,8 +420,26 @@ SET JsonCheck=
 GOTO:EOF
 
 :Install_Ruby
-@ECHO OFF
-IF NOT EXIST "C:\Ruby" (
+SET Install_Ruby=
+Set UpgradeRubyVersion=2.4.1
+Where ruby.exe >nul
+IF "%ERRORLEVEL%"=="0" (
+  CALL:GetRubyVer
+  CALL:FORMATOUT 20,50,"Installed Version:","%RubyMajor%.%RubyMinor%.%RubyVersion%"
+  IF "%RubyMajor%.%RubyMinor%.%RubyVersion%" NEQ "%UpgradeRubyVersion%" (
+    CALL:FORMATOUT 20,50," Version Missmatch: ","%RubyMajor%.%RubyMinor%.%RubyVersion% /vs/ %UpgradeRubyVersion%"
+    SET Install_Ruby=True
+  )
+) ELSE (
+  SET Install_Ruby=True
+)
+IF "%Install_Ruby%"=="True" (
+  IF EXIST "c:\ruby\unins000.exe" (
+    c:\ruby\unins000.exe /SILENT /NORESTART /CLOSEAPPLICATIONS
+  )
+  IF EXIST "c:\ruby" (
+    RMDIR c:\ruby /S /Q 
+  )
   SET INS=rubyinstaller-2.4.1-2-x64.exe
   CALL:FORMATOUT 20,20," %~0","%INS%"
   SET URL=https://github.com/oneclick/rubyinstaller2/releases/download/2.4.1-2/rubyinstaller-2.4.1-2-x64.exe
@@ -429,10 +447,58 @@ IF NOT EXIST "C:\Ruby" (
   IF NOT EXIST "%IDR%\%INS%" (
     CALL:Download "%URL%" "%IDR%"
   )
-    %IDR%\%INS% /SILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
+    REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
+  %IDR%\%INS% /VERYSILENT /lang=en /dir=c:\Ruby /CLOSEAPPLICATIONS /NORESTART
 ) ELSE (
   ruby.exe -v
 )
+IF EXIST "C:\Ruby" (
+  SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
+  SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
+  IF NOT EXIST "%IDR%\%INS%" (
+    CALL:Download "%URL%" "%IDR%"
+  )
+  SET OKFINE=%CD%
+  %IDR%\%INS% -o "c:\Ruby" -y
+  CD /D "c:\Ruby"
+  ECHO --->c:\Ruby\config.yml
+  ECHO - C:\Ruby>>c:\Ruby\config.yml
+  C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb init
+  C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
+  CD /D "%OKFINE%"
+)
+GOTO:EOF
+
+:GetRubyVer
+SET RubyMajor=
+SET RubyMinor= 
+SET RubyVersion=
+SET RubyBuild=
+Where ruby.exe
+IF "%ERRORLEVEL%"=="0" (
+  SET RUBYINSTALLED=True
+)
+SETLOCAL ENABLEDELAYEDEXPANSION
+  REM CALL:FORMATOUT 30,30,"Ruby already Installed: "," !ERRORLEVEL! "
+  IF DEFINED RUBYINSTALLED (
+    FOR /F "delims=. tokens=1,2,3" %%A in ('ruby -v') do (
+      FOR /F "tokens=1,2" %%X in ("%%A") do ( 
+        SET RubyMajor=%%Y
+      )
+      SET RubyMinor=%%B
+      FOR /F "delims=p tokens=1,2" %%T in ("%%C") do ( 
+        SET RubyVersion=%%T
+        FOR /F "tokens=1,2" %%V IN ("%%U") do ( 
+          SET RubyBuild=%%V
+        )
+      )
+    )
+  )
+SET RubyMajor=!RubyMajor: =!
+SET RubyMinor=!RubyMinor: =!
+SET RubyVersion=!RubyVersion: =!
+SET RubyBuild=!RubyBuild: =!
+ENDLOCAL && SET "RubyMajor=%RubyMajor%" && SET "RubyMinor=%RubyMinor%" && SET "RubyVersion=%RubyVersion%" && SET "RubyBuild=%RubyBuild%"
 GOTO:EOF
 
 :Install_OpenSSH
@@ -487,13 +553,14 @@ GOTO:EOF
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 40,30," %~0",""
 CALL:FORMATOUT 40,30," %~1 '%~2'",""
+IF NOT "%~3"=="" SET extractfile=-extractfile %~3
 IF NOT EXIST "%~2" (
   MKDIR %~2
 )
 SET _STRINGREPLACE_=%~2\%~nx1
 SET _STRINGREPLACE_=%_STRINGREPLACE_:\=/%
 ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -server "%~1" -filename "%~nx1" -outputdir "%~2"
-powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -server "%~1" -filename "%~nx1" -outputdir "%~2"
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -server "%~1" -filename "%~nx1" -outputdir "%~2" %extractfile%
 IF NOT EXIST "%~2\%~nx1" (
   CALL:FORMATOUT 40,30," Download Failure:","%~0"
 ) ELSE (

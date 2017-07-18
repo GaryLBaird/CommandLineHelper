@@ -2,6 +2,7 @@ param (
   [string]$server = "http://defaultserver",
   [string]$filename = "",
   [string]$outputdir = ""
+  # [string]$extractfile = ""
  )
 
 # global variables
@@ -34,4 +35,17 @@ Register-ObjectEvent -InputObject $wc -EventName DownloadFileCompleted -Action {
 $wc.DownloadFileAsync($server, "$outputdir\$filename");
 # ps script runs probably in one thread only (event is reised in same thread - blocking problems)
 # $global:are.WaitOne() not work
+# If [IO.Path]::GetExtension("$outputdir\$filename") -eq '.7z' {
+  # If not $extractfile = "" Unzip "$outputdir\$filename" "$extractfile"
+# }
 while(!$global:are.WaitOne(500)) {}
+
+function Unzip
+{
+  param(
+    [string]$zipfile,
+    [string]$outpath
+  )
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
+}
