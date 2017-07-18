@@ -1,4 +1,5 @@
 @ECHO OFF
+SET FORMATOUT=%~p0\formatout.cmd
 CALL:getColorCode %1 %2
 :getColorCode col ret -- converts color text to color code
 ::                    -- col [in]  - color text BackgroundForeground, i.e.: BlueLYellow for 1E
@@ -24,31 +25,11 @@ set col=%col:Purple=5%
 set col=%col:Yellow=6%
 set col=%col:White=7%
 ENDLOCAL & IF "%~2" NEQ "" (SET %~2=%col%) ELSE (echo.%col%)
+
 GOTO :Done
 
 :FORMATOUT
-SETLOCAL ENABLEDELAYEDEXPANSION
-  SET __Left__=%~1
-  SET __RIGHT__=%~2
-  SET "__TEXT__=%~3"
-  SET "__OTHER__=%~4 %~5 %~6"
-  SET "spaces=                                                                                                                    "
-  SET /A __SIZE__=10
-  CALL:padright __TEXT__ %__Left__%
-  CALL:padleft __SIZE__ %__RIGHT__%
-  REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
-  ECHO. %__TEXT__% %__OTHER__%
-ENDLOCAL
-GOTO:eof
-
-:padright
-CALL SET padded=%%%1%%%spaces%
-CALL SET %1=%%padded:~0,%2%%
-GOTO:eof
-
-:padleft
-CALL SET padded=%spaces%%%%1%%
-CALL SET %1=%%padded:~-%2%%
+  CALL %FORMATOUT% %~1 %~2 "%~3" "%~4%~5%~6"
 GOTO:EOF
 
 :Done

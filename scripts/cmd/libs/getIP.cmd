@@ -1,4 +1,5 @@
 @ECHO OFF
+SET FORMATOUT=%~p0\formatout.cmd
 CALL:getIP %1 %2
 :getIP host ret -- return THIS computers IP address
 ::              -- host [in,opt]  - host name, default is THIS computer
@@ -13,29 +14,10 @@ if "%host%"=="" ( for /f "tokens=2,* delims=:. " %%a in ('"ipconfig|find "IP Add
 ENDLOCAL & IF "%~2" NEQ "" (SET %~2=%ip%) ELSE (echo.%ip%)
 GOTO:EOF
 
+GOTO :Done
+
 :FORMATOUT
-SETLOCAL ENABLEDELAYEDEXPANSION
-  SET __Left__=%~1
-  SET __RIGHT__=%~2
-  SET "__TEXT__=%~3"
-  SET "__OTHER__=%~4 %~5 %~6"
-  SET "spaces=                                                                                                                    "
-  SET /A __SIZE__=10
-  CALL:padright __TEXT__ %__Left__%
-  CALL:padleft __SIZE__ %__RIGHT__%
-  REM ECHO %__TEXT__%+%__SIZE__%+%__OTHER__%
-  ECHO. %__TEXT__% %__OTHER__%
-ENDLOCAL
-GOTO:eof
-
-:padright
-CALL SET padded=%%%1%%%spaces%
-CALL SET %1=%%padded:~0,%2%%
-GOTO:eof
-
-:padleft
-CALL SET padded=%spaces%%%%1%%
-CALL SET %1=%%padded:~-%2%%
+  CALL %FORMATOUT% %~1 %~2 "%~3" "%~4%~5%~6"
 GOTO:EOF
 
 :Done

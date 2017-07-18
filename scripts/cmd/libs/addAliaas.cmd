@@ -1,4 +1,5 @@
-@echo OFF
+@ECHO OFF
+SET FORMATOUT=%~p0\formatout.cmd
 %1 %2
 GOTO :Done
 :choiceListInput ret list title max -- lets the user choose from list of last entered values
@@ -68,4 +69,8 @@ if "%c%" NEQ "" (
     IF "%~1" NEQ "" (SET %~1=%v%) ELSE (echo.%v%)
     IF "%~2" NEQ "" (SET %~2=%l%) ELSE (echo.%l%)
 )
+GOTO :Done
+:FORMATOUT
+  CALL %FORMATOUT% %~1 %~2 "%~3" "%~4%~5%~6"
+GOTO:EOF
 :Done
