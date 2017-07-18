@@ -26,7 +26,6 @@ FOR /F "delims=- tokens=1,2,3*" %%A in ("%ARG_1%") do (
 
 REM Command Line Helper needs to know a few things.
 REM The MySettingsINI path is used to hold specific variables you use in your environment.
-IF NOT DEFINED IsAdmin CALL:check_Permissions
 IF NOT DEFINED IsInstalled (
   CALL:IsInstalled NOSHOW
 )
@@ -36,6 +35,7 @@ IF DEFINED IsInstalled (
 ) ELSE (
   ECHO You should run "setup.bat --Install"
 )
+IF NOT DEFINED IsAdmin CALL:check_Permissions
 IF NOT DEFINED Settings CALL:Settings
 CALL:LookupUserSettings
 CALL:LookupRemoteConnections
@@ -392,7 +392,7 @@ CALL:FORMATOUT 12,12,"%~1","Created File:%AliasFile%.alias.cmd"
 GOTO:EOF
 
 :--Install
-SET IDR=C:\Downloads\Installs
+SET "IDR=%_CLHelperDir_%\Downloads\Installs"
 CALL:Install_%~1
 GOTO:EOF
 
@@ -523,10 +523,29 @@ CALL:FORMATOUT 20,20," ReturnCode:","%ERRORLEVEL%"
 ENDLOCAL
 GOTO:EOF
 
+:Install_Notepad
+::Currently Only Installs the 64-bit version.
+IF EXIST "C:\Program Files (x86)\Notepad++\notepad++.exe" (
+SET Notepad_Plus_Plus=32bit
+)
+IF EXIST "C:\Program Files\Notepad++\notepad++.exe" (
+SET Notepad_Plus_Plus=64-bit
+)
+IF NOT DEFINED Notepad_Plus_Plus (
+  SET INS=npp.7.4.2.Installer.x64.exe
+  SET URL=https://notepad-plus-plus.org/repository/7.x/7.4.2/%INS%
+  CALL:Download "%URL%" "%IDR%"
+  %IDR%\%INS% /S
+)
+GOTO:EOF
+
 :Install_Git
 SETLOCAL ENABLEDELAYEDEXPANSION
 REM Eventually we need to look up the versions but for now this is not supported.
+SET _GIT_VER_=2.13.2
+SET _GIT_32bit_File_=Git-2.13.2-32-bit.exe
 SET _GIT32bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-32-bit.exe
+SET _GIT_64bit_File_=Git-2.13.2-64-bit.exe
 SET _GIT64bit_=https://github.com/git-for-windows/git/releases/download/v2.13.2.windows.1/Git-2.13.2-64-bit.exe
 CALL:FORMATOUT 100,50," --------------------------------------------------------------------------------------------------------",""
 IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET _AMD64_=True
@@ -542,6 +561,8 @@ IF DEFINED _AMD64_ (
   SET _DOWNLOAD_=%_GIT32bit_%
 )
 IF /I "%_DOINSTALLGIT_%"=="Y" CALL:Download "%_DOWNLOAD_%","%_CLHelperDir_%\Downloads\Installs"
+IF EXIST "%_CLHelperDir_%\Downloads\Installs\%_GIT_32bit_File_%" "%_CLHelperDir_%\Downloads\Installs\%_GIT_32bit_File_%" /SILENT /COMPONENTS="icons,ext\reg\shellhere,assoc,assoc_sh"
+IF EXIST "%_CLHelperDir_%\Downloads\Installs\%_GIT_64bit_File_%" "%_CLHelperDir_%\Downloads\Installs\%_GIT_64bit_File_%" /SILENT /COMPONENTS="icons,ext\reg\shellhere,assoc,assoc_sh"
 ENDLOCAL
 GOTO:EOF
 
