@@ -9,10 +9,6 @@
 ::::  SETTINGS BEGIN ::::
 :: Set Default Variables Begin ::
 SET _CLHScripts_=c:\CommandLineHelper\Scripts
-SET _CustomAlias_=C:\dev\scripts\alias.cmd
-IF EXIST "%_CustomAlias_%" (
-  CALL %_CustomAlias_%
-)
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
 :: Set Default Variables End ::
@@ -42,6 +38,13 @@ DOSKEY add_python33=set PATH=%PATH%;"C:\Python33\"
 DOSKEY FindString=cscript.exe //Nologo //T:15 %_CLHScripts_%\vbs\vbs\txtComp.vbs --PatternMatch $1 $2
 DOSKEY desktop=CD /D "%userprofile%\Desktop"
 DOSKEY dev=CD /D "c:\Dev"
+DOSKEY Downloads=cd /d "%USERPROFILE%\Downloads"
+DOSKEY Pictures=cd /d "%USERPROFILE%\Pictures"
+DOSKEY Videos=cd /d "%USERPROFILE%\Videos"
+DOSKEY OneDrive=cd /d "%USERPROFILE%\onedrive"
+DOSKEY Documents=cd /d "%USERPROFILE%\Documents"
+DOSKEY iCloudDrive=cd /d "%USERPROFILE%\iCloudDrive"
+DOSKEY Searches=cd /d "%USERPROFILE%\Searches"
 DOSKEY clh=c:\CommandLineHelper\Scripts\CLHelper.bat $*
 :: Regular Expression Pattern Search End ::
 
@@ -80,7 +83,14 @@ DOSKEY commit=%CLHelper% --GitCommit $*
 DOSKEY custom=%_CustomAlias_%
 DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
-
+:: Your custome alias keys override these default ones. Add any you like.
+SET _CustomAliasDir_=C:\dev\scripts
+IF NOT EXIST "%_CustomAliasDir_%" MKDIR %_CustomAliasDir_%
+SET _CustomAliasFile_=%_CustomAliasDir_%\custom_alias.cmd
+IF NOT EXIST "%_CustomAliasFile_%" (
+  ECHO DOSKEY custom=notepad.exe %_CustomAliasFile_%>%_CustomAliasFile_%
+)
+CALL %_CustomAliasFile_%
 :: Custom Alias Keys END ::
 
 :: Doskey Commands End ::
