@@ -226,7 +226,7 @@ CALL:ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
 CALL:ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
 CALL:ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
 CALL:ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
+IF NOT DEFINED _MyPassword_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
 CALL:ReadINI "%_MySettings_%","%UserName%","MyDomainOrWorkgroup","_MyDomainOrWorkgroup_"
 GOTO:EOF
 
@@ -238,12 +238,50 @@ CALL:ReadINI "%_MySettings_%" "RemoteConnections" "GoServer" "__GOSERVER__"
 CALL:ReadINI "%_MySettings_%" "RemoteConnections" "RemoteScriptsSharedFolder" "__GOSERVER__"
 GOTO:EOF
 
+:CheckAccounts
+REM TBD Need to add optional save logic Begin.
+IF NOT DEFINED _MyDomainOrWorkgroup_ (
+  CALL:FORMATOUT 15,50,"Domain:","Please enter your fully qualified domain name."
+  SET /P _MyDomainOrWorkgroup_= 
+)
+IF NOT DEFINED _MyUserName_ (
+  CALL:FORMATOUT 15,50,"UserName","Please enter your UserName name."
+  SET /P _MyUserName_= 
+)
+IF NOT DEFINED _MyPassword_ (
+  CALL:FORMATOUT 15,50,"Password:","Please enter your password."
+  SET /P _MyPassword_= 
+)
+REM TBD Need to add optional save logic END.
+GOTO:EOF
+
 :DebugGet
 CALL:ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
 GOTO:EOF
 
 :MakeTaskSub
 CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
+GOTO:EOF
+
+:--WMIC
+ECHO [%~0] %~2 %~3
+SETLOCAL ENABLEDELAYEDEXPANSION
+  SET __FunctionName__=%~1
+  IF NOT DEFINED __FunctionName__ (
+    SET __FunctionName__=Help
+    )
+  SET __ComputerName__=%~2
+  IF NOT DEFINED __ComputerName__ (
+    SET __ComputerName__=!COMPUTERNAME!
+  )
+  IF /I "%~3"=="" (
+    SET "__TEXT__=/format:list"
+  ) ELSE ( 
+    SET "__TEXT__=%~3"
+  )
+  SET "__OTHER__=%~4 %~5 %~6"
+  CALL %CLHLibs%\wmicFunc.cmd !__FunctionName__! !__ComputerName__! !__TEXT__! !__OTHER__!
+ENDLOCAL
 GOTO:EOF
 
 :--SetupUserIniSettings
@@ -371,8 +409,8 @@ ENDLOCAL
 GOTO:EOF
 
 :--LibsList
-cls
-CALL %CLHLibs%\LibsList.cmd
+  cls
+  CALL %CLHLibs%\LibsList.cmd
 GOTO:EOF
 
 REM Small Text Formatter Code End
@@ -705,6 +743,7 @@ GOTO:EOF
 
 :--RDP
 SET __RDP__=%~1
+CALL:CheckAccounts
 IF DEFINED __RDP__ (
   SET _WINDOWS_SERVERS_=%__RDP__%
 ) ELSE (
