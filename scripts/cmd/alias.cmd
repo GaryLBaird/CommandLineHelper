@@ -14,18 +14,14 @@ SET CLHelper=%_CLHScripts_%\CLHelper.bat
 :: Set Default Variables End ::
 
 :: Create Default Directories Begin ::
-IF NOT EXIST "%_CLHScripts_%\vbs\" (
-  MKDIR %_CLHScripts_%\vbs\
+IF NOT EXIST "%_CLHScripts_%\vbs" (
+  MKDIR %_CLHScripts_%\vbs
 )
-IF NOT EXIST "%_CLHScripts_%\logs\" (
-  MKDIR %_CLHScripts_%\logs\
+IF NOT EXIST "%_CLHScripts_%\logs" (
+  MKDIR %_CLHScripts_%\logs
 )
 :: Create Default Directories End ::
 :: Functions
-:-BestColor
-:: Yellow Text Purple Background 
-Color 5E
-GOTO:EOF
 
 :: Doskey Commands Begin ::
 
@@ -101,6 +97,11 @@ CALL %_CustomAliasFile_%
 :: Doskey Commands End ::
 CALL:-BestColor
 GOTO :DONE
+
+:-BestColor
+REM Yellow Text Purple Background 
+Color 5E
+GOTO:EOF
 
 :: Logic Functions Begin ::
 :: Logic Functions End ::

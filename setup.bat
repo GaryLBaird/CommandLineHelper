@@ -194,6 +194,8 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=Where to install? Default is [c:\CommandLineHelper].
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\cmd"
   CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!"
   REM CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
   REM CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
