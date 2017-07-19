@@ -7,8 +7,6 @@ Start by downloading the repo. Run the Start.bat to begin.
 Start.bat --help will display the command line options. 
   i.e. start.bat --Install
   Result: Will prompt the user for information needed before creating an alias.cmd. If the directories are missing they will be automatically generated. An alias.cmd link location will be associated with the HKCU\Software\Microsoft\Command Processor AutoRun REG_SZ key. This will cause the alias.cmd to be loaded every time a new command window is crated. You can manually edit the alias.cmd file anytime.
-  If you like what you see you can make it perminent by first setting the variable ADD_REG to true from the command line. 
-    i.e. *"SET ADD_REG=True"*
 
 The power of having an alias.cmd is that you can specify aliases that apply to future command window sessions rather than having to reset variables all the time. Lets say you hate to type cd c:\dev\. 
 Using a doskey command like the one below will make it so every time you type "dev" the CD /D C:\Dev command will run. 
