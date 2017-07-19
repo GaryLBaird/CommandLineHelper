@@ -84,6 +84,7 @@ DOSKEY commit=%CLHelper% --GitCommit $*
 DOSKEY custom=%_CustomAlias_%
 DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
+DOSKEY rdp=%CLHelper% --RDP $*
 :: Your custome alias keys override these default ones. Add any you like.
 SET _CustomAliasDir_=C:\dev\scripts
 IF NOT EXIST "%_CustomAliasDir_%" MKDIR %_CustomAliasDir_%
