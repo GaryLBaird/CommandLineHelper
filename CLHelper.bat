@@ -259,6 +259,10 @@ GOTO:EOF
 CALL:ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
 GOTO:EOF
 
+:--AddMailSignature
+"%_CSCRIPT_PATH_%" //Nologo "%CLHVBS%\addOutlookSignatureFromADCredentials.vbs"
+GOTO:EOF
+
 :MakeTaskSub
 CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
 GOTO:EOF
