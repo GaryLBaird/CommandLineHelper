@@ -79,10 +79,10 @@ value
 ```
 
 # Installation
-
-setup.bat --install
-
-*NOTE*: Use SET ADD_REG=True before running setup.bat --install or the alias registry key will not be set. This is on purpose so that custom keys are not overwritten.
+Open a command window and change to the directory where you downloaded the CommandLineHelper source.
+Run:
+```setup.bat --install
+```
 
 # Manual Installation
 
