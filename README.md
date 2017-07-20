@@ -34,8 +34,9 @@ ECHO %variable%
 *results in*
 value
 
-#Default Alias Options Available from the Command Line:
-These settings don't stop working just because you open another command window. Once installed you can edit them and continue improve upon them. Please contribute to the CommandLineHelper either your suggestions or edit them yourself. 
+# Default Alias Options Available from the Command Line:
+
+*These settings don't stop working just because you open another command window.* Once CommandLineHelper is installed you can edit them and continue improve upon them. Please contribute to the CommandLineHelper either your suggestions or add your own changes to the source repository here. 
 ```
 "FindString YourRegularExpression Text"
 "desktop"     Changes directory to your desktop "%userprofile%\Desktop directory.
