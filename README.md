@@ -7,7 +7,8 @@ Start by downloading the repo. Run the Start.bat to begin.
 Start.bat --help will display the command line options.
 
   i.e. 
-  ```start.bat --Install
+  ```
+  start.bat --Install
   ```
   Result: Will prompt the user for information needed before creating an alias.cmd. If the directories are missing they will be automatically generated. An alias.cmd link location will be associated with the HKCU\Software\Microsoft\Command Processor AutoRun REG_SZ key. This will cause the alias.cmd to be loaded every time a new command window is crated. You can manually edit the alias.cmd file anytime.
 
@@ -69,13 +70,45 @@ value
 "GitForce"    Cleans and removes all changes in git repo and pulls latest code.
 "GitCommit"   Pulls latest code and prompts for commit message before commiting changes.
 "explorer"    Opens Windows Explorer to current location.
-"CLCopy"      Copies a file and prompts user for overwrite while creating directories in the destination if they do not exist.
-"rc"          Random color for command window background and text. You can also specify a color like "rc lightblue black".
-"commit"      Same as "GitCommit", pulls latest code and prompts for commit message before commiting changes.
+"CLCopy"      Copies a file and prompts user for overwrite while creating directories
+               in the destination if they do not exist.
+"rc"          Random color for command window background and text. You can also specify
+               a color like "rc lightblue black".
+"commit"      Same as "GitCommit", pulls latest code and prompts for commit message
+               before commiting changes.
 "custom"      Loads your own custom alias settings.
 "ls"          Linux list command i.e. ls
 "vjson"       Verifies a json file (requires ruby)
-"rdp"         Starts a remote desktop connection automatically passing in your username and credentials as well as adding the fully qualified computer name.
+"rdp"         Starts a remote desktop connection automatically passing in your username and credentials
+               as well as adding the fully qualified computer name.
+              Example:
+               "rdp computername" will open a remote desktop connection and automatically log in even
+               if you have never done so.
+               "rdp computername1,computername2" will open a remote desktop connection automatically
+               and automatically log in even if you have never done so.
+               "rdp" by it self will use the "[RemoteConnections]" section and key
+               "WindowsServers=computername,computername1,computername2" found in the 
+               CommandLineHelper\scripts\clhelper.ini file.
+               e.g. if you're clhelper.ini file had the following settings an RDP session would start
+               for each computer in the list.
+               Example 'clhelper.ini':
+               [RemoteConnections]
+               WindowsServers=computername,computername1,computername2
+"window"      Changes the window size. 
+              Example:
+              "window long" makes your command window long i.e. 9999 lines.
+              "window short" makes your command window shorter i.e. 40 lines.
+              "Window short fat" makes your command window shorter i.e. 40 lines but wider i.e. 150.
+              "Window short" without 'fat' will change the command window back to 120 characters.
+"linux"       Will open an ssh connection with a linux machine. Currently, this feature only works with
+               linux servers. It's similar to an RDP session window above but for linux. This feature
+               does require that you have run the ssh remote key setup - an automated feature is coming
+               that will automatically create the keys.
+               Example:
+               "linux computername" opens an ssh connection to that computer.
+               Example 'clhelper.ini':
+               [RemoteConnections]
+               LinuxServers=LinuxComputername,LinuxComputername1,LinuxComputerName2
 ```
 
 # Installation
