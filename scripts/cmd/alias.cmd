@@ -10,6 +10,7 @@ SET _CLHScripts_=c:\CommandLineHelper\Scripts
 SET _CLHBIN_=c:\CommandLineHelper\bin
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
+SET _USERNAME_=%username%
 
 ::Create Default Directories
 IF NOT EXIST "%_CLHScripts_%\vbs" (
@@ -75,7 +76,7 @@ DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
 DOSKEY rdp=%CLHelper% --RDP $*
 DOSKEY window=%CLHelper% --mode $*
-DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_USERNAME_%@$1 -i %USERPROFILE%\.ssh\id_rsa
+DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory
 SET _CustomAliasDir_=C:\dev\scripts
 ::Custom Alias Create If Missing

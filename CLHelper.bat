@@ -323,7 +323,7 @@ SET LocalFile=%USERPROFILE%\.ssh\authorized_keys
 SET SSHDIR=/home/%USE_THIS_USER%/.ssh
 FOR /D %%i in (!__MACHINES__!) do (
   ECHO connecting to server
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i -i %USERPROFILE%\.ssh\id_rsa
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i -I %USERPROFILE%\.ssh\id_rsa
 )
 ENDLOCAL
 :LinuxDone
@@ -374,7 +374,7 @@ REM REM Begin Test Connections Script
 FOR /D %%i in (!__MACHINES__!) do (
   ECHO.
   ECHO Attempting to connect to %%i and validate it is working properly. 
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe !USE_THIS_USER!@%%i -i %USERPROFILE%\.ssh\id_rsa
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe !USE_THIS_USER!@%%i -I %USERPROFILE%\.ssh\id_rsa
 )
 ENDLOCAL
 :LinuxDoneSetupSSH
@@ -897,7 +897,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /D %%A IN (%__GOSERVER__%) DO (
   ECHO._________________________________________________________________________________
   ECHO Connecting to Linux Server: %%A.%_MyDomainOrWorkgroup_%
-  IF NOT DEFINED _DEBUG_ START ssh gary@%%A.%_MyDomainOrWorkgroup_% -i %userprofile%\.ssh\id_rsa
+  IF NOT DEFINED _DEBUG_ START ssh %_MyUserName_%@%%A.%_MyDomainOrWorkgroup_% -I %userprofile%\.ssh\id_rsa
   ECHO._________________________________________________________________________________
 )
 ENDLOCAL
@@ -908,7 +908,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /D %%A IN (%__LINUX_SERVERS__%) DO (
   ECHO._________________________________________________________________________________
   ECHO Connecting to Linux Server: %%A.%_MyDomainOrWorkgroup_%
-  IF NOT DEFINED _DEBUG_ START ssh %_MyUserName_%@%%A.%_MyDomainOrWorkgroup_% -i %userprofile%\.ssh\id_rsa
+  IF NOT DEFINED _DEBUG_ START ssh %_MyUserName_%@%%A.%_MyDomainOrWorkgroup_% -I %userprofile%\.ssh\id_rsa
   ECHO._________________________________________________________________________________
 )
 ENDLOCAL
