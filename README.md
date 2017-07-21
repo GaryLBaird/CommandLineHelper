@@ -94,6 +94,11 @@ value
                Example 'clhelper.ini':
                [RemoteConnections]
                WindowsServers=computername,computername1,computername2
+              This feature also requires the following settings in your clhelper.ini file.
+               [<Your Local PC User Account Name Here>]
+               MyPassword=<Your Domain Password Here>
+               MyUserName=<Your Domain User Name Here>
+               MyDomainOrWorkgroup=<Your Local Domain Name>.<Public Domain Extension i.e. '.com'>
 "window"      Changes the window size. 
               Example:
               "window long" makes your command window long i.e. 9999 lines.
