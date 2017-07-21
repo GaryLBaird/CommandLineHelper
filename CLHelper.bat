@@ -298,6 +298,37 @@ GOTO:EOF
 CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
 GOTO:EOF
 
+:--Linux
+IF "%~1"=="" ECHO You must provide a server name. && goto :LinuxDone
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+SET __MACHINES__=%1
+SET USE_THIS_USER=%_MyUserName_%@%_MyDomainOrWorkgroup_%
+CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
+CALL:FORMATOUT 50,50,"User:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
+CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"",""
+SET /P Correct= [Y/N]
+IF /I "%Correct%"=="Y" goto :LinuxReady
+:LinuxLoop
+  CALL:FORMATOUT 50,50,"Please enter the correct user credentials.",""
+  SET /P USE_THIS_USER= Linux Machine Credentials username or username@domainname:
+  CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+  SET /P Correct= [Y/N]
+  IF /I NOT "%Correct%"=="Y" goto :LinuxLoop
+:LinuxReady
+CALL:FORMATOUT 50,50,"Press any key to continue.",""
+:: Begin Script
+SET LocalFile=%USERPROFILE%\.ssh\authorized_keys
+SET SSHDIR=/home/%USE_THIS_USER%/.ssh
+FOR /D %%i in (!__MACHINES__!) do (
+  ECHO connecting to server
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i -i %USERPROFILE%\.ssh\id_rsa
+)
+ENDLOCAL
+:LinuxDone
+GOTO:EOF
+
 :--WMIC
 ECHO [%~0] %~2 %~3
 SETLOCAL ENABLEDELAYEDEXPANSION
