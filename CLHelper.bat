@@ -299,6 +299,8 @@ CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
 GOTO:EOF
 
 :--Linux
+Echo Feature bug#7. This currently disabled.
+goto :LinuxDone
 IF "%~1"=="" ECHO You must provide a server name. && goto :LinuxDone
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 SET __MACHINES__=%1
@@ -330,6 +332,8 @@ ENDLOCAL
 GOTO:EOF
 
 :--SetupSSH
+Echo Feature bug#7. This currently disabled.
+goto :LinuxDoneSetupSSH
 IF "%~1"=="" ECHO You must provide at least one server name. && goto :LinuxDoneSetupSSH
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 SET __MACHINES__=%1
