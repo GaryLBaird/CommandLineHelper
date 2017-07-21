@@ -162,6 +162,23 @@ LinuxServers=linserver1,linserver2
 # Options:
 <href>https://github.com/GaryLBaird/CommandLineHelper/blob/master/scripts/cmd/libs/clhHelp.cmd</href>
 
+# Requirements
+You can only run CommandLineHelper from an command window with "Run as administrator" privilidges enabled. I
+recommend that you create a shortcut and set the runas feature to run as administrator every time you open a 
+new command window. You really only need the administrator privilidges if you are not actually going to be 
+running clhelper.bat functions, but it's nice if you don't have to re open another window.
+
+*If you attempt to run clhelper.bat without administrator privilidges you will see the following message:*
+```
+ Administrative permissions required.               Detecting permissions...
+ Failed:                                            Please start a new command window with administrative permissions.
+Press Enter Continue:
+```
+*If you attempt to run clhelper.bat administrator privilidges you will see the following message the first time it runs:*
+```
+ Administrative permissions required.               Detecting permissions...
+ Success:                                           Administrative permissions confirmed.
+```
 
 # Using username and password (TBD)
 
