@@ -38,6 +38,7 @@ IF NOT DEFINED IsAdmin CALL:check_Permissions
 IF NOT DEFINED Settings CALL:Settings
 CALL:LookupUserSettings
 CALL:LookupRemoteConnections
+CALL::FindNotePadPlusPlus
 
 REM This is where the functions are called, but only if an argument has been passed.
 
@@ -236,12 +237,13 @@ CALL:GetRubyVer -v
 GOTO:EOF
 
 :LookupUserSettings
-CALL:ReadINI "%_MySettings_%" "%UserName%" "FirstName" "_FirstName_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "LastName" "_LastName_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Password_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
+IF NOT DEFINED _FirstName_ CALL:ReadINI "%_MySettings_%" "%UserName%" "FirstName" "_FirstName_"
+IF NOT DEFINED _LastName_ CALL:ReadINI "%_MySettings_%" "%UserName%" "LastName" "_LastName_"
+IF NOT DEFINED _Temporary_Password_ CALL:ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Password_"
+IF NOT DEFINED _My_Dev_Env_Dir_ CALL:ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
+IF NOT DEFINED _MY_SCRIPTS_Dir_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
+IF NOT DEFINED _MyLinuxUser_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxUser" "_MyLinuxUser_"
+IF NOT DEFINED _MyLinuxPass_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxPass" "_MyLinuxPass_"
 IF NOT DEFINED _MyUserName_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
 IF NOT DEFINED _MyUserName_ (
 	ECHO Please Enter your domain or workgroup username. Default:%USERNAME%
@@ -269,25 +271,39 @@ CALL:ReadINI "%_MySettings_%" "RemoteConnections" "GoServer" "__GOSERVER__"
 CALL:ReadINI "%_MySettings_%" "RemoteConnections" "RemoteScriptsSharedFolder" "__GOSERVER__"
 GOTO:EOF
 
+:FindNotePadPlusPlus
+IF EXIST "C:\Program Files (x86)\Notepad++\notepad++.exe" (
+SET NOTEPAD="C:\Program Files (x86)\Notepad++\notepad++.exe"
+)
+IF EXIST "C:\Program Files\Notepad++\notepad++.exe" (
+SET NOTEPAD="C:\Program Files\Notepad++\notepad++.exe"
+)
+IF NOT DEFINED NOTEPAD SET NOTEPAD=%WINDIR%\System32\notepad.exe
+GOTO:EOF
+
 :CheckAccounts
 REM TBD Need to add optional save logic Begin.
 IF NOT DEFINED _MyDomainOrWorkgroup_ (
   CALL:FORMATOUT 15,50,"Domain:","Please enter your fully qualified domain name."
-  SET /P _MyDomainOrWorkgroup_= 
+  SET /P _MyDomainOrWorkgroup_=
 )
 IF NOT DEFINED _MyUserName_ (
   CALL:FORMATOUT 15,50,"UserName","Please enter your UserName name."
-  SET /P _MyUserName_= 
+  SET /P _MyUserName_=
 )
 IF NOT DEFINED _MyPassword_ (
   CALL:FORMATOUT 15,50,"Password:","Please enter your password."
-  SET /P _MyPassword_= 
+  SET /P _MyPassword_=
 )
 REM TBD Need to add optional save logic END.
 GOTO:EOF
 
 :DebugGet
 CALL:ReadINI "%_MySettings_%" "DEBUG" "debug" "_DEBUG_"
+GOTO:EOF
+
+:--CaseConvert
+CALL %CLHLibs%\caseConvert.cmd %~1 %~2
 GOTO:EOF
 
 :--AddMailSignature
@@ -298,79 +314,61 @@ GOTO:EOF
 CALL:FORMATOUT 50,12,"%~1:%~2","%TIME%"
 GOTO:EOF
 
+:PROCESSOR_ARCHITECTURE
+CALL:ReadReg "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" PROCESSOR_ARCHITECTURE _ARCH_
+GOTO:EOF
+
+:--Configure
+CALL %CLHLibs%\configure.cmd %~1 %~2
+GOTO:EOF
+
 :--Linux
-Echo Feature bug#7. This currently disabled.
-goto :LinuxDone
-IF "%~1"=="" ECHO You must provide a server name. && goto :LinuxDone
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
-SET __MACHINES__=%1
-SET USE_THIS_USER=%_MyUserName_%@%_MyDomainOrWorkgroup_%
-CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
-CALL:FORMATOUT 50,50,"User:","%USE_THIS_USER%"
-CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
-CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
-CALL:FORMATOUT 50,50,"",""
-SET /P Correct= [Y/N]
-IF /I "%Correct%"=="Y" goto :LinuxReady
-:LinuxLoop
-  CALL:FORMATOUT 50,50,"Please enter the correct user credentials.",""
-  SET /P USE_THIS_USER= Linux Machine Credentials username or username@domainname:
-  CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
-  SET /P Correct= [Y/N]
-  IF /I NOT "%Correct%"=="Y" goto :LinuxLoop
-:LinuxReady
-CALL:FORMATOUT 50,50,"Press any key to continue.",""
-:: Begin Script
-SET LocalFile=%USERPROFILE%\.ssh\authorized_keys
-SET SSHDIR=/home/%USE_THIS_USER%/.ssh
-FOR /D %%i in (!__MACHINES__!) do (
-  ECHO connecting to server
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i -I %USERPROFILE%\.ssh\id_rsa
-)
-ENDLOCAL
-:LinuxDone
+CALL %CLHLibs%\linuxConnect.cmd %~1 %~2
 GOTO:EOF
 
 :--SetupSSH
-Echo Feature bug#7. This currently disabled.
-goto :LinuxDoneSetupSSH
-IF "%~1"=="" ECHO You must provide at least one server name. && goto :LinuxDoneSetupSSH
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 SET __MACHINES__=%1
-SET USE_THIS_USER=%_MyUserName_%@%_MyDomainOrWorkgroup_%
+IF "%~1"=="" ECHO You must provide at least one server name. && goto :LinuxDoneSetupSSH
+IF NOT DEFINED _MyLinuxUser_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxUser" "_MyLinuxUser_"
+IF NOT DEFINED _MyLinuxPass_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxPass" "_MyLinuxPass_"
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+IF NOT DEFINED _MyLinuxUser_ SET _MyLinuxUser_=%_MyUserName_%@%_MyDomainOrWorkgroup_%
 CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
-CALL:FORMATOUT 50,50,"User:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"User:","%_MyLinuxUser_%"
 CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
-CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"Is this user name correct:","%_MyLinuxUser_%"
 CALL:FORMATOUT 50,50,"",""
 SET /P Correct= [Y/N]
-IF /I "%Correct%"=="Y" goto :LinuxReady
+IF /I "!Correct!"=="Y" goto :LinuxReady
 :LinuxLoopSetupSSH
   CALL:FORMATOUT 50,50,"Please enter the correct user credentials.",""
-  SET /P USE_THIS_USER= Linux Machine Credentials username or username@domainname:
-  CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+  SET /P _MyLinuxUser_= Linux Machine Credentials username or username@domainname:
+  CALL:FORMATOUT 50,50,"Is this user name correct:","%_MyLinuxUser_%"
   SET /P Correct= [Y/N]
-  IF /I NOT "%Correct%"=="Y" goto :LinuxLoopSetupSSH
+  IF /I NOT "!Correct!"=="Y" goto :LinuxLoopSetupSSH
+  CALL:FORMATOUT 50,50,"Would you like to save MyLinuxUser for later?","%_MyLinuxUser_%"
+  SET /P Correct= [Y/N]
+  IF /I "!Correct!"=="Y" CALL:--WriteINI "%_MySettings_%" "%UserName%" "MyLinuxUser" "!_MyLinuxUser_!"
 :LinuxReadySetupSSH
 CALL:FORMATOUT 50,50,"Press any key to continue.",""
 :: Begin Script
 SET LocalFile=%USERPROFILE%\.ssh\authorized_keys
-SET SSHDIR=/home/%USE_THIS_USER%/.ssh
+SET SSHDIR=/home/%_MyLinuxUser_%/.ssh
 FOR /D %%i in (!__MACHINES__!) do (
   ECHO Making the .ssh Directory
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i mkdir /home/%USE_THIS_USER%/.ssh
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %_MyLinuxUser_%@%%i mkdir /home/%_MyLinuxUser_%/.ssh
   ECHO.
   ECHO Copy authorized_keys file.
-  ECHO pscp -l %USE_THIS_USER% !LocalFile! @%%i:!SSHDIR!
-  %CommandLineHelper%\bin\OpenSSH\bin\pscp.exe -l %USE_THIS_USER% !LocalFile! @%%i:!SSHDIR!
+  ECHO pscp -l %_MyLinuxUser_% !LocalFile! @%%i:!SSHDIR!
+  %CommandLineHelper%\bin\PuTTY\pscp.exe -l %_MyLinuxUser_% !LocalFile! @%%i:!SSHDIR!
   ECHO.
   ECHO Modifying the directory permissions 
-  ECHO chmod 755 /home/%USE_THIS_USER%/.ssh 
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i chmod 755 /home/%USE_THIS_USER%/.ssh
+  ECHO chmod 755 /home/%_MyLinuxUser_%/.ssh 
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %_MyLinuxUser_%@%%i chmod 755 /home/%_MyLinuxUser_%/.ssh
   ECHO.
   ECHO Modifying the file permissions
-  ECHO chmod 600 /home/%USE_THIS_USER%/.ssh/authorized_keys
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i chmod 600 /home/%USE_THIS_USER%/.ssh/authorized_keys
+  ECHO chmod 600 /home/%_MyLinuxUser_%/.ssh/authorized_keys
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %_MyLinuxUser_%@%%i chmod 600 /home/%_MyLinuxUser_%/.ssh/authorized_keys
 )
 
 REM REM Begin Test Connections Script
@@ -378,7 +376,7 @@ REM REM Begin Test Connections Script
 FOR /D %%i in (!__MACHINES__!) do (
   ECHO.
   ECHO Attempting to connect to %%i and validate it is working properly. 
-  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe !USE_THIS_USER!@%%i -I %USERPROFILE%\.ssh\id_rsa
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe !_MyLinuxUser_!@%%i -I %USERPROFILE%\.ssh\id_rsa
 )
 ENDLOCAL
 :LinuxDoneSetupSSH
@@ -477,19 +475,19 @@ FOR /F "tokens=1,2,3*" %%A IN ('REG QUERY "%KEY_NAME%" /v %VALUE_NAME% ') DO (
 )
 IF NOT DEFINED NOSHOW (
   IF DEFINED ValueValue (
-    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
-    CALL:FORMATOUT 50,50," Key:","Value:"
-    CALL:FORMATOUT 50,50," ----"," ------"
-    CALL:FORMATOUT 50,50," Name","%KEY_NAME%"
-    CALL:FORMATOUT 50,50," REG_Type","%Type%"
-    CALL:FORMATOUT 50,50," %VALUE_NAME%","%ValueValue%"
-    CALL:FORMATOUT 50,50," ENV:%~3","%ValueValue%"
-    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
+    CALL:FORMATOUT 25,50," ---------------------------------------------------","--------------------------------------------------------------------"
+    CALL:FORMATOUT 25,50," Key:","Value:"
+    CALL:FORMATOUT 25,50," ----","-------"
+    CALL:FORMATOUT 25,50," Name","%KEY_NAME%"
+    CALL:FORMATOUT 25,50," REG_Type","%Type%"
+    CALL:FORMATOUT 25,50," %VALUE_NAME%","%ValueValue%"
+    CALL:FORMATOUT 25,50," ENV:%~3","%ValueValue%"
+    CALL:FORMATOUT 25,50," ---------------------------------------------------","--------------------------------------------------------------------"
   ) ELSE (
-    CALL:FORMATOUT 50,50," ---------------------------------------------------"," ---------------------------------------------------"
-    CALL:FORMATOUT 50,50," Result:","Key and Name:"
-    CALL:FORMATOUT 50,50," -------"," -------------"
-    CALL:FORMATOUT 50,50," Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
+    CALL:FORMATOUT 25,50," ---------------------------------------------------","--------------------------------------------------------------------"
+    CALL:FORMATOUT 25,50," Result:","Key and Name:"
+    CALL:FORMATOUT 25,50," -------"," -------------"
+    CALL:FORMATOUT 25,50," Key Not Found!","'%KEY_NAME%' '%VALUE_NAME%'"
   )
 )
 ENDLOCAL && SET "%~3=%ValueValue%"
@@ -1154,7 +1152,6 @@ GOTO:EOF
 REM Clears Any Default Variables that might have been set while running this batch file.
 
 SET _DEBUG_=
-SET _MyPassword_=
 SET _CLEAN_=
 SET ARGS=
 SET __RUNONCEONLY__=
