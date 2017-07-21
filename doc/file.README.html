@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.9.9
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'>
+<h1 id="label-CommandLineHelper">CommandLineHelper</h1>
+
+<p><em>Basic command line helper utilities for software developers.</em></p>
+
+<p>The intended usage for <em>CommandLineHelper</em> is to provide a user a
+more linux like command line experience. We will eventually provide most of
+the linux utilitie. It&#39;s useful, but can also be a great way to learn
+batch scripting.</p>
+
+<p>Start by downloading the repo. Run the Start.bat to begin. Start.bat –help
+will display the command line options.</p>
+
+<p>i.e.  <code>   start.bat --Install </code>  Result: Will prompt the user
+for information needed before creating an alias.cmd. If the directories are
+missing they will be automatically generated. An alias.cmd link location
+will be associated with the HKCUSoftwareMicrosoftCommand Processor AutoRun
+REG_SZ key. This will cause the alias.cmd to be loaded every time a new
+command window is crated. You can manually edit the alias.cmd file anytime.</p>
+
+<p>The power of having an alias.cmd is that you can specify aliases that apply
+to future command window sessions rather than having to reset variables all
+the time. Lets say you hate to type cd c:dev. Using a doskey command like
+the one below will make it so every time you type “dev” the CD /D C:Dev
+command will run.  i.e. <em>DOSKEY dev=CD /D c:dev</em> It&#39;s very
+powerfull to use aliases in your command window and having them in the
+alias.cmd will make sure that all your favorite shortcuts are available
+every time you open a command window.</p>
+
+<p>The start.bat file will be used to install any the clhelper command further
+enhances your automated command structure without the need to install
+anything. It&#39;s the basis of any good relationship with windows.</p>
+
+<h1 id="label-Things+You+Can+Do+with+CommandLineHelper+you+can-27t+do+without-3A">Things You Can Do with CommandLineHelper you can&#39;t do without:</h1>
+
+<p>The READWRITEINI function will read and write to ini files within batches
+for configuration purposes. When reading something from an INI file specify
+the key and a temporary environment variable name you would like to set as
+the output. If you were to type: ECHO %variable% your command window will
+display the value of the key you specified.</p>
+
+<p><em>Example:</em> INIFile Structure: <code> [section] key=value </code></p>
+
+<p>READWRITEINI “Section” “key” “variable” ECHO %variable%</p>
+
+<p><em>results in</em> value</p>
+
+<h1 id="label-Default+Alias+Options+Available+from+the+Command+Line-3A">Default Alias Options Available from the Command Line:</h1>
+
+<p><em>These settings don&#39;t stop working just because you open another
+command window.</em> Once CommandLineHelper is installed you can edit them
+and continue improve upon them. Please contribute to the CommandLineHelper
+either your suggestions or add your own changes to the source repository
+here. <code> &quot;FindString YourRegularExpression Text&quot;
+&quot;desktop&quot;     Changes directory to your desktop
+&quot;%userprofile%\Desktop directory. &quot;dev&quot;         Changes
+directory to your dev directory. &quot;Download&quot;    Changes directory
+to your &quot;%USERPROFILE%\Downloads&quot; directory. &quot;pictures&quot;
+Changes directory to your &quot;%USERPROFILE%\Pictures&quot; directory.
+&quot;videos&quot;      Changes directory to your
+&quot;%USERPROFILE%\Videos&quot; directory. &quot;OneDrive&quot;    Changes
+directory to your &quot;%USERPROFILE%\onedrive&quot; directory.
+&quot;Documents&quot;   Changes directory to your
+&quot;%USERPROFILE%\Documents&quot; &quot;iCloudDrive&quot; Changes
+directory to your &quot;%USERPROFILE%\iCloudDrive&quot;
+&quot;Searches&quot;    Changes directory to your
+&quot;%USERPROFILE%\Searches&quot; &quot;clh&quot;         Runs
+&quot;c:\CommandLineHelper\Scripts\CLHelper.bat $*&quot; &quot;logout&quot;
+Logs off the machine from the command line. Runs Shutdown -l
+&quot;logoff&quot;      Logs off the machine from the command line.
+Shutdown -l &quot;restart&quot;     Restarts the computer from the command
+line. Shutdown -g -t 30 -f &quot;forceoff&quot;    Forces all users off the
+machine from the command line. Shutdown /p &quot;shutoff&quot;     Shuts
+off the machine from the command line. Shutdown -s -t 30
+&quot;Hibernate&quot;   Puts the computer in hibernation mode from the
+command line. Shutdown -h &quot;rshutdown&quot;   Displays the graphical
+user interface (GUI) for Shutdown. shutdown -i &quot;abort&quot;      
+Aborts a shutdown. Shutdown -a &quot;lock&quot;        Locks the
+workstation similar to {WinKEY + L}. rundll32.exe user32.dll,
+LockWorkStation &quot;word&quot;        Opens Microsoft Word from the
+command line. &quot;mspub&quot;       Opens Microsoft Publisher.
+&quot;outlook&quot;     Opens Microsoft Outlook. &quot;ppt&quot;        
+Opens Microsoft PowerPoint &quot;excel&quot;       Opens Microsoft Excel
+&quot;xls&quot;         Opens Microsoft Excel &quot;xlsx&quot;        Opens
+Microsoft Excel &quot;np&quot;          Opens notepad++.exe and supports np
+filename options for quick editing. &quot;GitForce&quot;    Cleans and
+removes all changes in git repo and pulls latest code.
+&quot;GitCommit&quot;   Pulls latest code and prompts for commit message
+before commiting changes. &quot;explorer&quot;    Opens Windows Explorer to
+current location. &quot;CLCopy&quot;      Copies a file and prompts user
+for overwrite while creating directories                in the destination
+if they do not exist. &quot;rc&quot;          Random color for command
+window background and text. You can also specify                a color
+like &quot;rc lightblue black&quot;. &quot;commit&quot;      Same as
+&quot;GitCommit&quot;, pulls latest code and prompts for commit message    
+before commiting changes. &quot;custom&quot;      Loads your own custom
+alias settings. &quot;ls&quot;          Linux list command i.e. ls
+&quot;vjson&quot;       Verifies a json file (requires ruby)
+&quot;rdp&quot;         Starts a remote desktop connection automatically
+passing in your username and credentials                as well as adding
+the fully qualified computer name.               Example:               
+&quot;rdp computername&quot; will open a remote desktop connection and
+automatically log in even                if you have never done so.        
+&quot;rdp computername1,computername2&quot; will open a remote desktop
+connection automatically                and automatically log in even if
+you have never done so.                &quot;rdp&quot; by it self will use
+the &quot;[RemoteConnections]&quot; section and key               
+&quot;WindowsServers=computername,computername1,computername2&quot; found
+in the                 CommandLineHelper\scripts\clhelper.ini file.        
+e.g. if you&#39;re clhelper.ini file had the following settings an RDP
+session would start                for each computer in the list.          
+Example &#39;clhelper.ini&#39;:                [RemoteConnections]         
+WindowsServers=computername,computername1,computername2               This
+feature also requires the following settings in your clhelper.ini file.    
+[&lt;Your Local PC User Account Name Here&gt;]               
+MyPassword=&lt;Your Domain Password Here&gt;               
+MyUserName=&lt;Your Domain User Name Here&gt;               
+MyDomainOrWorkgroup=&lt;Your Local Domain Name&gt;.&lt;Public Domain
+Extension i.e. &#39;.com&#39;&gt; &quot;window&quot;      Changes the
+window size.                Example:               &quot;window long&quot;
+makes your command window long i.e. 9999 lines.               &quot;window
+short&quot; makes your command window shorter i.e. 40 lines.              
+&quot;Window short fat&quot; makes your command window shorter i.e. 40
+lines but wider i.e. 150.               &quot;Window short&quot; without
+&#39;fat&#39; will change the command window back to 120 characters.
+&quot;linux&quot;       Will open an ssh connection with a linux machine.
+Currently, this feature only works with                linux servers.
+It&#39;s similar to an RDP session window above but for linux. This feature
+does require that you have run the ssh remote key setup - an automated
+feature is coming                that will automatically create the keys.  
+Example:                &quot;linux computername&quot; opens an ssh
+connection to that computer.                Example &#39;clhelper.ini&#39;:
+[RemoteConnections]               
+LinuxServers=LinuxComputername,LinuxComputername1,LinuxComputerName2
+&quot;sshi&quot;         Easiest way to connect to a linux machine.        
+Example: Easy, to login.                sshi &lt;Linux Machine Name&gt;    
+Configuration:                CLHelper.bat --SetupSSH
+linuxmachine1,linuxmachine2,linuxmachine3... etc. </code></p>
+
+<h1 id="label-Installation">Installation</h1>
+
+<p>Open a command window and change to the directory where you downloaded the
+CommandLineHelper source. Run: <code>setup.bat --install </code></p>
+
+<h1 id="label-Manual+Installation">Manual Installation</h1>
+
+<p>Unpack the source folder to <em>c:CommandLineHelper</em> Open the command
+prompt and run the following commands: <code> REG ADD
+&quot;HKCU\Software\Microsoft\Command Processor&quot; /v AutoRun /t REG_SZ
+/d C:\CommandLineHelper\Scripts\cmd\alias.cmd /f REG ADD
+&quot;HKCU\Software\Microsoft\Command Processor&quot; /v CommandLineHelper
+/t REG_SZ /d C:\CommandLineHelper /f c:\CommandLineHelper\Scripts\alias.cmd
+clhelper.bat --SetupUserIniSettings </code></p>
+
+<h1 id="label-UnInstall">UnInstall</h1>
+
+<p>setup.bat –Alias-Remove</p>
+
+<p><em>NOTE</em>: This essentially only removes the registry key. All files
+will remain untouched. You can run –install to re-install the registry key.</p>
+
+<h1 id="label-clhelper.ini">clhelper.ini</h1>
+
+<p>After the setup is complete you can edit the
+CommandLineHelperscriptsclhelper.ini to customize and automate features. “`
+[Local] CLHelper_Dir=c:CommandLineHelper</p>
+
+<p>[Mike] MyPassword=MyUniquePassword MyUserName=Mike
+MY_Scripts_Dir=c:devscripts My_Dev_Env_Dir=c:dev
+MyDomainOrWorkgroup=BobsDomain.dom LastName=Mike FirstName=Boxer</p>
+
+<p>[RemoteConnections] TargetServers= WindowsServers=winserver1,winserver2
+LinuxServers=linserver1,linserver2 “`</p>
+
+<h1 id="label-Options-3A">Options:</h1>
+
+<p>&lt;href&gt;<a
+href="https://github.com/GaryLBaird/CommandLineHelper/blob/master/scripts/cmd/libs/clhHelp.cmd</href">github.com/GaryLBaird/CommandLineHelper/blob/master/scripts/cmd/libs/clhHelp.cmd</href</a>&gt;</p>
+
+<h1 id="label-Requirements">Requirements</h1>
+
+<p>You can only run CommandLineHelper from an command window with “Run as
+administrator” privilidges enabled. I recommend that you create a shortcut
+and set the runas feature to run as administrator every time you open a new
+command window. You really only need the administrator privilidges if you
+are not actually going to be running clhelper.bat functions, but it&#39;s
+nice if you don&#39;t have to re open another window.</p>
+
+<p><em>If you attempt to run clhelper.bat without administrator privilidges
+you will see the following message:</em> <code>  Administrative permissions
+required.               Detecting permissions...  Failed:                  
+Please start a new command window with administrative permissions. Press
+Enter Continue: </code> <em>If you attempt to run clhelper.bat
+administrator privilidges you will see the following message the first time
+it runs:</em> <code>  Administrative permissions required.              
+Detecting permissions...  Success:                                         
+Administrative permissions confirmed. </code></p>
+
+<h1 id="label-Using+username+and+password+-28TBD-29">Using username and password (TBD)</h1>
+
+<p>Username and password can be stored and retrieved from an ini file and
+accessed via the command line.</p>
+
+<p><em>NOTE</em>: This stores a clear text password in a local ini file.</p>
+
+<h1 id="label-Helpful+Typical+Functions+-28TBD-29">Helpful Typical Functions (TBD)</h1>
+
+<h1 id="label-TodoItems+-28TBD-29">TodoItems (TBD)</h1>
+<ul><li>
+<p><em>Installer Section</em>: for performing installs where files are
+downloaded from the internet and installed.</p>
+</li><li>
+<p><em>Customization</em>: Customizations are not currently stored in the ini
+file. One should be generated if it is missing and when questions are
+answered you should put them in the ini so that they are found in the
+future.</p>
+</li><li>
+<p><em>Curl Support</em>:</p>
+</li><li>
+<p>Support Curl directly and conversion to ruby</p>
+</li><li>
+<p><em>Ruby Gem</em>: Support</p>
+</li><li>
+<p><em>PowerShell</em>: Support for standard tasks using PowerShell.</p>
+</li><li>
+<p><em>PowerShell</em>: Launcher*: that enables and disables security
+automaticall while running script.</p>
+</li></ul>
+
+<h1 id="label-Project+Parents+and+Resource+Utilities+-28TBD-29">Project Parents and Resource Utilities (TBD)</h1>
+
+<h1 id="label-Contributors">Contributors</h1>
+
+<p>GaryLBaird</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Fri Jul 21 14:59:27 2017 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.9 (ruby-2.4.1).
+</div>
+
+    </div>
+  </body>
+</html>

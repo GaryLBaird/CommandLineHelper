@@ -209,6 +209,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:XCopy "%SELF_1%scripts\cmd","!CommandLineHelper!\scripts\cmd"
   CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
   CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby"
+  CALL:XCopy "%SELF_1%bin\PuTTY","!CommandLineHelper!\bin\PuTTY"
   WHERE Curl.exe >nul
   IF "%ERRORLEVEL%"=="1" (
     SETX PATH "%PATH%;!CommandLineHelper!\bin\curl" /M
