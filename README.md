@@ -119,6 +119,11 @@ value
                sshi <Linux Machine Name>
                Configuration:
                CLHelper.bat --SetupSSH linuxmachine1,linuxmachine2,linuxmachine3... etc.
+ "plink"       PuTTy command-line utility plink.exe 
+ "pscp"        PuTTy command-line utility pscp.exe 
+ "psftp"       PuTTy command-line utility psftp.exe 
+ "putty"       PuTTy command-line utility putty.exe 
+ 
 ```
 
 # Installation
