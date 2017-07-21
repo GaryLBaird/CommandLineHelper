@@ -23,7 +23,6 @@ IF DEFINED ARG_9 SET ARGS=%ARGS%,%ARG_9%
 FOR /F "delims=- tokens=1,2,3*" %%A in ("%ARG_1%") do (
   SET ARG_1=%%A
 )
-
 REM Command Line Helper needs to know a few things.
 REM The MySettingsINI path is used to hold specific variables you use in your environment.
 IF NOT DEFINED IsInstalled (
@@ -104,6 +103,18 @@ GOTO:EOF
 
 :GoToDone
 SET ARGS=Done
+GOTO:EOF
+
+:--Mode
+SETLOCAL ENABLEDELAYEDEXPANSION
+IF "%~2"=="fat" (
+  SET cols=150
+) ELSE (
+  SET cols=120
+)
+IF "%~1"=="short" mode con: cols=!cols! lines=40
+IF "%~1"=="long" mode con: cols=!cols! lines=9999
+ENDLOCAL
 GOTO:EOF
 
 :ReadINI
@@ -214,8 +225,14 @@ GOTO:EOF
 
 :LookupRubyScripts
 CALL:ReadINI "%_MySettings_%" "Ruby" "ScriptsDirectory" "__RubyScripts__"
+IF NOT DEFINED __RubyScripts__ (
+	CALL:--WriteINI "%_MySettings_%" "Ruby" "ScriptsDirectory" "%IsInstalled%\scripts\ruby"
+)
 CALL:ReadINI "%_MySettings_%" "Ruby" "LinuxTools" "__Linux_Tools__"
-CALL:CheckRuby
+IF NOT DEFINED __Linux_Tools__ (
+	CALL:--WriteINI "%_MySettings_%" "Ruby" "LinuxTools" "%IsInstalled%\bin\OpenSSH\bin"
+)
+CALL:GetRubyVer -v
 GOTO:EOF
 
 :LookupUserSettings
@@ -225,9 +242,23 @@ CALL:ReadINI "%_MySettings_%" "%UserName%" "Temporary_Password" "_Temporary_Pass
 CALL:ReadINI "%_MySettings_%" "%UserName%" "PAS" "_PAS_"
 CALL:ReadINI "%_MySettings_%" "%UserName%" "My_Dev_Env_Dir" "_My_Dev_Env_Dir_"
 CALL:ReadINI "%_MySettings_%" "%UserName%" "MY_SCRIPTS_Dir" "_MY_SCRIPTS_Dir_"
-CALL:ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
+IF NOT DEFINED _MyUserName_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyUserName" "_MyUserName_"
+IF NOT DEFINED _MyUserName_ (
+	ECHO Please Enter your domain or workgroup username. Default:%USERNAME%
+	SET /P _MyUserName_=
+	IF DEFINED _MyUserName_ CALL:--WriteINI "%_MySettings_%" "%UserName%" "MyUserName" "%_MyUserName_%"
+  IF NOT DEFINED _MyUserName_ CALL:--WriteINI "%_MySettings_%" "%UserName%" "MyUserName" "%UserName%"
+)
+
 IF NOT DEFINED _MyPassword_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyPassword" "_MyPassword_"
+IF NOT DEFINED _MyPassword_ (
+	ECHO Please Enter your network password.
+	SET /P _MyPassword_=
+	IF DEFINED _MyPassword_ CALL:--WriteINI "%_MySettings_%" "%UserName%" "MyPassword" "%_MyPassword_%"
+)
 CALL:ReadINI "%_MySettings_%","%UserName%","MyDomainOrWorkgroup","_MyDomainOrWorkgroup_"
+CALL:ReadINI "%_MySettings_%" "DEBUG" "debug" "_BUG_"
+IF NOT DEFINED _BUG_ CALL:--WriteINI "%_MySettings_%" "DEBUG" "debug" ""
 GOTO:EOF
 
 :LookupRemoteConnections
@@ -540,6 +571,7 @@ SET RubyMajor=!RubyMajor: =!
 SET RubyMinor=!RubyMinor: =!
 SET RubyVersion=!RubyVersion: =!
 SET RubyBuild=!RubyBuild: =!
+IF /I "%~1"=="-v" ECHO !RubyMajor!.!RubyMinor!.!RubyVersion!.!RubyBuild!
 ENDLOCAL && SET "RubyMajor=%RubyMajor%" && SET "RubyMinor=%RubyMinor%" && SET "RubyVersion=%RubyVersion%" && SET "RubyBuild=%RubyBuild%"
 GOTO:EOF
 

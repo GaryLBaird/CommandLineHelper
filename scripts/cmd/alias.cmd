@@ -1,37 +1,29 @@
 @ECHO OFF
 :: Alias is run every time you open a command window
-:: About this alias file. The begin and end statements are used for automation. You can 
-::  remove them, but doing so will result in breaking the upgrade features in the future. 
-:: Special Note(s):
-:: 1. Don't use the command "cls" in your alias file.
-:: 2. Don't use "ECHO" in your alias file because it add un-necessary text to a "For %%A IN ('something') do %%A" each loop.
-
-::::  SETTINGS BEGIN ::::
-:: Set Default Variables Begin ::
+:: Note:
+::   1. Don't use the command "cls" in your alias file.
+::   2. Don't use "ECHO" in your alias file because it add 
+::      un-necessary text to your for loop e.g.:
+::      "For %%A IN ('something') do %%A"
+::SETTINGS
 SET _CLHScripts_=c:\CommandLineHelper\Scripts
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
-:: Set Default Variables End ::
 
-:: Create Default Directories Begin ::
+::Create Default Directories
 IF NOT EXIST "%_CLHScripts_%\vbs" (
   MKDIR %_CLHScripts_%\vbs
 )
 IF NOT EXIST "%_CLHScripts_%\logs" (
   MKDIR %_CLHScripts_%\logs
 )
-:: Create Default Directories End ::
-:: Functions
-
-:: Doskey Commands Begin ::
-
-:: Add Temporary Path Assignments Begin ::
+::Doskey Commands
+::Add Temporary Path Assignments
 DOSKEY add_python26=set PATH=%PATH%;"C:\Python26\"
 DOSKEY add_python33=set PATH=%PATH%;"C:\Python33\"
-:: Add Temporary Path Assignments End ::
-
-:: Regular Expression Pattern Search Begin ::
+::Regular Expression Pattern Search Begin ::
 DOSKEY FindString=cscript.exe //Nologo //T:15 %_CLHScripts_%\vbs\vbs\txtComp.vbs --PatternMatch $1 $2
+::Change Directory Commands
 DOSKEY desktop=CD /D "%userprofile%\Desktop"
 DOSKEY dev=CD /D "c:\Dev"
 DOSKEY Downloads=cd /d "%USERPROFILE%\Downloads"
@@ -41,10 +33,9 @@ DOSKEY OneDrive=cd /d "%USERPROFILE%\onedrive"
 DOSKEY Documents=cd /d "%USERPROFILE%\Documents"
 DOSKEY iCloudDrive=cd /d "%USERPROFILE%\iCloudDrive"
 DOSKEY Searches=cd /d "%USERPROFILE%\Searches"
+::CommandLineHelper alias
 DOSKEY clh=c:\CommandLineHelper\Scripts\CLHelper.bat $*
-:: Regular Expression Pattern Search End ::
-
-:: Aliases for Shutdown Commands Begin ::
+::Aliases for Shutdown Commands
 DOSKEY logout=Shutdown -l
 DOSKEY logoff=Shutdown -l
 DOSKEY restart=Shutdown -g -t 30 -c "Because %_USERNAME_% said to restart." -f
@@ -54,9 +45,7 @@ DOSKEY Hibernate=Shutdown -h
 DOSKEY rshutdown=Shutdown -i
 DOSKEY abort=Shutdown -a
 DOSKEY lock=rundll32.exe user32.dll, LockWorkStation
-:: Aliases for Shutdown Commands End ::
-
-:: Aliases for Microsoft Office Products Begin ::
+::Aliases for Microsoft Office Products
 DOSKEY word="c:\Program Files\Microsoft Office\Office15\winword.exe" $*
 DOSKEY mspub="c:\Program Files\Microsoft Office\Office15\mspub.exe" $*
 DOSKEY outlook="c:\Program Files\Microsoft Office\Office15\outlook.exe" $*
@@ -65,15 +54,14 @@ DOSKEY excel="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY excell="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY xls="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 DOSKEY xlsx="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
-:: Aliases for Microsoft Office Products End ::
-
-:: Custom Alias Keys Begin ::
+::Custom Alias Notepad++
 IF EXIST "C:\Program Files (x86)\Notepad++\notepad++.exe" (
 DOSKEY np="C:\Program Files (x86)\Notepad++\notepad++.exe" $*
 )
 IF EXIST "C:\Program Files\Notepad++\notepad++.exe" (
 DOSKEY np="C:\Program Files\Notepad++\notepad++.exe" $*
 )
+::CommandLineHelper Alias's
 DOSKEY CLHelper=%CLHelper% $*
 DOSKEY GitForce=%CLHelper% --GitForce $*
 DOSKEY GitCommit=%CLHelper% --GitCommit $*
@@ -85,29 +73,23 @@ DOSKEY custom=%_CustomAlias_%
 DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
 DOSKEY rdp=%CLHelper% --RDP $*
-:: Your custome alias keys override these default ones. Add any you like.
+DOSKEY window=%CLHelper% --mode $*
+::Custom Alias Directory
 SET _CustomAliasDir_=C:\dev\scripts
+::Custom Alias Create If Missing
 IF NOT EXIST "%_CustomAliasDir_%" MKDIR %_CustomAliasDir_%
 SET _CustomAliasFile_=%_CustomAliasDir_%\custom_alias.cmd
 IF NOT EXIST "%_CustomAliasFile_%" (
-  ECHO DOSKEY custom=notepad.exe %_CustomAliasFile_%>%_CustomAliasFile_%
+  DOSKEY customAlias=notepad.exe %_CustomAliasFile_%>%_CustomAliasFile_%
 )
 CALL %_CustomAliasFile_%
-:: Custom Alias Keys END ::
-
-:: Doskey Commands End ::
+::Set Command Window Background and Text Color
 CALL:-BestColor
 GOTO :DONE
 
 :-BestColor
-REM Yellow Text Purple Background 
+::Yellow Text Purple Background 
+:: Use Random Color to try other color patterns out by typing "rc" in the comand window.  
 Color 5E
 GOTO:EOF
-
-:: Logic Functions Begin ::
-:: Logic Functions End ::
-
 :DONE
-:: Run Functions Begin ::
-:: Run Functions End ::
-::::  SETTINGS END ::::
