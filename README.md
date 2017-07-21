@@ -1,7 +1,7 @@
 # CommandLineHelper
 *Basic command line helper utilities for software developers.*
 
-The intended usage for *CommandLineHelper* is to provide a user a more linux like command line experience. We will eventually provide most of the linux utilitie. It's useful, but can also be a great way to learn batch scripting.
+The intended usage for *CommandLineHelper* is to provide a user a more linux like command line experience. We will eventually provide most of the linux utilitie. It's useful, but can also be a great way to learn batch scripting. This is mostly a proof of concept project where I am trying to unlock the command line for windows and make it more powerful and Linux like. I've written thousands of scripts and now I'm trying to find a way to categorize them into features that others might find useful. 
 
 Start by downloading the repo. Run the Start.bat to begin.
 Start.bat --help will display the command line options.
