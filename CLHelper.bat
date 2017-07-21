@@ -724,6 +724,29 @@ IF EXIST "%_CLHelperDir_%\Downloads\Installs\%_GIT_64bit_File_%" "%_CLHelperDir_
 ENDLOCAL
 GOTO:EOF
 
+:--PuTTY
+GOTO :Putty_%~1
+:Putty_pageant
+%CommandLineHelper%\bin\PuTTY\pageant.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:Putty_plink
+%CommandLineHelper%\bin\PuTTY\plink.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:Putty_pscp
+%CommandLineHelper%\bin\PuTTY\pscp.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:Putty_psftp
+%CommandLineHelper%\bin\PuTTY\psftp.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:Putty_putty
+%CommandLineHelper%\bin\PuTTY\putty.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:Putty_puttygen
+%CommandLineHelper%\bin\PuTTY\puttygen.exe %~2 %~3 %~4 %~5 %~6 %~7 %~8 %~9
+GOTO:PuttyDone
+:PuttyDone
+GOTO:EOF
+
 :GetConfig
 echo %~0
 GOTO:EOF

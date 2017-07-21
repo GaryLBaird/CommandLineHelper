@@ -43,6 +43,8 @@ GOTO :Done
     CALL:FORMATOUT 20,20," ..  Usage: ","'%~1 --JsonCheck file.json'","Will sleep for 10 seconds."
     CALL:FORMATOUT 20,20," --Linux","Open an ssh connection to a linux machine."
     CALL:FORMATOUT 20,20," ..  Usage: ","'%~1 --Linux machinename'","will run ssh user@machinename -i %USERPROFILE%\.ssh\id_rsa"
+    CALL:FORMATOUT 20,20," --PuTTY","Runs one of the following PuTTy commands."
+    CALL:FORMATOUT 20,20," ..  Parameters: ",""%~1 --PuTTY [plink/pscp/psftp/putty/puttygen]"
     CALL:FORMATOUT 20,20," --ReadINI","Reads a value from an '.ini' file."
     CALL:FORMATOUT 20,20," ..  Parameters: ","[file.ini] [section] [key] [Environment_Variable_Name]"
     CALL:FORMATOUT 20,20," ..  Usage: ","%~1 --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"

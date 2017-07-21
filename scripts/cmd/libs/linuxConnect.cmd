@@ -1,3 +1,5 @@
+@ECHO OFF
+SET FORMATOUT=%~p0\formatout.cmd
 IF "%1"=="" ECHO You must provide a server name. && goto :LinuxDone
 IF NOT DEFINED _MyLinuxUser_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxUser" "_MyLinuxUser_"
 IF NOT DEFINED _MyLinuxPass_ CALL:ReadINI "%_MySettings_%" "%UserName%" "MyLinuxPass" "_MyLinuxPass_"
@@ -32,3 +34,11 @@ FOR /D %%i in (!__MACHINES__!) do (
 )
 ENDLOCAL
 :LinuxDone
+
+GOTO :Done
+
+:FORMATOUT
+  CALL %FORMATOUT% %~1 %~2 "%~3" "%~4%~5%~6"
+GOTO:EOF
+
+:Done
