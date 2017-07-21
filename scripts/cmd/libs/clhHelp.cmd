@@ -37,6 +37,8 @@ GOTO :Done
     CALL:FORMATOUT 20,20," ..  ListOptions: ","%~1 --Install Options"
     CALL:FORMATOUT 20,20," --JsonCheck","Checks file for valid json."
     CALL:FORMATOUT 20,20," ..  Usage: ","'%~1 --JsonCheck file.json'","Will sleep for 10 seconds."
+    CALL:FORMATOUT 20,20," --Linux","Open an ssh connection to a linux machine."
+    CALL:FORMATOUT 20,20," ..  Usage: ","'%~1 --Linux machinename'","will run ssh user@machinename -i %USERPROFILE%\.ssh\id_rsa"
     CALL:FORMATOUT 20,20," --ReadINI","Reads a value from an '.ini' file."
     CALL:FORMATOUT 20,20," ..  Parameters: ","[file.ini] [section] [key] [Environment_Variable_Name]"
     CALL:FORMATOUT 20,20," ..  Usage: ","%~1 --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
