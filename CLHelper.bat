@@ -329,6 +329,57 @@ ENDLOCAL
 :LinuxDone
 GOTO:EOF
 
+:--SetupSSH
+IF "%~1"=="" ECHO You must provide at least one server name. && goto :LinuxDoneSetupSSH
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+SET __MACHINES__=%1
+SET USE_THIS_USER=%_MyUserName_%@%_MyDomainOrWorkgroup_%
+CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
+CALL:FORMATOUT 50,50,"User:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"----------------------------------------------------------------------",""
+CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+CALL:FORMATOUT 50,50,"",""
+SET /P Correct= [Y/N]
+IF /I "%Correct%"=="Y" goto :LinuxReady
+:LinuxLoopSetupSSH
+  CALL:FORMATOUT 50,50,"Please enter the correct user credentials.",""
+  SET /P USE_THIS_USER= Linux Machine Credentials username or username@domainname:
+  CALL:FORMATOUT 50,50,"Is this user name correct:","%USE_THIS_USER%"
+  SET /P Correct= [Y/N]
+  IF /I NOT "%Correct%"=="Y" goto :LinuxLoopSetupSSH
+:LinuxReadySetupSSH
+CALL:FORMATOUT 50,50,"Press any key to continue.",""
+:: Begin Script
+SET LocalFile=%USERPROFILE%\.ssh\authorized_keys
+SET SSHDIR=/home/%USE_THIS_USER%/.ssh
+FOR /D %%i in (!__MACHINES__!) do (
+  ECHO Making the .ssh Directory
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i mkdir /home/%USE_THIS_USER%/.ssh
+  ECHO.
+  ECHO Copy authorized_keys file.
+  ECHO pscp -l %USE_THIS_USER% !LocalFile! @%%i:!SSHDIR!
+  %CommandLineHelper%\bin\OpenSSH\bin\pscp.exe -l %USE_THIS_USER% !LocalFile! @%%i:!SSHDIR!
+  ECHO.
+  ECHO Modifying the directory permissions 
+  ECHO chmod 755 /home/%USE_THIS_USER%/.ssh 
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i chmod 755 /home/%USE_THIS_USER%/.ssh
+  ECHO.
+  ECHO Modifying the file permissions
+  ECHO chmod 600 /home/%USE_THIS_USER%/.ssh/authorized_keys
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe %USE_THIS_USER%@%%i chmod 600 /home/%USE_THIS_USER%/.ssh/authorized_keys
+)
+
+REM REM Begin Test Connections Script
+
+FOR /D %%i in (!__MACHINES__!) do (
+  ECHO.
+  ECHO Attempting to connect to %%i and validate it is working properly. 
+  %CommandLineHelper%\bin\OpenSSH\bin\ssh.exe !USE_THIS_USER!@%%i -i %USERPROFILE%\.ssh\id_rsa
+)
+ENDLOCAL
+:LinuxDoneSetupSSH
+GOTO:EOF
+
 :--WMIC
 ECHO [%~0] %~2 %~3
 SETLOCAL ENABLEDELAYEDEXPANSION
