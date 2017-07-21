@@ -114,6 +114,11 @@ value
                Example 'clhelper.ini':
                [RemoteConnections]
                LinuxServers=LinuxComputername,LinuxComputername1,LinuxComputerName2
+"sshi"         Easiest way to connect to a linux machine. 
+               Example: Easy, to login.
+               sshi <Linux Machine Name>
+               Configuration:
+               CLHelper.bat --SetupSSH linuxmachine1,linuxmachine2,linuxmachine3... etc.
 ```
 
 # Installation
