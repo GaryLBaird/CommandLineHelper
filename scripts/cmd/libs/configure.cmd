@@ -1,7 +1,7 @@
 GOTO :%1
 GOTO :ConfDone
 :-Alias
-%NOTEPAD% "%CommandLineHelper%\scripts\alias.cmd
+%NOTEPAD% "%CommandLineHelper%\scripts\cmd\alias.cmd
 GOTO :ConfDone
 :-Custom_Alias
 IF NOT EXIST "%_CustomAliasFile_%" (
