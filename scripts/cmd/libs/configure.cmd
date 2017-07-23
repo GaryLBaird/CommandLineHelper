@@ -4,6 +4,9 @@ GOTO :ConfDone
 %NOTEPAD% "%CommandLineHelper%\scripts\alias.cmd
 GOTO :ConfDone
 :-Custom_Alias
+IF NOT EXIST "%_CustomAliasFile_%" (
+	ECHO.>>"%_CustomAliasFile_%"
+)
 %NOTEPAD% "%_CustomAliasFile_%"
 GOTO :ConfDone
 :-MySettings
