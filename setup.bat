@@ -183,7 +183,6 @@ ENDLOCAL
 :: DONE!
 GOTO:EOF
 
-
 :--Install
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
