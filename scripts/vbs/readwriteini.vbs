@@ -1,4 +1,17 @@
-'# Written by: Gary L. Baird
+' Written by: 		GarylBaird
+' Version:			1.1
+' Creation Date:	2010
+' Purpose	        Read and write create to INI.
+' Assumptions:	    User access level meets minimum operation to read, write or create(file does not exist) 
+'					Lists each external variable, control, open file, or other element accessed by the procedure
+' Inputs:			Read Requires -r, filename, section, key
+' 					Write Requires -w, filename, section, key, value
+' 					Read Scction -rs, filename, section
+' 					Write Scction -ws, filename, section
+' Format:			[Section]
+' 					key=value
+' Unsupported:		Multiple sections, keys or values. (Room for improvement)
+' Returns:          -r returns the value of the key specified.   
 
 ' Make sure arguments were passed and display usage if not
 Dim currentvalue, Debug_
@@ -402,3 +415,4 @@ Usage = Usage & "SubSection_2_Key_1=SomeValue" & vbNewLine
 Usage = Usage & "SubSection_2_Key_2=SomeValue" & vbNewLine
 BuildUsage = Usage
 End Function
+
