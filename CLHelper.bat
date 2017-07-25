@@ -596,9 +596,18 @@ IF "%ERRORLEVEL%"=="0" (
   SET Install_Mercurial=True
 )
 IF "%Install_Mercurial%"=="True" (
-  IF NOT "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET INS=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x86.msi
-  IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET INS=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x64.msi
-  CALL:FORMATOUT 20,20," %~0","%INS%"
+  REM Sett Defaults
+  SET URL=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x64.msi
+  SET INS=tortoisehg-4.2.2-x64.msi
+  IF NOT "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+	SET URL=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x86.msi
+    SET INS=tortoisehg-4.2.2-x86.msi
+  )
+  IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
+    SET URL=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x64.msi
+    SET INS=tortoisehg-4.2.2-x64.msi
+  )
+  CALL:FORMATOUT 20,20," %~0","%URL%"
   CALL:FORMATOUT 20,20," Would you like to continue?"," Y/N"
   CALL:FORMATOUT 20,20," Install:","4.2.2"
   SET /P __CONTINUE__=
