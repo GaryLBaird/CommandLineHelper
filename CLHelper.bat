@@ -63,15 +63,20 @@ REM Formatout is an internal utility to format text.
 REM Small Text Formatter Code Begin
 
 :check_Permissions
-    CALL:FORMATOUT 50,50,"Administrative permissions required.","Detecting permissions..."
+    CALL:FORMATOUT 30,50,"Detecting permissions...","Administrative permissions required."
     net session >nul 2>&1
     if %errorLevel% == 0 (
-        CALL:FORMATOUT 50,50,"Success:","Administrative permissions confirmed."
+        CALL:FORMATOUT 30,50,"Success:","Administrative permissions confirmed."
         SET IsAdmin=True
     ) else (
-        CALL:FORMATOUT 50,50,"Failed:","Please start a new command window with administrative permissions."
+        IF DEFINED RTFM CALL:FORMATOUT 30,50,"Message repeated %RTFMCount% times.","%RTFM%"
+        IF DEFINED RTFM CALL:FORMATOUT 30,50,"How?"," Right-click on the command shortcut and select 'Run as administrator'."
+        CALL:FORMATOUT 30,50,"Failed:","Please start a new command window with administrative permissions."
         SET /P _USER_=Press Enter Continue:
         SET ARGS=GoToDone
+        SET RTFM=Did you read the message below?
+        IF Not DEFINED RTFMCount SET RTFMCount=0
+        SET /A RTFMCount=%RTFMCount% +1
     )
 GOTO:EOF
 
@@ -576,6 +581,39 @@ IF DEFINED JsonCheck (
 SET JsonCheck=
 GOTO:EOF
 
+:Install_HG
+CALL:Install_Mercurial %~1
+GOTO:EOF
+
+:Install_Mercurial
+SET Install_Mercurial=
+Set UpgradeMercurialVersion=2.4.1
+Where hg.exe >nul
+IF "%ERRORLEVEL%"=="0" (
+  CALL:GetMercurialVer
+  CALL:FORMATOUT 20,50,"Installed Version:","%_Mercurial_Version_%"
+) ELSE (
+  SET Install_Mercurial=True
+)
+IF "%Install_Mercurial%"=="True" (
+  IF NOT "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET INS=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x86.msi
+  IF "%PROCESSOR_ARCHITECTURE%"=="AMD64" SET INS=https://bitbucket.org/tortoisehg/files/downloads/tortoisehg-4.2.2-x64.msi
+  CALL:FORMATOUT 20,20," %~0","%INS%"
+  CALL:FORMATOUT 20,20," Would you like to continue?"," Y/N"
+  CALL:FORMATOUT 20,20," Install:","4.2.2"
+  SET /P __CONTINUE__=
+  IF /I "%__CONTINUE__%"=="N" goto :Mecurial_Done
+  IF NOT EXIST "%IDR%" MKDIR "%IDR%"
+  IF NOT EXIST "%IDR%\%INS%" (
+    CALL:Download "%URL%" "%IDR%"
+  )
+    REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Mercurial
+  msiexec /i %IDR%\%INS% /qb
+)
+:Mecurial_Done
+
+GOTO:EOF
+
 :Install_Ruby
 SET Install_Ruby=
 Set UpgradeRubyVersion=2.4.1
@@ -624,6 +662,59 @@ IF EXIST "C:\Ruby" (
   C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
   CD /D "%OKFINE%"
 )
+GOTO:EOF
+
+:GetMercurialVersion
+SET MercurialMajor=
+SET MercurialMinor= 
+SET MercurialVersion=
+SET MercurialBuild=
+Where hg.exe>nul
+IF "%ERRORLEVEL%"=="0" (
+  SET MercurialINSTALLED=True
+)
+SETLOCAL ENABLEDELAYEDEXPANSION
+  CALL:FORMATOUT 30,30,"Mercurial already Installed: "," !ERRORLEVEL! "
+  CALL:FORMATOUT 30,30,"Looking for TortoiseHg: "," !ERRORLEVEL! "
+  IF DEFINED MercurialINSTALLED (
+    FOR /F "delims== tokens=1,2" %%A in ('Wmic /node^:%computername% product where vendor^="Steve Borho and others" get ^* /format^:list') do (
+      IF NOT "%%A"=="" (
+        IF NOT "%%B"=="" (
+          SET "_Mercurial_%%A_=%%B"
+        )
+      )
+    )
+  )
+IF DEFINED _Mercurial_AssignmentType_ CALL:FORMATOUT 30,50,"--------------------------","------------------------------------------"
+IF DEFINED _Mercurial_AssignmentType_ CALL:FORMATOUT 30,50," AssignmentType:","!_Mercurial_AssignmentType_!"
+IF DEFINED _Mercurial_Caption_ CALL:FORMATOUT 30,50," Caption:","!_Mercurial_Caption_!"
+IF DEFINED _Mercurial_Description_ CALL:FORMATOUT 30,50," Description:","!_Mercurial_Description_!"
+IF DEFINED _Mercurial_HelpLink_ CALL:FORMATOUT 30,50," HelpLink:","!_Mercurial_HelpLink_!"
+IF DEFINED _Mercurial_HelpTelephone_ CALL:FORMATOUT 30,50," HelpTelephone:","!_Mercurial_HelpTelephone_!"
+IF DEFINED _Mercurial_IdentifyingNumber_ CALL:FORMATOUT 30,50," IdentifyingNumber:","!_Mercurial_IdentifyingNumber_!"
+IF DEFINED _Mercurial_InstallDate_ CALL:FORMATOUT 30,50," InstallDate:","!_Mercurial_InstallDate_!"
+IF DEFINED _Mercurial_InstallDate2_ CALL:FORMATOUT 30,50," InstallDate2:","!_Mercurial_InstallDate2_!"
+IF DEFINED _Mercurial_InstallLocation_ CALL:FORMATOUT 30,50," InstallLocation:","!_Mercurial_InstallLocation_!"
+IF DEFINED _Mercurial_InstallSource_ CALL:FORMATOUT 30,50," InstallSource:","!_Mercurial_InstallSource_!"
+IF DEFINED _Mercurial_InstallState_ CALL:FORMATOUT 30,50," InstallState:","!_Mercurial_InstallState_!"
+IF DEFINED _Mercurial_Language_ CALL:FORMATOUT 30,50," Language:","!_Mercurial_Language_!"
+IF DEFINED _Mercurial_LocalPackage_ CALL:FORMATOUT 30,50," LocalPackage:","!_Mercurial_LocalPackage_!"
+IF DEFINED _Mercurial_Name_ CALL:FORMATOUT 30,50," Name:","!_Mercurial_Name_!"
+IF DEFINED _Mercurial_PackageCache_ CALL:FORMATOUT 30,50," PackageCache:","!_Mercurial_PackageCache_!"
+IF DEFINED _Mercurial_PackageCode_ CALL:FORMATOUT 30,50," PackageCode:","!_Mercurial_PackageCode_!"
+IF DEFINED _Mercurial_PackageName_ CALL:FORMATOUT 30,50," PackageName:","!_Mercurial_PackageName_!"
+IF DEFINED _Mercurial_ProductID_ CALL:FORMATOUT 30,50," ProductID:","!_Mercurial_ProductID_!"
+IF DEFINED _Mercurial_RegCompany_ CALL:FORMATOUT 30,50," RegCompany:","!_Mercurial_RegCompany_!"
+IF DEFINED _Mercurial_RegOwner_ CALL:FORMATOUT 30,50," RegOwner:","!_Mercurial_RegOwner_!"
+IF DEFINED _Mercurial_SKUNumber_ CALL:FORMATOUT 30,50," SKUNumber:","!_Mercurial_SKUNumber_!"
+IF DEFINED _Mercurial_Transforms_ CALL:FORMATOUT 30,50," Transforms:","!_Mercurial_Transforms_!"
+IF DEFINED _Mercurial_URLInfoAbout_ CALL:FORMATOUT 30,50," URLInfoAbout:","!_Mercurial_URLInfoAbout_!"
+IF DEFINED _Mercurial_URLUpdateInfo_ CALL:FORMATOUT 30,50," URLUpdateInfo:","!_Mercurial_URLUpdateInfo_!"
+IF DEFINED _Mercurial_Vendor_ CALL:FORMATOUT 30,50," Vendor:","!_Mercurial_Vendor_!"
+IF DEFINED _Mercurial_Version_ CALL:FORMATOUT 30,50," Version:","!_Mercurial_Version_!"
+IF DEFINED _Mercurial_WordCount_ CALL:FORMATOUT 30,50," WordCount:","!_Mercurial_WordCount_!"
+  
+ENDLOCAL && _Mercurial_AssignmentType_=%_Mercurial_AssignmentType_% && _Mercurial_Caption_=%_Mercurial_Caption_% && _Mercurial_Description_=%_Mercurial_Description_% && _Mercurial_HelpLink_=%_Mercurial_HelpLink_% && _Mercurial_HelpTelephone_=%_Mercurial_HelpTelephone_% && _Mercurial_IdentifyingNumber_=%_Mercurial_IdentifyingNumber_% && _Mercurial_InstallDate_=%_Mercurial_InstallDate_% && _Mercurial_InstallDate2_=%_Mercurial_InstallDate2_% && _Mercurial_InstallLocation_=%_Mercurial_InstallLocation_% && _Mercurial_InstallSource_=%_Mercurial_InstallSource_% && _Mercurial_InstallState_=%_Mercurial_InstallState_% && _Mercurial_Language_=%_Mercurial_Language_% && _Mercurial_LocalPackage_=%_Mercurial_LocalPackage_% && _Mercurial_Name_=%_Mercurial_Name_% && _Mercurial_PackageCache_=%_Mercurial_PackageCache_% && _Mercurial_PackageCode_=%_Mercurial_PackageCode_% && _Mercurial_PackageName_=%_Mercurial_PackageName_% && _Mercurial_ProductID_=%_Mercurial_ProductID_% && _Mercurial_RegCompany_=%_Mercurial_RegCompany_% && _Mercurial_RegOwner_=%_Mercurial_RegOwner_% && _Mercurial_SKUNumber_=%_Mercurial_SKUNumber_% && _Mercurial_Transforms_=%_Mercurial_Transforms_% && _Mercurial_URLInfoAbout_=%_Mercurial_URLInfoAbout_% && _Mercurial_URLUpdateInfo_=%_Mercurial_URLUpdateInfo_% && _Mercurial_Vendor_=%_Mercurial_Vendor_% && _Mercurial_Version_=%_Mercurial_Version_% && _Mercurial_WordCount_=%_Mercurial_WordCount_%
 GOTO:EOF
 
 :GetRubyVer
