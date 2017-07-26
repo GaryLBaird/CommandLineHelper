@@ -661,15 +661,15 @@ IF EXIST "C:\Ruby" (
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   IF NOT EXIST "C:\Ruby\%INS%" (
-    CALL:Download "c:\Ruby" "%IDR%"
+    CALL:Download "%URL%" "C:\Ruby"
   )
   SET OKFINE=%CD%
-  c:\Ruby\%INS% -o "c:\Ruby" -y
   CD /D "c:\Ruby"
+  c:\Ruby\%INS% -o "c:\Ruby" -y
   ECHO --->c:\Ruby\config.yml
   ECHO - C:\Ruby>>c:\Ruby\config.yml
-  C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb init
-  C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
+ ruby.exe c:\Ruby\dk.rb init
+ ruby.exe c:\Ruby\dk.rb install
   CD /D "%OKFINE%"
 )
 gem install rest-client
