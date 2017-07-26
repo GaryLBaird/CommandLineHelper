@@ -626,6 +626,7 @@ GOTO:EOF
 :Install_Ruby
 SET Install_Ruby=
 Set UpgradeRubyVersion=2.4.1
+CALL:GetRubyVer
 Where ruby.exe >nul
 IF "%ERRORLEVEL%"=="0" (
   CALL:GetRubyVer
@@ -659,11 +660,11 @@ IF "%Install_Ruby%"=="True" (
 IF EXIST "C:\Ruby" (
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
-  IF NOT EXIST "%IDR%\%INS%" (
-    CALL:Download "%URL%" "%IDR%"
+  IF NOT EXIST "C:\Ruby\%INS%" (
+    CALL:Download "c:\Ruby" "%IDR%"
   )
   SET OKFINE=%CD%
-  %IDR%\%INS% -o "c:\Ruby" -y
+  c:\Ruby\%INS% -o "c:\Ruby" -y
   CD /D "c:\Ruby"
   ECHO --->c:\Ruby\config.yml
   ECHO - C:\Ruby>>c:\Ruby\config.yml
