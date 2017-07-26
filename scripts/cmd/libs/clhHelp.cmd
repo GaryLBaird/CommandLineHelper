@@ -1,6 +1,6 @@
 @ECHO OFF
 SET FORMATOUT=%~p0\formatout.cmd
-CALL:ShowingHelp %1 %2
+CALL:ShowingHelp clhelper %2
 
 GOTO :clhHelp-Done
 
@@ -18,7 +18,7 @@ CALL:FORMATOUT 20,20," ..  NOTE: "," require a restart."
 CALL:FORMATOUT 20,20," --BestColor","Sets the color of the command window."
 CALL:FORMATOUT 20,20," ..  Usage: ","%~1 --BestColor Background_Color Text_Color"
 CALL:FORMATOUT 20,20," --CaseConvert","Converts text string to upper or lowercase."
-CALL:FORMATOUT 20,20," ..  Usage: ","%~1 --CaseConvert [LCase/UCase] "String""
+CALL:FORMATOUT 20,20," ..  Usage: ","%~1 --CaseConvert [LCase/UCase] String"
 CALL:FORMATOUT 20,20," ..  Results: ","Prints the string converted to uppercase or lowercase."
 CALL:FORMATOUT 20,20," ..           "," Also sets the RETURN environment variable to the converted text."
 CALL:FORMATOUT 20,20," --Configure","Attempts to open a configuration file in notepad or notepad plus plus."
@@ -89,7 +89,7 @@ CALL:FORMATOUT 20,20," ..  --RUNALL "," Runs each option individually."
 CALL:FORMATOUT 20,20," ..  Parameters: "," [file.ini] [section] [key] ['Your Data Here']"
 CALL:FORMATOUT 20,20," ..  Usage: "," %~1 --WMIC %computername% baseboard"
 CALL:FORMATOUT 20,20," ..  Results: "," Depends on function are get or information only."
-CALL:FORMATOUT 20,20," --WRITEINI","Writes a value to an '.ini' file."
+CALL:FORMATOUT 20,20," --WRITEINI"," Writes a value to an '.ini' file."
 CALL:FORMATOUT 20,20," ..  Parameters: "," [file.ini] [section] [key] ['Your Data Here']"
 CALL:FORMATOUT 20,20," ..  Usage: "," %~1 --WriteINI 'FileName.ini' 'Section' 'Key' 'Data'"
 CALL:FORMATOUT 20,20," ..  Results: "," If the file does not exist the file will be created."
