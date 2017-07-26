@@ -670,11 +670,11 @@ IF EXIST "C:\Ruby" (
   %INS% -o c:\Ruby -y
   REM COPY /Y %CommandLineHelper%\scripts\ruby\config.yml c:\Ruby
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb init"
-  START "c:\Ruby\dk.rb init" /D C:\Ruby /WAIT /B c:\Ruby\ruby.exe dk.rb init
+  START "c:\Ruby\dk.rb init" /D C:\Ruby /WAIT /B c:\Ruby\bin\ruby.exe dk.rb init
   ECHO - C:/Ruby>>C:\Ruby\config.yml
   REM ruby.exe c:\Ruby\dk.rb init
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb install"
-  START "c:\Ruby\dk.rb init" /D C:\Ruby /WAIT /B c:\Ruby\ruby.exe dk.rb install
+  START "c:\Ruby\dk.rb init" /D C:\Ruby /WAIT /B c:\Ruby\bin\ruby.exe dk.rb install
 )
 gem install rest-client
 CD /D "%OKFINE%"
