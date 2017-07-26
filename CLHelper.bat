@@ -669,9 +669,9 @@ IF EXIST "C:\Ruby" (
   CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
   CD /D c:\Ruby
   %INS% -o c:\Ruby -y
-  ECHO --->c:\Ruby\config.yml
+  ECHO --- >c:\Ruby\config.yml
   CALL:sleep 5
-  ECHO - C:\Ruby>>c:\Ruby\config.yml
+  ECHO - C:\Ruby >>c:\Ruby\config.yml
   CALL:Sleep 5
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb init"
   ruby.exe c:\Ruby\dk.rb init
