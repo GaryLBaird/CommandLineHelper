@@ -627,7 +627,6 @@ GOTO:EOF
 SET OKFINE=%CD%
 SET Install_Ruby=
 Set UpgradeRubyVersion=2.4.1
-CALL:GetRubyVer
 Where ruby.exe >nul
 IF "%ERRORLEVEL%"=="0" (
   CALL:GetRubyVer
@@ -653,9 +652,8 @@ IF "%Install_Ruby%"=="True" (
   IF NOT EXIST "%IDR%" MKDIR "%IDR%"
   IF NOT EXIST "%IDR%\%INS%" (
     CALL:--SimpleDownload "%URL%" "%IDR%\%INSRuby%"
-    CALL:Sleep 20
   )
-    REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
+  REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
   %IDR%\%INS% /VERYSILENT /lang=en /dir=c:\Ruby /CLOSEAPPLICATIONS /NORESTART
 ) ELSE (
   ruby.exe -v
@@ -663,7 +661,7 @@ IF "%Install_Ruby%"=="True" (
 IF EXIST "C:\Ruby" (
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
-  CALL:--SimpleDownload "%URL%" "C:\%INS%"
+  CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
   CD /D "c:\Ruby"
   c:\Ruby\%INS% -o "c:\Ruby" -y
   CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
