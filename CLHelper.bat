@@ -855,14 +855,18 @@ GOTO:EOF
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 40,30," %~0",""
 CALL:FORMATOUT 40,30," %~1 '%~2'",""
-IF NOT "%~3"=="" SET extractfile=-unpack %~3
+IF NOT "%~3"=="" (
+  SET extractfile=%~3
+) ELSE (
+  SET extractfile=False
+)
 IF NOT EXIST "%~2" (
   MKDIR %~2
 )
 SET _STRINGREPLACE_=%~2\%~nx1
 SET _STRINGREPLACE_=%_STRINGREPLACE_:\=/%
 ECHO powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -url "%~1" -file "%~nx1" -dir "%~2"
-powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -url "%~1" -file "%~nx1" -dir "%~2" %extractfile%
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\downloadfile.ps1" -url "%~1" -file "%~nx1" -dir "%~2" -unpack %extractfile%
 IF NOT EXIST "%~2\%~nx1" (
   CALL:FORMATOUT 40,30," Download Failure:","%~0"
 ) ELSE (
