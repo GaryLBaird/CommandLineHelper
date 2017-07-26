@@ -671,6 +671,7 @@ IF EXIST "C:\Ruby" (
   C:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
   CD /D "%OKFINE%"
 )
+gem install rest-client
 GOTO:EOF
 
 :GetMercurialVersion
