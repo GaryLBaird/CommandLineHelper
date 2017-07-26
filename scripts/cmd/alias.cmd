@@ -84,6 +84,7 @@ DOSKEY psftp=%CLHelper% --PuTTy psftp $*
 DOSKEY putty=%CLHelper% --PuTTy putty $*
 DOSKEY puttygen=%CLHelper% --PuTTy puttygen $*
 DOSKEY download=%CLHelper% --download $*
+DOSKEY simpleDownload=%CLHelper% --SimpleDownload $*
 :: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
 DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_Linux_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory

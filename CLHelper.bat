@@ -624,6 +624,7 @@ IF "%Install_Mercurial%"=="True" (
 GOTO:EOF
 
 :Install_Ruby
+SET OKFINE=%CD%
 SET Install_Ruby=
 Set UpgradeRubyVersion=2.4.1
 CALL:GetRubyVer
@@ -660,19 +661,20 @@ IF "%Install_Ruby%"=="True" (
 IF EXIST "C:\Ruby" (
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
-  IF NOT EXIST "C:\Ruby\%INS%" (
-    CALL:Download "%URL%" "C:\Ruby"
-  )
+  CALL:--SimpleDownload "%URL%" "C:\%INS%"
   SET OKFINE=%CD%
   CD /D "c:\Ruby"
   c:\Ruby\%INS% -o "c:\Ruby" -y
+  CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
+  CALL:Sleep 200
   ECHO --->c:\Ruby\config.yml
   ECHO - C:\Ruby>>c:\Ruby\config.yml
- ruby.exe c:\Ruby\dk.rb init
- ruby.exe c:\Ruby\dk.rb install
+  c:\Ruby\bin\ruby.exe c:\Ruby\dk.rb init
+  c:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
   CD /D "%OKFINE%"
 )
 gem install rest-client
+CD /D "%OKFINE%"
 GOTO:EOF
 
 :GetMercurialVersion
@@ -891,6 +893,12 @@ IF NOT EXIST "%~2\%~nx1" (
 GOTO :DoneDownload
 ENDLOCAL
 :DoneDownload
+GOTO:EOF
+
+:--SimpleDownload
+CALL:FORMATOUT 40,30," %~0",""
+CALL:FORMATOUT 40,30," %~1 '%~2'",""
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\simpleDownload.ps1" -url "%~1" -file
 GOTO:EOF
 
 REM GitForce forces a removes all local changes and then pulls in new clean repo.
