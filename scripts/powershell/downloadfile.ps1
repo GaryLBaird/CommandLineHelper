@@ -1,8 +1,7 @@
 Param(
  [Parameter(Mandatory=$true)][string]$url = "",
  [Parameter(Mandatory=$true)][string]$file = "",
- [Parameter(Mandatory=$true)][string]$dir = "",
- [string]$Unpack = False
+ [Parameter(Mandatory=$true)][string]$dir = ""
 )
 
 function Get-Download($url, $targetFile, $targetDir)
