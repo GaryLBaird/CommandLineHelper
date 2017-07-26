@@ -625,26 +625,28 @@ GOTO:EOF
 
 :Install_Ruby
 SET OKFINE=%CD%
-SET Install_Ruby=
-Set UpgradeRubyVersion=2.4.1
-Where ruby.exe >nul
-IF "%ERRORLEVEL%"=="0" (
-  CALL:GetRubyVer
-  CALL:FORMATOUT 20,50,"Installed Version:","%RubyMajor%.%RubyMinor%.%RubyVersion%"
-  IF "%RubyMajor%.%RubyMinor%.%RubyVersion%" NEQ "%UpgradeRubyVersion%" (
-    CALL:FORMATOUT 20,50," Version Missmatch: ","%RubyMajor%.%RubyMinor%.%RubyVersion% /vs/ %UpgradeRubyVersion%"
-    SET Install_Ruby=True
-  )
-) ELSE (
-  SET Install_Ruby=True
-)
-IF "%Install_Ruby%"=="True" (
-  IF EXIST "c:\ruby\unins000.exe" (
-    c:\ruby\unins000.exe /SILENT /NORESTART /CLOSEAPPLICATIONS
-  )
-  IF EXIST "c:\ruby" (
-    RMDIR c:\ruby /S /Q 
-  )
+IF NOT EXIST "C:\Ruby" (
+  REM SET Install_Ruby=
+  REM Set UpgradeRubyVersion=2.4.1
+  REM Where ruby.exe >nul
+  REM IF "%ERRORLEVEL%"=="0" (
+    REM CALL:GetRubyVer
+    REM CALL:FORMATOUT 20,50,"Installed Version:","%RubyMajor%.%RubyMinor%.%RubyVersion%"
+    REM IF "%RubyMajor%.%RubyMinor%.%RubyVersion%" NEQ "%UpgradeRubyVersion%" (
+      REM CALL:FORMATOUT 20,50," Version Missmatch: ","%RubyMajor%.%RubyMinor%.%RubyVersion% /vs/ %UpgradeRubyVersion%"
+      REM SET Install_Ruby=True
+    REM )
+  REM ) ELSE (
+    REM SET Install_Ruby=True
+  REM )
+REM )
+REM IF "%Install_Ruby%"=="True" (
+  REM IF EXIST "c:\ruby\unins000.exe" (
+    REM c:\ruby\unins000.exe /SILENT /NORESTART /CLOSEAPPLICATIONS
+  REM )
+  REM IF EXIST "c:\ruby" (
+    REM RMDIR c:\ruby /S /Q 
+  REM )
   SET INS=rubyinstaller-2.4.1-2-x64.exe
   CALL:FORMATOUT 20,20," %~0","%INS%"
   SET URL=https://github.com/oneclick/rubyinstaller2/releases/download/2.4.1-2/rubyinstaller-2.4.1-2-x64.exe
@@ -653,23 +655,24 @@ IF "%Install_Ruby%"=="True" (
   IF NOT EXIST "%IDR%\%INS%" (
     CALL:--SimpleDownload "%URL%" "%IDR%\%INSRuby%"
   )
-  REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
   %IDR%\%INS% /VERYSILENT /lang=en /dir=c:\Ruby /CLOSEAPPLICATIONS /NORESTART
-) ELSE (
-  ruby.exe -v
+  SET PATH=%PATH%;c:\Ruby\bin
+REM ) ELSE (
+  REM ruby.exe -v
+REM )
 )
 IF EXIST "C:\Ruby" (
+  
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
-  CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
-  CD /D "c:\Ruby"
-  c:\Ruby\%INS% -o "c:\Ruby" -y
   CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
+  CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
+  CD /D c:\Ruby
+  %INS% -o c:\Ruby -y
   ECHO --->c:\Ruby\config.yml
   ECHO - C:\Ruby>>c:\Ruby\config.yml
-  c:\Ruby\bin\ruby.exe c:\Ruby\dk.rb init
-  c:\Ruby\bin\ruby.exe c:\Ruby\dk.rb install
-  CD /D "%OKFINE%"
+  ruby.exe c:\Ruby\dk.rb init
+  ruby.exe c:\Ruby\dk.rb install
 )
 gem install rest-client
 CD /D "%OKFINE%"
