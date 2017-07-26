@@ -667,14 +667,10 @@ IF EXIST "C:\Ruby" (
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
   CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
-  CD /D c:\Ruby
   %INS% -o c:\Ruby -y
-  ECHO --- >c:\Ruby\config.yml
-  CALL:sleep 5
-  ECHO - C:\Ruby >>c:\Ruby\config.yml
-  CALL:Sleep 5
+  COPY /Y %CommandLineHelper%\scripts\ruby\config.yml c:\Ruby
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb init"
-  ruby.exe c:\Ruby\dk.rb init
+  REM ruby.exe c:\Ruby\dk.rb init
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb install"
   ruby.exe c:\Ruby\dk.rb install
 )
