@@ -851,6 +851,20 @@ GOTO:EOF
 echo %~0
 GOTO:EOF
 
+:--Download
+IF /i "%~1"==" -Help" GOTO :DownloadHelp
+IF /i "%~1"=="" GOTO :DownloadHelp
+CALL:Download %~1,%~2
+GOTO :DownloadComplete
+:DownloadHelp
+CALL:FORMATOUT 40,30," %~0","'URL' 'DownloadToDirectory'"
+CALL:FORMATOUT 40,30," Example: ","clhelper.bat --Download 'http://server/webfile.jpg' 'c:\Download'"
+CALL:FORMATOUT 40,30,"  Help:","clhelper.bat --Download -Help"
+CALL:FORMATOUT 40,30,"  Alias Example:","Download 'http://server/webfile.jpg' 'c:\Download'"
+GOTO :DownloadComplete
+:DownloadComplete
+GOTO:EOF
+
 :Download
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL:FORMATOUT 40,30," %~0",""
@@ -1246,18 +1260,6 @@ IF DEFINED CommandLineHelper (
 )
 GOTO:EOF
 
-:--Help
-REM SETLOCAL ENABLEDELAYEDEXPANSION
-  IF /I "%ARGS%" GEQ "--Help" (
-    CLS
-    CALL %CLHLibs%\clhHelp.cmd %SELF_0%
-  ) ELSE (
-  
-  goto :EndHelp
-  )
-REM ENDLOCAL
-:EndHelp
-GOTO:EOF
 
 REM Author Information Below
 
@@ -1272,6 +1274,13 @@ REM SETLOCAL ENABLEDELAYEDEXPANSION
   )
 REM ENDLOCAL
 :EndAbout
+GOTO:EOF
+
+:--Help
+IF /I "%ARGS%" GEQ "--Help" (
+  CLS
+  %CLHLibs%\clhHelp.cmd %SELF_0%
+)
 GOTO:EOF
 
 :DONE

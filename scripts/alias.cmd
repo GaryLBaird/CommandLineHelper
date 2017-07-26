@@ -7,9 +7,13 @@
 ::      "For %%A IN ('something') do %%A"
 ::SETTINGS
 SET _CLHScripts_=c:\CommandLineHelper\Scripts
+SET _CLHBIN_=c:\CommandLineHelper\bin
 SET _READWRITEINI_=%_CLHScripts_%\vbs\readwriteini.vbs
 SET CLHelper=%_CLHScripts_%\CLHelper.bat
-
+::Edit this field with your username you will use when connecting to a linux server.
+::If your linux machines are in a domain you might need to put it in as user@domain.com
+:: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
+SET _Linux_USERNAME_=%username%
 ::Create Default Directories
 IF NOT EXIST "%_CLHScripts_%\vbs" (
   MKDIR %_CLHScripts_%\vbs
@@ -74,6 +78,14 @@ DOSKEY ls=%CLHelper% --ls $*
 DOSKEY vjson=%CLHelper% --JsonCheck $*
 DOSKEY rdp=%CLHelper% --RDP $*
 DOSKEY window=%CLHelper% --mode $*
+DOSKEY plink=%CLHelper% --PuTTy plink $*
+DOSKEY pscp=%CLHelper% --PuTTy pscp $*
+DOSKEY psftp=%CLHelper% --PuTTy psftp $*
+DOSKEY putty=%CLHelper% --PuTTy putty $*
+DOSKEY puttygen=%CLHelper% --PuTTy puttygen $*
+DOSKEY download=%CLHelper% --download $*
+:: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
+DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_Linux_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory
 SET _CustomAliasDir_=C:\dev\scripts
 ::Custom Alias Create If Missing
