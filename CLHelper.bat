@@ -896,7 +896,7 @@ GOTO:EOF
 :--SimpleDownload
 CALL:FORMATOUT 40,30," %~0",""
 CALL:FORMATOUT 40,30," %~1 '%~2'",""
-powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\simpleDownload.ps1" -url "%~1" -file
+powershell -executionPolicy bypass -file "%_CLHelperDir_%\powershell\simpleDownload.ps1" -url "%~1" -file "%~2"
 GOTO:EOF
 
 REM GitForce forces a removes all local changes and then pulls in new clean repo.
