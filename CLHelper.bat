@@ -670,8 +670,12 @@ IF EXIST "C:\Ruby" (
   CD /D c:\Ruby
   %INS% -o c:\Ruby -y
   ECHO --->c:\Ruby\config.yml
+  CALL:sleep 5
   ECHO - C:\Ruby>>c:\Ruby\config.yml
+  CALL:Sleep 5
+  CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb init"
   ruby.exe c:\Ruby\dk.rb init
+  CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb install"
   ruby.exe c:\Ruby\dk.rb install
 )
 gem install rest-client
