@@ -649,9 +649,11 @@ IF "%Install_Ruby%"=="True" (
   SET INS=rubyinstaller-2.4.1-2-x64.exe
   CALL:FORMATOUT 20,20," %~0","%INS%"
   SET URL=https://github.com/oneclick/rubyinstaller2/releases/download/2.4.1-2/rubyinstaller-2.4.1-2-x64.exe
+  SET INSRuby=rubyinstaller-2.4.1-2-x64.exe
   IF NOT EXIST "%IDR%" MKDIR "%IDR%"
   IF NOT EXIST "%IDR%\%INS%" (
-    CALL:Download "%URL%" "%IDR%"
+    CALL:--SimpleDownload "%URL%" "%IDR%\%INSRuby%"
+    CALL:Sleep 20
   )
     REM %IDR%\%INS% /VERYSILENT /NORESTART /CLOSEAPPLICATIONS /DIR=C:\Ruby
   %IDR%\%INS% /VERYSILENT /lang=en /dir=c:\Ruby /CLOSEAPPLICATIONS /NORESTART
@@ -662,11 +664,9 @@ IF EXIST "C:\Ruby" (
   SET INS=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   SET URL=https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
   CALL:--SimpleDownload "%URL%" "C:\%INS%"
-  SET OKFINE=%CD%
   CD /D "c:\Ruby"
   c:\Ruby\%INS% -o "c:\Ruby" -y
   CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
-  CALL:Sleep 200
   ECHO --->c:\Ruby\config.yml
   ECHO - C:\Ruby>>c:\Ruby\config.yml
   c:\Ruby\bin\ruby.exe c:\Ruby\dk.rb init
