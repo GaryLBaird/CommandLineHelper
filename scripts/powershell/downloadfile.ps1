@@ -1,47 +1,40 @@
-param (
-  [string]$server = "http://defaultserver",
-  [string]$filename = "",
-  [string]$outputdir = ""
- )
+Param(
+ [Parameter(Mandatory=$true)][string]$url = "",
+ [Parameter(Mandatory=$true)][string]$file = "",
+ [Parameter(Mandatory=$true)][string]$dir = "",
+ [string]$Unpack = False
+)
 
-# global variables
-$global:lastpercentage = -1
-$global:are = New-Object System.Threading.AutoResetEvent $false
-file = [System.IO.Path]::GetFileName($server)
-
-
-# web client
-# (!) output is buffered to disk -> great speed
-$wc = New-Object System.Net.WebClient
-
-Register-ObjectEvent -InputObject $wc -EventName DownloadProgressChanged -Action {
-    # (!) getting event args
-    $percentage = $event.sourceEventArgs.ProgressPercentage
-    if($global:lastpercentage -lt $percentage)
-    {
-        $global:lastpercentage = $percentage
-        # stackoverflow.com/questions/3896258
-        Write-Host -NoNewline "`r$percentage%"
-    }
-} > $null
-
-Register-ObjectEvent -InputObject $wc -EventName DownloadFileCompleted -Action {
-    $global:are.Set()
-    Write-Host
-} > $null
-
-$wc.DownloadFileAsync($server, "$outputdir\$filename");
-# ps script runs probably in one thread only (event is reised in same thread - blocking problems)
-$global:are.WaitOne() not work
-
-while(!$global:are.WaitOne(500)) {}
-
-function Unzip
+function Get-Download($url, $targetFile, $targetDir)
 {
-  param(
-    [string]$zipfile,
-    [string]$outpath
-  )
-  Add-Type -AssemblyName System.IO.Compression.FileSystem
-  [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
+  If(!(test-path $targetDir))
+  {
+  New-Item -ItemType Directory -Force -Path $targetDir
+  }
+  $path = Join-Path $targetDir $targetFile
+  "Downloading $url" 
+  $uri = New-Object "System.Uri" "$url"
+  $request = [System.Net.HttpWebRequest]::Create($uri)
+  $request.set_Timeout(15000) #15 second timeout
+  $response = $request.GetResponse()
+  $totalLength = [System.Math]::Floor($response.get_ContentLength()/1024)
+  $responseStream = $response.GetResponseStream()
+  $targetStream = New-Object -TypeName System.IO.FileStream -ArgumentList $path, Create
+  $buffer = new-object byte[] 10KB
+  $count = $responseStream.Read($buffer,0,$buffer.length)
+  $downloadedBytes = $count
+  while ($count -gt 0)
+  {
+    $targetStream.Write($buffer, 0, $count)
+    $count = $responseStream.Read($buffer,0,$buffer.length)
+    $downloadedBytes = $downloadedBytes + $count
+    Write-Progress -activity "Downloading file '$($url.split('/') | Select -Last 1)'" -status "Downloaded ($([System.Math]::Floor($downloadedBytes/1024))K of $($totalLength)K): " -PercentComplete ((([System.Math]::Floor($downloadedBytes/1024)) / $totalLength)  * 100)
+  }
+  Write-Progress -activity "Finished downloading file '$($url.split('/') | Select -Last 1)'"
+  $targetStream.Flush()
+  $targetStream.Close()
+  $targetStream.Dispose()
+  $responseStream.Dispose()
 }
+
+Get-Download $url $file $dir
