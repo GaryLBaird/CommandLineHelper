@@ -668,8 +668,10 @@ IF EXIST "C:\Ruby" (
   CALL:FORMATOUT 30,30," Downloading:","Please wait for download to complete."
   CALL:--SimpleDownload "%URL%" "C:\Ruby\%INS%"
   %INS% -o c:\Ruby -y
-  COPY /Y %CommandLineHelper%\scripts\ruby\config.yml c:\Ruby
+  REM COPY /Y %CommandLineHelper%\scripts\ruby\config.yml c:\Ruby
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb init"
+  ECHO --->>C:\Ruby\config.yml
+  ECHO - C:/Ruby>>C:\Ruby\config.yml
   REM ruby.exe c:\Ruby\dk.rb init
   CALL:FORMATOUT 30,30,"Directory:%CD%","Command:dk.rb install"
   ruby.exe c:\Ruby\dk.rb install
