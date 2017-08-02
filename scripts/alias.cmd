@@ -61,9 +61,11 @@ DOSKEY xlsx="c:\Program Files\Microsoft Office\Office15\excel.exe" $*
 ::Custom Alias Notepad++
 IF EXIST "C:\Program Files (x86)\Notepad++\notepad++.exe" (
 DOSKEY np="C:\Program Files (x86)\Notepad++\notepad++.exe" $*
+SET np="C:\Program Files (x86)\Notepad++\notepad++.exe
 )
 IF EXIST "C:\Program Files\Notepad++\notepad++.exe" (
 DOSKEY np="C:\Program Files\Notepad++\notepad++.exe" $*
+SET np="C:\Program Files\Notepad++\notepad++.exe"
 )
 ::CommandLineHelper Alias's
 DOSKEY CLHelper=%CLHelper% $*
@@ -84,6 +86,8 @@ DOSKEY psftp=%CLHelper% --PuTTy psftp $*
 DOSKEY putty=%CLHelper% --PuTTy putty $*
 DOSKEY puttygen=%CLHelper% --PuTTy puttygen $*
 DOSKEY download=%CLHelper% --download $*
+DOSKEY ip=wmic nicconfig where IPEnabled=True get ipaddress /format:list
+DOSKEY simpleDownload=%CLHelper% --SimpleDownload $*
 :: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
 DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_Linux_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory
