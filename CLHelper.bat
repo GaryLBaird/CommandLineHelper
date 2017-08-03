@@ -919,7 +919,7 @@ REM GitCommit pulls down latest and then commits your changes.
 :--GitCommit
 SETLOCAL ENABLEDELAYEDEXPANSION
   git pull
-  git add *
+  git add --all *.*
   SET /P __MESSAGE__=Enter a message here.
   git commit -m "%__MESSAGE__%"
   git push
