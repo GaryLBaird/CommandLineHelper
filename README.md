@@ -123,6 +123,7 @@ value
  "pscp"        PuTTy command-line utility pscp.exe 
  "psftp"       PuTTy command-line utility psftp.exe 
  "putty"       PuTTy command-line utility putty.exe 
+ "ip"          Shows the active IP addresses. Shorter and nicer than typing ipconfig.
  
 ```
 
