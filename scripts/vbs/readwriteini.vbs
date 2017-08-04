@@ -14,6 +14,46 @@
 ' Returns:          -r returns the value of the key specified.   
 
 ' Make sure arguments were passed and display usage if not
+' # Catch missing args:
+dim objArgs
+Set objArgs = WScript.Arguments
+num = objArgs.Count
+if num < 2 then
+  CustomMsgBox CStr(BuildUsage(""))
+  WScript.Quit 1
+End if
+
+
+Sub CustomMsgBox(msg)
+  Set ie = CreateObject("InternetExplorer.Application")
+  ie.Navigate "about:blank"
+  ie.Document.title =  "readwriteini.vbs"
+
+  While ie.ReadyState <> 4 : WScript.Sleep 100 : Wend
+
+  ie.ToolBar   = False
+  ie.StatusBar = True
+  ie.Width     = 1200
+  ie.Height    = 1000
+
+  ie.document.body.innerHTML = "<p class='msg'><pre>" & msg & "</pre></p>" & _
+    "<p class='ctrl'><input type='hidden' id='OK' name='OK' value='0'>" & _
+    "<input type='submit' value='OK' id='OKButton' " &_
+    "onclick='document.all.OK.value=1'></p>"
+
+  Set style = ie.document.CreateStyleSheet
+  style.AddRule "p.msg", "font-family:times new roman;font-weight:bold;"
+  style.AddRule "p.ctrl", "text-align:rightf;"
+
+  ie.Visible = True
+
+  On Error Resume Next
+  Do While ie.Document.all.OK.value = 0 
+    WScript.Sleep 200
+  Loop
+  ie.Quit
+End Sub
+
 Dim currentvalue, Debug_
 Debug_ = False
 Debug_writeLine=False
@@ -32,22 +72,36 @@ If (WScript.Arguments.Count > 0) Then
 	If (WScript.Arguments.Count > 4) Then
 		iniValue      = WScript.Arguments(4)
 	End If
-	If (WScript.Arguments.Count > 5) Then
-		EncryptionKey = WScript.Arguments(5)
-	End If
+  If (WScript.Arguments.Count > 5) Then
+    newarg       = WScript.Arguments(5)
+  End If
 	If Debug_ Then
 		WScript.StdOut.Write "CaseOperation:" &_
 		 CaseOperation & vbNewLine &_
 		 "iniFilePath:" & iniFilePath & vbNewLine &_
 		 "iniSection:" & iniSection & vbNewLine &_
 		 "iniKey:" & iniKey  & vbNewLine &_
-		 "iniValue:" & iniValue
-		 "EncryptionKey:" & EncryptionKey
+		 "iniValue:" & iniValue &_
+		 "newarg:" & newarg
 	 End If
 	'WScript.StdOut.WriteLine CaseOperation
    Select Case CStr(CaseOperation)
       Case "-r"
-      	WScript.StdOut.WriteLine iniKey & "=" & (ReadIni(iniFilePath,iniSection,iniKey))
+        dim sout, tout
+      	sout = (ReadIni(iniFilePath,iniSection,iniKey))
+        tout = iniKey & "=" & sout
+        WScript.StdOut.WriteLine tout
+        Set wshShell = CreateObject( "WScript.Shell" )
+        Set wshSystemEnv = wshShell.Environment( "Process" )
+        temp = Cstr(wshSystemEnv("temp"))
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+        Set objFile = objFSO.CreateTextFile(temp & "\output.bat", True)
+        objFile.WriteLine "@ECHO OFF"
+        If not isEmpty(iniValue) Then
+          objFile.WriteLine "SET " & iniValue & "=" & sout
+        else
+          objFile.WriteLine "SET " & "__" & iniKey & "__" & "=" & sout
+        End If
       Case "-w"
 		If Debug_writeLine Then
 			WScript.StdOut.WriteLine "Checking..." & vbNewLine & iniFilePath & vbNewLine & iniSection & vbNewLine & iniKey
@@ -300,10 +354,10 @@ Function WriteSectionIni ( ini_file_Path, ini_Section )
 
     ' Returns:
     ' 0 Successfully updated
-    ' 411 Section already Exists
+    ' 1 Section already Exists
     
 	If (CInt(StrComp(ReadSectionIni( ini_file_Path, ini_Section),ini_Section,1)) = 0 ) Then
-		WriteSectionIni = 411
+		WriteSectionIni = 1
 	Else	    
 		Const ForReading   = 1
 	    Const ForWriting   = 2
@@ -368,56 +422,57 @@ Function WriteSectionIni ( ini_file_Path, ini_Section )
 End Function
 
 Function BuildUsage(str)
-Dim Usage
-If WScript.Arguments.Count() = 5 Then
-	If Not (StrComp(str,"",0) = 0) Then
-		Usage = "The argument " & str & " appears to have a problem." & vbNewLine
-	Else
-		Usage = "Error In: " & str & vbNewLine
-	End If
-Else
-	Usage = "Error: [" & WScript.Arguments.Count() & "] argument(s) were received." & vbNewLine
-End If
-Usage = Usage & vbNewLine
-Usage = Usage & "Description: " 
-Usage = Usage & "Readwriteini is utility that reads and writes to INI files." & vbNewLine & vbNewLine
-Usage = Usage & "Usage:" & vbTab & "Five arguments are required for all operations." & vbNewLine 
-Usage = Usage & vbTab & "readwriteini.vbs [File] [Section] [Key] [Value] [Operation(-r|-w|-rs|-ws)]" & vbNewLine & vbNewLine
-Usage = Usage & vbTab & "File" & vbTab & vbTab & "Location and name of the INI file." & vbNewLine
-Usage = Usage & vbTab & "Section" & vbTab & vbTab & "Section in the INI file. Note: you should not included brackets." & vbNewLine
-Usage = Usage & vbTab & "Key" & vbTab & vbTab & "Key in the INI file under the desired section." & vbNewLine
-Usage = Usage & vbTab & "Value" & vbTab & vbTab & "The value being passed to the Key." & vbNewLine	
-Usage = Usage & vbTab & vbTab & vbTab & "Note: this is only used when writing a value." & vbNewLine & vbNewLine
-Usage = Usage & vbTab & "Operation:" & vbNewLine
-Usage = Usage & vbTab & "-r" & vbTab & vbTab & "Reads the value found at the Section and Key passed in." & vbNewLine
-Usage = Usage & vbTab & "-w" & vbTab & vbTab & "Writes the value provided at the Section and Key passed" & vbNewLine
-Usage = Usage & vbTab & vbTab & vbTab & "in, if the section is missing it will attempt to create " & vbNewLine
-Usage = Usage & vbTab & vbTab & vbTab & "the section and Key." & vbNewLine 
-Usage = Usage & vbTab & "-rs" & vbTab & vbTab & "Returns the Section name if found in the INI." & vbNewLine
-Usage = Usage & vbTab & "-w" & vbTab & vbTab & "Writes the Section name provided." & vbNewLine & vbNewLine
-Usage = Usage & vbTab & "Returns:"& vbNewLine
-Usage = Usage & vbTab & "-r" & vbTab & vbTab & "value for key" & vbNewLine
-Usage = Usage & vbTab & "-w" & vbTab & vbTab & "" & vbNewLine
-Usage = Usage & vbTab & "-rs" & vbTab & vbTab & "section if it already exists" & vbNewLine
-Usage = Usage & vbTab & "-ws" & vbTab & vbTab & "0 on success and 411 if section already exists" & vbNewLine & vbNewLine
-Usage = Usage & vbTab & "Example of use:" & vbNewLine & vbNewLine
-Usage = Usage & vbTab & "# CScript //B -s y:\Scripts\readwriteini.vbs c:\[your].ini Section_2" & vbNewLine
-Usage = Usage & vbTab & vbTab & vbTab & vbTab & " SubSection_2_Key_1 '' -r" & vbNewLine	
-Usage = Usage & vbTab & "# CScript //B -s y:\Scripts\readwriteini.vbs c:\[your].ini Section_1" & vbNewLine
-Usage = Usage & vbTab & vbTab & vbTab & vbTab & "SubSection_1_Key_1 'MyNewValue' -w" & vbNewLine
-Usage = Usage & vbTab & "# CScript //B -s y:\Scripts\readwriteini.vbs c:\[your].ini Section_2" & vbNewLine	
-Usage = Usage & vbTab & vbTab & vbTab & vbTab & "'' '' -rs" & vbNewLine
-Usage = Usage & vbTab & "# CScript //B -s y:\Scripts\readwriteini.vbs c:\[your].ini Section_1" & vbNewLine
-Usage = Usage & vbTab & vbTab & vbTab & vbTab & "'' '' -ws" & vbNewLine & vbNewLine
-Usage = Usage & "# Example of ini file" & vbNewLine	
-Usage = Usage & "[Section_1]" & vbNewLine	
-Usage = Usage & "SubSection_1_Key_1=SomeValue" & vbNewLine	
-Usage = Usage & "SubSection_1_Key_2=SomeValue" & vbNewLine	
-Usage = Usage & "" & vbNewLine	
-Usage = Usage & "[Section_2]" & vbNewLine	
-Usage = Usage & "SubSection_2_Key_1=SomeValue" & vbNewLine	
-Usage = Usage & "SubSection_2_Key_2=SomeValue" & vbNewLine
-BuildUsage = Usage
+  Dim Usage
+  If WScript.Arguments.Count() = 5 Then
+    If Not (StrComp(str,"",0) = 0) Then
+      Usage = "The argument " & str & " appears to have a problem.                                       " & vbNewLine
+    Else
+      Usage = "Error In:                                                                                 " & str & vbNewLine
+    End If
+  Else
+    Usage = "Error: [" & WScript.Arguments.Count() & "] argument(s) were received.                       " & vbNewLine
+  End If
+  Usage = Usage & vbNewLine
+  Usage = Usage & "Description:                                                                          " & vbNewLine
+  Usage = Usage & "Readwriteini is utility that reads and writes to INI files.                           " & vbNewLine & vbNewLine
+  Usage = Usage & "Usage:" & vbTab & "Five arguments are required for all operations.                    " & vbNewLine 
+  Usage = Usage & " readwriteini.vbs [Operation] [File] [Section] [Key] [Value]                          " & vbNewLine & vbNewLine
+  Usage = Usage & " Operation[-r|-w|-rs|-ws) File Section Key Value                                      " & vbNewLine
+  Usage = Usage & "  File" & vbTab & "Location and name of the INI file.                                 " & vbNewLine
+  Usage = Usage & "  Section" & vbTab & "Section in the INI file. Note: you should not included brackets." & vbNewLine
+  Usage = Usage & "  Key  " & vbTab & "Key in the INI file under the desired section.                      " & vbNewLine
+  Usage = Usage & "  Value" & vbTab & "The value being passed to the Key.                                " & vbNewLine	
+  Usage = Usage & "       " & vbTab & "Note: this is only used when writing a value.                     " & vbNewLine & vbNewLine
+  Usage = Usage & "  Operation: Definition:                                                              " & vbNewLine
+  Usage = Usage & "  -r " & vbTab & "Reads the value found at the Section and Key passed in.             " & vbNewLine
+  Usage = Usage & "  -w " & vbTab & "Writes the value provided at the Section and Key passed.            " & vbNewLine
+  Usage = Usage & "     " & vbTab & " in, if the section is missing it will attempt to create            " & vbNewLine
+  Usage = Usage & "     " & vbTab & " the section and Key.                                               " & vbNewLine 
+  Usage = Usage & "  -rs" & vbTab & "Returns the Section name if found in the INI.                       " & vbNewLine
+  Usage = Usage & "  -ws" & vbTab & "Writes the Section name provided.                                   " & vbNewLine & vbNewLine
+  Usage = Usage & "  Operation:                                                                          " & vbNewLine
+  Usage = Usage & "    StdErr: StdOut:      Description:                                                 " & vbNewLine
+  Usage = Usage & "  -r  0     Key=Value    Only returns the search key and value found.                 " & vbNewLine
+  Usage = Usage & "      1                  An error occured.                                            " & vbNewLine
+  Usage = Usage & "                         If a key and value is passed in on read you can call         " & vbNewLine
+  Usage = Usage & "                          %temp%\output.bat. This will set an environment variable to " & vbNewLine
+  Usage = Usage & "                          the name passed.                                            " & vbNewLine
+  Usage = Usage & "  -w  0                  Does not return anything.                                    " & vbNewLine
+  Usage = Usage & "      1                  An error occured.                                            " & vbNewLine
+  Usage = Usage & "  -rs 0     Key=Value    Returns [Section|Key|Value] if found.                        " & vbNewLine
+  Usage = Usage & "      1                  Key was not found.                                           " & vbNewLine
+  Usage = Usage & "  -ws 0                  Exists and replaced [Section|Key|Value]                      " & vbNewLine
+  Usage = Usage & "      1                  Created new [Section|Key|Value]                              " & vbNewLine & vbNewLine
+  Usage = Usage & " Example of use:                                                                      " & vbNewLine
+  Usage = Usage & " Use CScript.exe instead of Wscript.exe to avoid messageboxes.                        " & vbNewLine
+  Usage = Usage & "  CScript.exe //B -s readwriteini.vbs -r c:\filename.ini Section Key                  " & vbNewLine	
+  Usage = Usage & "  CScript.exe //B -s readwriteini.vbs -w c:\filename.ini Section Key ""Value""        " & vbNewLine
+  Usage = Usage & "  CScript.exe //B -s readwriteini.vbs -rs c:\filename.ini Section                     " & vbNewLine 
+  Usage = Usage & "  CScript.exe //B -s readwriteini.vbs -ws c:\filename.ini Section                     " & vbNewLine & vbNewLine
+  Usage = Usage & " Example Output:                                                                      " & vbNewLine	
+  Usage = Usage & "  [Section]                                                                           " & vbNewLine	
+  Usage = Usage & "  Key=Value                                                                           " & vbNewLine
+  BuildUsage = Usage
 End Function
 
 ' Password Encryption / Decryption Section:

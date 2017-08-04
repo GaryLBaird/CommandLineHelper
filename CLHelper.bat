@@ -680,6 +680,60 @@ gem install rest-client
 CD /D "%OKFINE%"
 GOTO:EOF
 
+:--Install_Ruby_Test
+CALL:InstallVersionsList Ruby
+CALL:InstallVersionList "%___VER___%"
+CALL:InstallVersionFileList Ruby
+GOTO:EOF
+
+:InstallVersionList
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET _VER_=%~1
+SET _VER_=!_VER_:(=L_!
+SET _VER_=!_VER_:)=_R!
+SET _VER_=!_VER_: =S_!
+ECHO @ECHO OFF>%TEMP%\installmenu.bat
+SET COUNT=0
+ECHO ECHO Please choose the corrispoinding number for the>>%TEMP%\installmenu.bat
+ECHO ECHO  version you want to install.>>%TEMP%\installmenu.bat
+FOR /D %%A IN (!_VER_!) DO (
+  SET F=%%A
+  SET F=!F:L_=^(!
+  SET F=!F:_R=^)!
+  SET F=!F:S_= !
+  SET ITEM_!COUNT!=!F!>>%TEMP%\installmenu.bat
+  ECHO ECHO !COUNT! = !F!>>%TEMP%\installmenu.bat
+  SET /A COUNT=!COUNT! +1
+)
+ECHO SET /P __VERSION__=#>>%TEMP%\installmenu.bat
+CALL %TEMP%\installmenu.bat
+CALL:InstallVersionLookup ITEM_%__VERSION__%
+GOTO :InstallVersionListDone
+:InstallVersionLookup
+SET InstallVersion=!%~1!
+ECHO You have chosen to install: %InstallVersion%
+:InstallVersionListDone
+ENDLOCAL && SET InstallVersion=%InstallVersion%
+EXIT /B
+GOTO:EOF
+
+:InstallVersionsList
+CALL:--READINI ".\scripts\installs\configuration.ini" "%~1" "versions" "___VER___"
+GOTO:EOF
+
+:InstallVersionFileList
+CALL:--READINI ".\scripts\installs\%~1.ini" "%InstallVersion%" "installs" "__installs__"
+CALL %temp%\output.bat
+ECHO __installs__=%__installs__%
+FOR /D %%A IN (%__installs__%) DO (
+  CALL %READ_INI_VALUE% "%_CLHelperDir_%\installs\%_INSTALL_VERSION_%.ini" "%InstallVersion%" "%%A" "__%%A__"
+  CALL %temp%\output.bat
+  CALL %READ_INI_VALUE% "%_CLHelperDir_%\installs\%_INSTALL_VERSION_%.ini" "%InstallVersion%" "__command_%%A__"
+  CALL %temp%\output.bat
+  ECHO %%A
+)
+GOTO:EOF
+
 :GetMercurialVersion
 SET MercurialMajor=
 SET MercurialMinor= 
