@@ -31,10 +31,15 @@ Sub CustomMsgBox(msg)
 
   While ie.ReadyState <> 4 : WScript.Sleep 100 : Wend
 
-  ie.ToolBar   = False
-  ie.StatusBar = True
-  ie.Width     = 1200
-  ie.Height    = 1000
+  ie.ToolBar    = False
+  ie.StatusBar  = True
+  ie.Width      = 800
+  ie.Height     = 850
+  ie.MenuBar    = False
+  ie.AddressBar = False
+  ie.Resizable  = True
+  ie.Visible    = True
+  ie.StatusText = "Please correct any errors and try again."
 
   ie.document.body.innerHTML = "<p class='msg'><pre>" & msg & "</pre></p>" & _
     "<p class='ctrl'><input type='hidden' id='OK' name='OK' value='0'>" & _
@@ -44,8 +49,6 @@ Sub CustomMsgBox(msg)
   Set style = ie.document.CreateStyleSheet
   style.AddRule "p.msg", "font-family:times new roman;font-weight:bold;"
   style.AddRule "p.ctrl", "text-align:rightf;"
-
-  ie.Visible = True
 
   On Error Resume Next
   Do While ie.Document.all.OK.value = 0 

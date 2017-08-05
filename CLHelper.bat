@@ -681,6 +681,7 @@ CD /D "%OKFINE%"
 GOTO:EOF
 
 :--Install_Ruby_Test
+SET GUI=%~1
 CALL:InstallVersionsList Ruby
 CALL:InstallVersionList "%___VER___%"
 CALL:InstallVersionFileList Ruby
@@ -701,12 +702,15 @@ FOR /D %%A IN (!_VER_!) DO (
   SET F=!F:L_=^(!
   SET F=!F:_R=^)!
   SET F=!F:S_= !
+  SET LIST=!LIST!"!F!" 
   SET ITEM_!COUNT!=!F!>>%TEMP%\installmenu.bat
   ECHO ECHO !COUNT! = !F!>>%TEMP%\installmenu.bat
   SET /A COUNT=!COUNT! +1
 )
 ECHO SET /P __VERSION__=#>>%TEMP%\installmenu.bat
-CALL %TEMP%\installmenu.bat
+IF DEFINED GUI CSCRIPT SET __VERSION__=%ERRORLEVEL%
+IF DEFINED GUI CSCRIPT c:\dev\IEButtonsDemo.vbs !LIST!
+IF NOT DEFINED GUI CALL %TEMP%\installmenu.bat
 CALL:InstallVersionLookup ITEM_%__VERSION__%
 GOTO :InstallVersionListDone
 :InstallVersionLookup
