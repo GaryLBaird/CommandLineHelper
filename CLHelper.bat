@@ -680,6 +680,24 @@ gem install rest-client
 CD /D "%OKFINE%"
 GOTO:EOF
 
+:: Yes BATCH installs are extremely ugly and totally suck. This is just to prove a point.
+:: How it works?
+:: List all the potential installs in a comma delimited list in the configuration.ini file 
+::  under the section [Default] and key "default=". In this case we are just going to install
+::  either python or ruby. So of python is chosen we will look in the python.ini and if ruby
+::  the ruby.ini for install data. Where to download, how many installs and in what order to
+::  process each installer. i.e. in ruby you might need to install ruby and the developer options
+::  or some gems or something.  
+:: 1. Get the comma delimited list of installer versions list from the configuration.ini
+::  Find section: [Ruby]
+::  Find the key versions=a,b,c
+:: 2. List the versions as options either in a command parameter or as a GUI option.
+:: If using the gui option open IE and display the optional versions as a clickable option.
+:: If usint the non gui option display the list of optional versions and have the user input
+::  a number next to the version desired.
+:: 3. Find the download(s) in the ruby.ini.
+:: 4. Download each file and execute the silent install for each file in a specific directory.
+
 :--Install_Ruby_Test
 SET GUI=%~1
 CALL:InstallVersionsList Ruby
@@ -688,36 +706,58 @@ CALL:InstallVersionFileList Ruby
 GOTO:EOF
 
 :InstallVersionList
+IF EXIST "%TEMP%\install.bat" DEL /Q /F "%TEMP%\install.bat"
+IF EXIST "%TEMP%\install.bat" DEL /Q /F "%TEMP%\installmenu.bat"
 SETLOCAL ENABLEDELAYEDEXPANSION
+REM Set a varaible with the unwanted parans.
 SET _VER_=%~1
+REM Remove the left paran and replace with some text you and search on and replace later.
+REM  Using "L_"(left_paran) below as my easily searchable text replacement. 
 SET _VER_=!_VER_:(=L_!
+REM Remove the right paran and replace with some text you and search on and replace later.
+REM  Using "_R"(right_paran) below as my easily searchable text replacement. 
 SET _VER_=!_VER_:)=_R!
+REM Remove the extra spaces but preserve their placement by replacing them with some text 
+REM  you and search on and replace later.
+REM  Using "S_"(Space) below as my easily searchable text replacement.
 SET _VER_=!_VER_: =S_!
 ECHO @ECHO OFF>%TEMP%\installmenu.bat
 SET COUNT=0
 ECHO ECHO Please choose the corrispoinding number for the>>%TEMP%\installmenu.bat
 ECHO ECHO  version you want to install.>>%TEMP%\installmenu.bat
 FOR /D %%A IN (!_VER_!) DO (
+  REM Now that we have finished splitting the comma delimited text we need to deal with 
+  REM  putting the parans and spaces back into our strings in reverse order.
+  REM  Set a temporary variable.  
   SET F=%%A
+  REM Replace "L_" with left paran.
   SET F=!F:L_=^(!
+  REM Replace "_R" with right paran.
   SET F=!F:_R=^)!
+  REM Replace "S_" with a space.
   SET F=!F:S_= !
   SET LIST=!LIST!"!F!" 
-  SET ITEM_!COUNT!=!F!>>%TEMP%\installmenu.bat
+  ECHO SET ITEM_!COUNT!=!F!>>%TEMP%\installmenu.bat
   ECHO ECHO !COUNT! = !F!>>%TEMP%\installmenu.bat
+  ECHO SET RESULT_!COUNT! = !F!>>%TEMP%\installmenu.bat
+  SET "RESULT_!COUNT!=!F!"
   SET /A COUNT=!COUNT! +1
 )
+REM ECHO list=!LIST!
 ECHO SET /P __VERSION__=#>>%TEMP%\installmenu.bat
-IF DEFINED GUI CSCRIPT SET __VERSION__=%ERRORLEVEL%
-IF DEFINED GUI CSCRIPT c:\dev\IEButtonsDemo.vbs !LIST!
+IF DEFINED GUI SET __VERSION__=%ERRORLEVEL%
+IF DEFINED GUI cscript.exe //Nologo %CLHVBS%\IEButtonsDemo.vbs !LIST! >%TEMP%\install.bat
+IF DEFINED GUI CALL %TEMP%\install.bat
 IF NOT DEFINED GUI CALL %TEMP%\installmenu.bat
-CALL:InstallVersionLookup ITEM_%__VERSION__%
+IF NOT DEFINED GUI CALL:InstallVersionLookup ITEM_%__VERSION__%
 GOTO :InstallVersionListDone
 :InstallVersionLookup
 SET InstallVersion=!%~1!
-ECHO You have chosen to install: %InstallVersion%
 :InstallVersionListDone
 ENDLOCAL && SET InstallVersion=%InstallVersion%
+ECHO You have chosen to install: %InstallVersion%
+IF EXIST "%TEMP%\install.bat" DEL /Q /F "%TEMP%\install.bat"
+IF EXIST "%TEMP%\install.bat" DEL /Q /F "%TEMP%\installmenu.bat"
 EXIT /B
 GOTO:EOF
 

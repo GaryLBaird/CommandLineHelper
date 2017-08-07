@@ -2,7 +2,7 @@ Function IEButtons(ArrayToProcess())
   Dim buttons
   
   For i = 0 To ArrayToProcess.count()-1
-    buttons = buttons & "<input type=""submit"" value=""" & ArrayToProcess(i)& """ onClick=""VBScript:OK.value=" & i+1 & """></p>"
+    buttons = buttons & "<input type=""submit"" name=""" & ArrayToProcess(i) & """ value=""" & ArrayToProcess(i) & """ onClick=""VBScript:OK.value=" & i+1 & """,""OK.name=" & ArrayToProcess(i) & """ id=""" & i+1 & """></p>"
   Next
     ' This function uses Internet Explorer to create a dialog.
     Dim objIE, sTitle, iErrorNum
@@ -34,6 +34,7 @@ Function IEButtons(ArrayToProcess())
     ' Insert the HTML code to prompt for user input
     objIE.Document.body.innerHTML = "<div align=""center"">" & vbcrlf _
                                   & "<p><input type=""hidden"" id=""OK"" name=""OK"" value=""0"">" _
+                                  & "<p><input type=""hidden"" id=""Name"" name=""Name"" value=""Name"">" _
                                   & buttons _
                                   & "<p><input type=""hidden"" id=""Cancel"" name=""Cancel"" value=""0"">" _
                                   & "<input type=""submit"" id=""CancelButton"" value=""Cancel"" onClick=""VBScript:Cancel.value=-1""></p></div>"
@@ -64,7 +65,10 @@ Function IEButtons(ArrayToProcess())
     objIE.Visible = False
 
     ' Read the user input from the dialog window
-    IEButtons = objIE.Document.all.OK.value
+'    WScript.Echo buttons
+'    WScript.Echo objIE.Document.all.OK.value
+'    WScript.Echo objIE.Document.activeElement.defaultValue
+    IEButtons = objIE.Document.all.OK.value & "," & objIE.Document.activeElement.defaultValue
     
     ' Close and release the object
     objIE.Quit
@@ -75,5 +79,7 @@ Dim MyArray()
 Set objArgs = Wscript.Arguments
 
 res = IEButtons(objArgs)
-'WScript.Echo res
-WScript.Quit(res)
+x = Split(res, ",")
+WScript.Echo "@ECHO OFF"
+WScript.Echo "Set " & """InstallVersion=" & x(1) & """"
+WScript.Quit(x(0))
