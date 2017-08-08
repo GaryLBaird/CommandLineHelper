@@ -72,8 +72,8 @@ REM Small Text Formatter Code Begin
         IF DEFINED RTFM CALL:FORMATOUT 30,50,"Message repeated %RTFMCount% times.","%RTFM%"
         IF DEFINED RTFM CALL:FORMATOUT 30,50,"How?"," Right-click on the command shortcut and select 'Run as administrator'."
         CALL:FORMATOUT 30,50,"Failed:","Please start a new command window with administrative permissions."
-        SET /P _USER_=Press Enter Continue:
-        SET ARGS=GoToDone
+        IF /I NOT "%ARGS%"=="--Help" SET /P _USER_=Press Enter Continue:
+        IF /I NOT "%ARGS%"=="--Help" SET ARGS=GoToDone
         SET RTFM=Did you read the message below?
         IF Not DEFINED RTFMCount SET RTFMCount=0
         SET /A RTFMCount=%RTFMCount% +1
@@ -200,9 +200,8 @@ IF EXIST "C:\dev\sandbox\CommandLineHelper\scripts\cmd\libs" (
 IF EXIST "%CD%\scripts\cmd\libs" (
   SET CLHLibs=%CD%\scripts\cmd\libs
 )
-IF EXIST "%CommandLineHelper%\Scripts\CLHelper.bat" (
-  SET CLH=%CommandLineHelper%\Scripts\CLHelper.bat
-)
+SET CLH=%CommandLineHelper%\Scripts\CLHelper.bat
+
 GOTO:EOF
 
 :Settings

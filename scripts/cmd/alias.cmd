@@ -88,6 +88,8 @@ DOSKEY puttygen=%CLHelper% --PuTTy puttygen $*
 DOSKEY download=%CLHelper% --download $*
 DOSKEY ip=wmic nicconfig where IPEnabled=True get ipaddress /format:list
 DOSKEY simpleDownload=%CLHelper% --SimpleDownload $*
+DOSKEY iexplore="c:\Program Files\Internet Explorer\iexplore.exe" $*
+DOSKEY ie="c:\Program Files\Internet Explorer\iexplore.exe" $*
 :: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
 DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_Linux_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory

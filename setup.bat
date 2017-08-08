@@ -127,7 +127,7 @@ REM :: Non-protected Internal function.
 :-Copy
 SET OVERWRITEALL=%~3
 SETLOCAL ENABLEDELAYEDEXPANSION
-IF DEFINED OVERWRITEALL __OVERWRITE__=Y
+IF DEFINED OVERWRITEALL SET __OVERWRITE__=Y
   CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
   SET _File_=%~1
   SET _LOCATION_=%~2
@@ -199,23 +199,23 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=Where to install? Default is [c:\CommandLineHelper].
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!" %__Prompt__%
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\cmd" %__Prompt__%
-  CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!" %__Prompt__%
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd" "!_CLHScripts_!" %__Prompt__%
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd" "!_CLHScripts_!\cmd" %__Prompt__%
+  CALL:-Copy "%SELF_1%CLHelper.bat" "!_CLHScripts_!" %__Prompt__%
   REM CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
   REM CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
   REM CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
   REM CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
-  CALL:XCopy "%SELF_1%scripts\PowerShell","!CommandLineHelper!\scripts\PowerShell"%__Prompt__%
-  CALL:XCopy "%SELF_1%scripts\vbs","!CommandLineHelper!\scripts\vbs" %__Prompt__%
-  CALL:XCopy "%SELF_1%bin\curl","!CommandLineHelper!\bin\curl" %__Prompt__%
-  CALL:XCopy "%SELF_1%scripts\cmd","!CommandLineHelper!\scripts\cmd" %__Prompt__%
-  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH" %__Prompt__%
-  CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby" %__Prompt__%
-  CALL:XCopy "%SELF_1%bin\PuTTY","!CommandLineHelper!\bin\PuTTY" %__Prompt__%
-  CALL:XCopy "%SELF_1%scripts\installs","!CommandLineHelper!\scripts\installs" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\PowerShell" "!CommandLineHelper!\scripts\PowerShell" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\vbs" "!CommandLineHelper!\scripts\vbs" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\curl" "!CommandLineHelper!\bin\curl" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\cmd" "!CommandLineHelper!\scripts\cmd" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\OpenSSH" "!CommandLineHelper!\bin\OpenSSH" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\ruby" "!_CLHScripts_!\ruby" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\PuTTY" "!CommandLineHelper!\bin\PuTTY" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\installs" "!CommandLineHelper!\scripts\installs" %__Prompt__%
   WHERE Curl.exe >nul
   IF "%ERRORLEVEL%"=="1" (
     SETX PATH "%PATH%;!CommandLineHelper!\bin\curl" /M

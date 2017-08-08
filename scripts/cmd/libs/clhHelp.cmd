@@ -54,6 +54,8 @@ CALL:FORMATOUT 20,20," ..  Parameters: ","[file.ini] [section] [key] [Environmen
 CALL:FORMATOUT 20,20," ..  Usage: "," %~1 --ReadINI 'FileName.ini' 'Section' 'Key' 'EnvVar'"
 CALL:FORMATOUT 20,20," ..  Results: "," If the key was found, the value of the Key will be"
 CALL:FORMATOUT 20,20," ..  "," the value of EnvVar."
+REM CALL:FORMATOUT 20,20," ..  Output:"," %TEMP%\output.bat"
+REM CALL:FORMATOUT 20,20," ..  "," Contains a SET __Key__=Value"
 CALL:FORMATOUT 20,20," ..  Section: "," [section]"
 CALL:FORMATOUT 20,20," ..  Key:Value: "," key=value"
 CALL:FORMATOUT 20,20," --ReadRegValue","Another way to read the Windows registry."
@@ -109,4 +111,3 @@ GOTO:EOF
 
 
 :clhHelp-Done
-pause
