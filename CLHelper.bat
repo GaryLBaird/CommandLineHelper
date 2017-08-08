@@ -179,9 +179,9 @@ GOTO:EOF
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
 ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%" && SET "_CLHelperDir_=%CommandLineHelper%\Scripts"
-SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
-ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
+REM SETLOCAL ENABLEDELAYEDEXPANSION
+  REM CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
+REM ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
@@ -200,7 +200,9 @@ IF EXIST "C:\dev\sandbox\CommandLineHelper\scripts\cmd\libs" (
 IF EXIST "%CD%\scripts\cmd\libs" (
   SET CLHLibs=%CD%\scripts\cmd\libs
 )
-
+IF EXIST "%CommandLineHelper%\Scripts\CLHelper.bat" (
+  SET CLH=%CommandLineHelper%\Scripts\CLHelper.bat
+)
 GOTO:EOF
 
 :Settings
@@ -409,6 +411,7 @@ ENDLOCAL
 GOTO:EOF
 
 :--SetupUserIniSettings
+SET __KeepWriteSetting__=%~1
 SET UserSettingsVARLIST=FirstName,LastName,MyDomainOrWorkgroup,My_Dev_Env_Dir,MY_Scripts_Dir,MyUserName,MyPassword
 FOR /D %%A IN (%UserSettingsVARLIST%) DO (
   SET DEFAULT=
@@ -426,6 +429,7 @@ FOR /D %%A IN (LinuxServers,WindowsServers,TargetServers) DO (
   CALL:FORMATOUT 30,50,"%%A:","servername,servername2"
   CALL:WriteSetting "RemoteConnections","%%A"
 )
+SET __KeepWriteSetting__=
 GOTO :Done
 GOTO:EOF
 
@@ -435,13 +439,14 @@ SET "WriteSection=%~1"
 SET "WriteKey=%~2"
 SET "DefaultValue=%~3"
 SET "_KeepCurrent_="
+IF /I "!__KeepWriteSetting__!" GEQ "Y" SET _KeepCurrent_=Y
 SET "_TEMPNAME_="
 CALL:ReadINI "%_MySettings_%" "!WriteSection!" "!WriteKey!" "_TEMPNAME_"
 IF /I NOT "!_TEMPNAME_!"=="" (
-  CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
-  SET /P _KeepCurrent_=
+  IF NOT "!_KeepCurrent_!"=="Y" CALL:FORMATOUT 30,50,"Keep Current Settings Y/N:","!_TEMPNAME_!"
+  IF NOT "!_KeepCurrent_!"=="Y" SET /P _KeepCurrent_=
 )
-IF /I "!_KeepCurrent_!" GEQ "N" GOTO :EndWriteSettings
+IF /I "!_KeepCurrent_!" GEQ "Y" GOTO :EndWriteSettings
 :StartWriteSettings
 CALL:FORMATOUT 50,30,"Please Enter your !WriteKey!:",""
 IF DEFINED DefaultValue CALL:FORMATOUT 50,30,"Recommended:","!DefaultValue!"

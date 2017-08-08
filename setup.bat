@@ -118,21 +118,23 @@ REM :: Support for external function.
 
 :--Copy
 SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:-Copy "%~1","%~2"
+  CALL:-Copy "%~1" "%~2" %~3
 ENDLOCAL
 GOTO:EOF
 
 REM :: Non-protected Internal function.
 
 :-Copy
+SET OVERWRITEALL=%~3
 SETLOCAL ENABLEDELAYEDEXPANSION
+IF DEFINED OVERWRITEALL __OVERWRITE__=Y
   CALL:FORMATOUT 30,50,"Running:%~0","%~nx1"
   SET _File_=%~1
   SET _LOCATION_=%~2
   SET _EXISTS_=%~nx1
   IF EXIST "!_LOCATION_!\!_EXISTS_!" (
-    ECHO Would you like to overwrite !_File_! Y/N?
-    SET /P __OVERWRITE__=
+    IF NOT DEFINED OVERWRITEALL ECHO Would you like to overwrite !_File_! Y/N?
+    IF NOT DEFINED OVERWRITEALL SET /P __OVERWRITE__=
   )
   IF NOT EXIST "!_LOCATION_!" (
     CALL:FORMATOUT 30,50,"Make Directory:","!_LOCATION_!"
@@ -161,13 +163,15 @@ ENDLOCAL
 GOTO:EOF
 
 :XCopy
+SET OVERWRITEALL=%~3
 SETLOCAL ENABLEDELAYEDEXPANSION
+IF DEFINED OVERWRITEALL SET __OVERWRITE__ =Y
   CALL:FORMATOUT 50,50,"Running:%~0","%~1"
   SET _SOURCE_=%~1
   SET _DESTINATION_=%~2
   IF EXIST "%~1" (
-    ECHO Would you like to overwrite !_File_! Y/N?
-    SET /P __OVERWRITE__=
+    IF NOT DEFINED OVERWRITEALL ECHO Would you like to overwrite !_File_! Y/N?
+    IF NOT DEFINED OVERWRITEALL SET /P __OVERWRITE__=
   )
   IF /I NOT "!__OVERWRITE__!"=="N" ( 
     C:\Windows\System32\xcopy.exe /E /V /I /Y "!_SOURCE_!" "!_DESTINATION_!"
@@ -184,6 +188,8 @@ ENDLOCAL
 GOTO:EOF
 
 :--Install
+SET __Prompt__=%~1
+SET __KeepWriteSetting__=%~1
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
   SET CLH_INSTALLDIR=%CommandLineHelper%
@@ -193,23 +199,23 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=Where to install? Default is [c:\CommandLineHelper].
   IF NOT DEFINED CommandLineHelper SET /P CommandLineHelper=c:\CommandLineHelper
   SET CLH_INSTALLDIR=CommandLineHelper
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
-  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\cmd"
-  CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!"
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!" %__Prompt__%
+  CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!\cmd" %__Prompt__%
+  CALL:-Copy "%SELF_1%CLHelper.bat","!_CLHScripts_!" %__Prompt__%
   REM CALL:-Copy "%SELF_1%scripts\cmd\alias.cmd","!_CLHScripts_!"
   REM CALL:-Copy "%SELF_1%scripts\vbs\readwriteini.vbs","!_CLHScripts_!\vbs"
   REM CALL:-Copy "%SELF_1%scripts\vbs\txtComp.vbs","!_CLHScripts_!\vbs"
   REM CALL:-Copy "%SELF_1%scripts\powershell\downloadfile.ps1","!_CLHScripts_!\PowerShell"
   CALL:FORMATOUT 50,50,"Setting Install directory to:","!CommandLineHelper!"
   CALL:--RegAdd "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","REG_SZ","!CommandLineHelper!","/f"
-  CALL:XCopy "%SELF_1%scripts\PowerShell","!CommandLineHelper!\scripts\PowerShell"
-  CALL:XCopy "%SELF_1%scripts\vbs","!CommandLineHelper!\scripts\vbs"
-  CALL:XCopy "%SELF_1%bin\curl","!CommandLineHelper!\bin\curl"
-  CALL:XCopy "%SELF_1%scripts\cmd","!CommandLineHelper!\scripts\cmd"
-  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH"
-  CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby"
-  CALL:XCopy "%SELF_1%bin\PuTTY","!CommandLineHelper!\bin\PuTTY"
-  CALL:XCopy "%SELF_1%scripts\installs","!CommandLineHelper!\scripts\installs"
+  CALL:XCopy "%SELF_1%scripts\PowerShell","!CommandLineHelper!\scripts\PowerShell"%__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\vbs","!CommandLineHelper!\scripts\vbs" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\curl","!CommandLineHelper!\bin\curl" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\cmd","!CommandLineHelper!\scripts\cmd" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\OpenSSH","!CommandLineHelper!\bin\OpenSSH" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\ruby","!_CLHScripts_!\ruby" %__Prompt__%
+  CALL:XCopy "%SELF_1%bin\PuTTY","!CommandLineHelper!\bin\PuTTY" %__Prompt__%
+  CALL:XCopy "%SELF_1%scripts\installs","!CommandLineHelper!\scripts\installs" %__Prompt__%
   WHERE Curl.exe >nul
   IF "%ERRORLEVEL%"=="1" (
     SETX PATH "%PATH%;!CommandLineHelper!\bin\curl" /M
@@ -220,16 +226,22 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   )
 ENDLOCAL && SET "AliasFile=%AliasFile%" && SET "CommandLineHelper=%CommandLineHelper%"
 CALL %CommandLineHelper%\scripts\cmd\alias.cmd
-CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings
+IF NOT DEFINED __KeepWriteSetting__ SET /P SET __KeepWriteSetting__=Keep your current settings? Y for yes or enter to continue:
+IF /I "%__KeepWriteSetting__%"=="Y" (
+  SET __KeepWriteSetting__=Y
+) ELSE (
+  SET __KeepWriteSetting__=
+)
+CALL %_CLHScripts_%\clhelper.bat --SetupUserIniSettings %__KeepWriteSetting__%
 GOTO:EOF
 
 :IsInstalled
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","CommandLineHelper","CommandLineHelper",%~1
 ENDLOCAL && SET "IsInstalled=%CommandLineHelper%" && SET "CommandLineHelper=%CommandLineHelper%" && SET "_CLHScripts_=%CommandLineHelper%\Scripts"
-SETLOCAL ENABLEDELAYEDEXPANSION
-  CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
-ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
+REM SETLOCAL ENABLEDELAYEDEXPANSION
+  REM CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AlternateAlias","AlternateAlias",%~1
+REM ENDLOCAL && SET "AlternateAlias=%AlternateAlias%"
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:--ReadReg "HKCU\Software\Microsoft\Command Processor","AutoRun","AutoRun",%~1
 ENDLOCAL && SET "AutoRunAlias=%AutoRun%"
