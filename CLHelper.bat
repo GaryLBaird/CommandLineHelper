@@ -1027,6 +1027,15 @@ SETLOCAL ENABLEDELAYEDEXPANSION
   git push
 GOTO:EOF
 
+:--HGCommit
+SETLOCAL ENABLEDELAYEDEXPANSION
+  hp pull -u
+  hg add
+  SET /P __MESSAGE__=Enter a message here.
+  hg commit -m "%__MESSAGE__%"
+  hg push
+GOTO:EOF
+
 :--Copy
 SETLOCAL ENABLEDELAYEDEXPANSION
   CALL:-Copy "%~1","%~2"

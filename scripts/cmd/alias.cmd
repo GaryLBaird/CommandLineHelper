@@ -71,6 +71,7 @@ SET np="C:\Program Files\Notepad++\notepad++.exe"
 DOSKEY CLHelper=%CLHelper% $*
 DOSKEY GitForce=%CLHelper% --GitForce $*
 DOSKEY GitCommit=%CLHelper% --GitCommit $*
+DOSKEY HGCommit=%CLHelper% --HGCommit $*
 DOSKEY explorer=%CLHelper% --WindowsExplorer $*
 DOSKEY CLCopy=%CLHelper% --Copy $*
 DOSKEY rc=%CLHelper% --RandomColor $*
@@ -90,6 +91,9 @@ DOSKEY ip=wmic nicconfig where IPEnabled=True get ipaddress /format:list
 DOSKEY simpleDownload=%CLHelper% --SimpleDownload $*
 DOSKEY iexplore="c:\Program Files\Internet Explorer\iexplore.exe" $*
 DOSKEY ie="c:\Program Files\Internet Explorer\iexplore.exe" $*
+DOSKEY firefox="c:\Program Files (x86)\Mozilla Firefox\firefox.exe" $*
+DOSKEY KILL=TASKKILL /IM $*
+DOSKEY clh-install=setup.bat --Install Y
 :: This is a good candidate for your override alias i.e. c:\dev\scripts\custom_alias.cmd
 DOSKEY sshi=%_CLHBIN_%\OpenSSH\bin\ssh.exe %_Linux_USERNAME_%@$1 -I %USERPROFILE%\.ssh\id_rsa
 ::Custom Alias Directory
