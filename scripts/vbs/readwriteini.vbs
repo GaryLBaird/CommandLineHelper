@@ -74,6 +74,7 @@ If (WScript.Arguments.Count > 0) Then
 	End If
 	If (WScript.Arguments.Count > 4) Then
 		iniValue      = WScript.Arguments(4)
+		iniValue      = Replace(iniValue,", ",",",1,-1)
 	End If
   If (WScript.Arguments.Count > 5) Then
     newarg       = WScript.Arguments(5)
@@ -169,6 +170,7 @@ Function ReadIni( ini_file_Path, ini_Section, ini_Key )
                         ' Check if item is found in the current line
                         If LCase( LCase(strLeftString) ) = LCase( LCase(strKey) ) Then
                             ReadIni = Trim( Mid( strLine, intEqualPos + 1 ) )
+                            ReadIni = Replace(ReadIni,", ",",",1,-1)
                             ' In case the item exists but value is blank
                             If ReadIni = "" Then
                                 ReadIni = " "
